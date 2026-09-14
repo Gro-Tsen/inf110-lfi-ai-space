@@ -66,7 +66,7 @@ Objectifs précis :
 
 En cas d'ambiguïté mathématique, stylistique ou éditoriale, ne décide
 pas silencieusement.  Signale le point à revoir dans une annotation
-claire, en utiilsant la commande \review{...}.
+claire, en utilisant la commande \review{...}.
 
 Chaque document final doit contenir une mention explicite indiquant
 qu'il s'agit d'un premier brouillon produit avec l'aide d'un modèle
