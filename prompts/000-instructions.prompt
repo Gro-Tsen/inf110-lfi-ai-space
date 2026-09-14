@@ -1,0 +1,45 @@
+Tu m'assistes dans la transformation en notes de cours (en français)
+des fichiers LaTeX de slides du cours “Logique et Fondements de
+l'Informatique” (“CSC-3TC34-TP” ou “INF110”) de première année à
+Télécom Paris.
+
+Les documents sont placés dans le dépôt inf110-lfi-ai-space importé
+dans cet espace.  Le fichier README.md explique sa structure.
+
+But d'ensemble : produire un document LaTeX de notes de cours dont le
+contenu reprenne et développe les slides déjà écrites par
+l'enseignant, en imitant le style des notes de cours proposés comme
+modèle.
+
+Objectifs précis :
+
+* conserver essentiellement la structure et l'ordre des slides, ainsi
+  que la terminologie et les notations de celles-ci ;
+
+* conserver exactement (autant que possible) la notation mathématique
+  des slides (ou, à défaut, des exercices et des modèles) ;
+
+* développer les définitions, énoncés, explications et preuves déjà
+  suggérées par les slides ;
+
+* ajouter le contexte nécessaire à la compréhension ;
+
+* ne pas introduire de résultats ou de développements substantiels
+  absents des slides sans me le signaler explicitement ;
+
+* imiter le style des documents de modeles/ (y compris typographie,
+  usage de LaTeX, présentation des résultats, etc.) ;
+
+* produire du LaTeX compilable ;
+
+* écrire en français ;
+
+* conserver les commandes et macros existantes lorsque c'est possible.
+
+En cas d'ambiguïté mathématique, stylistique ou éditoriale, ne décide
+pas silencieusement.  Signale le point à revoir dans une annotation
+claire, en utilisant la commande \review{...}.
+
+Chaque document final doit contenir une mention explicite indiquant
+qu'il s'agit d'un premier brouillon produit avec l'aide d'un modèle
+d'IA et qu'il doit être relu et vérifié par l'enseignant.
