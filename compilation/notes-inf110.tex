@@ -1,0 +1,100 @@
+%% This is a LaTeX document.  Hey, Emacs, -*- latex -*- , get it?
+\documentclass[12pt,a4paper]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage[shorthands=off,french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{newtxtext}
+% A tribute to the worthy AMS:
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+%
+\usepackage{mathrsfs}
+\usepackage{wasysym}
+\usepackage{url}
+\usepackage{mathpartir}
+\usepackage{flagderiv}
+%
+\usepackage{graphicx}
+%\usepackage{tikz}
+%\usetikzlibrary{arrows,automata,calc}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{hyperref}
+%
+\theoremstyle{definition}
+\newtheorem{comcnt}{Tout}[subsection]
+\newcommand\thingy{%
+\refstepcounter{comcnt}\medskip\noindent\textbf{\thecomcnt.} }
+\newcommand\exercice[1][Exercice]{%
+\refstepcounter{comcnt}\bigskip\noindent\textbf{#1~\thecomcnt.}\par\nobreak}
+\newtheorem{defn}[comcnt]{Définition}
+\newtheorem{prop}[comcnt]{Proposition}
+\newtheorem{lem}[comcnt]{Lemme}
+\newtheorem{thm}[comcnt]{Théorème}
+\newtheorem{cor}[comcnt]{Corollaire}
+\newtheorem{scho}[comcnt]{Scholie}
+\newtheorem{algo}[comcnt]{Algorithme}
+\renewcommand{\qedsymbol}{\smiley}
+%
+\newcommand{\review}[1]{\textcolor{red}{#1}}
+%
+\newcommand{\dbllangle}{\mathopen{\langle\!\langle}}
+\newcommand{\dblrangle}{\mathclose{\rangle\!\rangle}}
+\newcommand{\dottedlimp}{\mathbin{\dot\Rightarrow}}
+\newcommand{\dottedland}{\mathbin{\dot\land}}
+\newcommand{\dottedlor}{\mathbin{\dot\lor}}
+\newcommand{\dottedtop}{\mathord{\dot\top}}
+\newcommand{\dottedbot}{\mathord{\dot\bot}}
+\newcommand{\dottedneg}{\mathop{\dot\neg}}
+\newcommand{\id}{\operatorname{id}}
+\newcommand{\limp}{\Longrightarrow}
+\mathchardef\emdash="07C\relax
+%
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{2026}{...}
+%
+%
+\newcommand{\spaceout}{\hskip1emplus2emminus.5em}
+\newif\ifcorrige
+\corrigetrue
+\newenvironment{corrige}%
+{\ifcorrige\relax\else\setbox0=\vbox\bgroup\fi%
+\smallbreak\footnotesize\noindent{\underbar{\textit{Corrigé.}}\quad}}
+{{\hbox{}\nobreak\hfill\checkmark}%
+\ifcorrige\par\smallbreak\else\egroup\par\fi}
+%
+\newcommand{\defin}[2][]{\def\latexsucks{#1}\ifx\latexsucks\empty\index{#2}\else\index{\latexsucks}\fi\textbf{#2}}
+%
+%
+%
+\begin{document}
+\title{CSC-3C34-TP / INF110\\
+(Logique et Fondements de l'Informatique)
+\\\footnotesize Notes de cours provisoires}
+\author{David A. Madore\\
+{\footnotesize Télécom Paris}\\
+\texttt{david.madore@}(nom de l'école)\texttt{.fr}}
+\date{2023–2027}
+\maketitle
+{\footnotesize\center{\url{http://perso.enst.fr/madore/inf110/notes-inf110.pdf}}\par}
+{\tiny
+\immediate\write18{sh ./vc > vcline.tex}
+\begin{center}
+Git: \input{vcline.tex}
+\end{center}
+\immediate\write18{echo ' (stale)' >> vcline.tex}
+\par}
+
+\input{../output/notes-inf110-01-calc.tex}
+
+
+
+%
+%
+%
+\end{document}
