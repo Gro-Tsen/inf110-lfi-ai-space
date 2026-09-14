@@ -13,7 +13,7 @@ placés dans exercices/ seront à recopier verbatim, sauf modification
 strictement nécessaire pour permettre la compilation ou l'intégration
 au document d'ensemble.
 
-Le fichier `compilation/notes-inf110.tex` est celui sur lequel pdfLaTeX
+Le fichier `compilation/notes-inf110-ia.tex` est celui sur lequel pdfLaTeX
 sera appelé.  C'est lui qui définit les packages inclus et les macros
 disponibles.
 

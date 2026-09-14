@@ -52,7 +52,7 @@ Le ton est pédagogique, direct et parfois légèrement personnel. Il est accept
 
 ### 3.1. Préambule
 
-Le préambule qui sera utilisé pour la compilation des notes final est le fichier `compilation/notes-inf110.tex` (qui inclura les autres fichiers).
+Le préambule qui sera utilisé pour la compilation des notes final est le fichier `compilation/notes-inf110-ia.tex` (qui inclura les autres fichiers).
 
 Le préambule suit globalement cette organisation :
 
