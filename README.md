@@ -9,9 +9,13 @@ Les documents placés dans slides/ constituent la source principale du
 contenu et de la structure : ce sont eux qu'il faut convertir en notes
 de cours.  Les documents placés dans modeles/ constituent des exemples
 de style, de typographie et de mise en forme à imiter.  Les documents
-placés dans exercices/ sont à recopier verbatim, sauf modification
+placés dans exercices/ seront à recopier verbatim, sauf modification
 strictement nécessaire pour permettre la compilation ou l'intégration
 au document d'ensemble.
+
+Le fichier compilation/notes-inf110.tex est celui sur lequel pdfLaTeX
+sera appelé.  C'est lui qui définit les packages inclus et les macros
+disponibles.
 
 Le fichier style-guide.md contient le guide de style à suivre généré
 par IA à partir de l'analyse des fichiers de modèle (légèrement édité
@@ -20,6 +24,9 @@ par humain).
 Les prompts des différentes passes déjà effectuées sont dans le
 répertoire prompt/ et sont uniquement là à fin de conserver une trace
 du workflow.
+
+Le répertoire output/ contient les documents produits (finaux ou en
+cours de relecture) principalement produits par l'IA.
 
 == Instructions générales pour l'IA ==
 
@@ -59,9 +66,8 @@ Objectifs précis :
 
 En cas d'ambiguïté mathématique, stylistique ou éditoriale, ne décide
 pas silencieusement.  Signale le point à revoir dans une annotation
-claire, par exemple avec une commande \review{...} ou avec du texte
-visiblement marqué.
+claire, en utiilsant la commande \review{...}.
 
-Le document final doit contenir une mention explicite indiquant qu'il
-s'agit d'un premier brouillon produit avec l'aide d'un modèle d'IA et
-qu'il doit être relu et vérifié par l'enseignant.
+Chaque document final doit contenir une mention explicite indiquant
+qu'il s'agit d'un premier brouillon produit avec l'aide d'un modèle
+d'IA et qu'il doit être relu et vérifié par l'enseignant.
