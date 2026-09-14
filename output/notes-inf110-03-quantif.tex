@@ -1104,3 +1104,735 @@ aucun individu n'est disponible dans le contexte vide.
 \review{La distinction entre les deux dernières formules devra être
 rapprochée de la discussion sur les domaines non habités et vérifiée
 avec les règles complètes de formation des termes d'individus.}
+
+%% PREAMBLE: ajouter \newcommand{\cps}{\mathrm{CPS}} si cette macro
+%% n'est pas déjà définie par un autre fichier inclus dans le document.
+
+\section{Arithmétique du premier ordre}
+
+\subsection{Termes arithmétiques et axiomes de Peano}
+
+\thingy
+L'\defin{arithmétique du premier ordre} est une tentative
+d'axiomatisation des entiers naturels dans le langage de la logique du
+premier ordre.  Elle repose sur les \defin{axiomes de Peano}, qui
+décrivent les propriétés essentielles de $0$, du successeur, de
+l'addition, de la multiplication et de l'exponentiation.
+
+On distinguera deux variantes de cette théorie :
+\begin{itemize}
+\item l'\defin{arithmétique de Heyting}, notée $\mathsf{HA}$, qui
+  emploie la logique intuitionniste ;
+\item l'\defin{arithmétique de Peano}, notée $\mathsf{PA}$, qui emploie
+  la logique classique.
+\end{itemize}
+Les axiomes arithmétiques eux-mêmes sont les mêmes dans les deux cas ;
+seules les règles logiques disponibles changent.
+
+\thingy
+Le langage est celui de la logique du premier ordre avec égalité, enrichi
+par un symbole de constante $0$, par un symbole de fonction unaire $S$,
+et par trois symboles de fonctions binaires $+$, $\times$ et
+$\vartriangleleft$.  Les termes arithmétiques sont donc formés
+inductivement de la manière suivante :
+\begin{itemize}
+\item $0$ est un terme ;
+\item si $m$ est un terme, alors $(Sm)$ est un terme ;
+\item si $m$ et $n$ sont des termes, alors $(m+n)$, $(m\times n)$ et
+  $(m\vartriangleleft n)$ sont des termes.
+\end{itemize}
+
+Ils sont destinés à représenter respectivement le nombre zéro, le
+successeur, l'addition, la multiplication et l'exponentiation.  Comme
+d'habitude, on omettra souvent les parenthèses lorsque cela ne crée pas
+d'ambiguïté.  On écrira notamment
+\[
+1=S0,\qquad 2=S(S0),\qquad 3=S(S(S0)),
+\]
+et ainsi de suite.
+
+\thingy
+On conserve les principes logiques d'égalité vus précédemment, à savoir
+la réflexivité
+\[
+\forall n.\,(n=n)
+\]
+et le schéma de substitution
+\[
+\forall m.\,\forall n.\,
+\bigl((m=n)\Rightarrow P(m)\Rightarrow P(n)\bigr).
+\]
+Comme dans la discussion générale des schémas d'axiomes, $P$ désigne ici
+une formule possédant une variable libre, et non une variable sur laquelle
+la logique du premier ordre quantifierait.
+
+\thingy
+Les axiomes de Peano ajoutent d'abord des propriétés élémentaires du
+successeur :
+\[
+\forall n.\,\neg(Sn=0),
+\]
+et
+\[
+\forall m.\,\forall n.\,\bigl((Sm=Sn)\Rightarrow(m=n)\bigr).
+\]
+Le premier énonce que zéro n'est le successeur d'aucun entier.  Le
+second exprime que le successeur est injectif : deux successeurs égaux
+proviennent nécessairement de deux entiers égaux.
+
+\thingy
+L'axiome le plus important est le \defin{schéma de récurrence}.  Pour
+chaque formule $P(s)$ ayant $s$ comme variable libre, on ajoute l'axiome
+\[
+P(0)
+\Rightarrow
+\bigl(\forall n.\,(P(n)\Rightarrow P(Sn))\bigr)
+\Rightarrow
+\bigl(\forall n.\,P(n)\bigr).
+\]
+Il exprime exactement le principe de raisonnement par récurrence
+ordinaire : pour démontrer une propriété pour tous les entiers, on la
+démontre au rang $0$, puis on montre qu'elle passe de $n$ à $Sn$.
+
+Il faut insister sur le fait qu'il s'agit bien d'un schéma : il existe un
+axiome de cette forme pour chaque formule arithmétique possible $P$.
+Cette infinité d'axiomes est nécessaire, car la logique du premier ordre
+ne permet pas de quantifier directement sur les propriétés $P$.
+
+\thingy
+Enfin, les opérations arithmétiques sont définies par les équations de
+récurrence suivantes :
+\[
+\forall m.\,(m+0=m),
+\qquad
+\forall m.\,\forall n.\,\bigl(m+(Sn)=S(m+n)\bigr),
+\]
+\[
+\forall m.\,(m\times0=0),
+\qquad
+\forall m.\,\forall n.\,
+\bigl(m\times(Sn)=m\times n+m\bigr),
+\]
+et
+\[
+\forall m.\,(m\vartriangleleft0=S0),
+\qquad
+\forall m.\,\forall n.\,
+\bigl(m\vartriangleleft(Sn)=(m\vartriangleleft n)\times m\bigr).
+\]
+Ces équations orientent les calculs selon le second argument.  Elles
+permettent ainsi de ramener progressivement une expression faisant
+intervenir $+$, $\times$ ou $\vartriangleleft$ à des expressions plus
+simples.
+
+\subsection{Arithmétique de Heyting et arithmétique de Peano}
+
+\thingy
+L'arithmétique de Heyting $\mathsf{HA}$ et l'arithmétique de Peano
+$\mathsf{PA}$ ont donc les mêmes termes, les mêmes symboles de
+fonctions, les mêmes axiomes concernant l'égalité, le successeur et les
+opérations, ainsi que le même schéma de récurrence.  La différence est
+uniquement logique :
+\begin{itemize}
+\item dans $\mathsf{HA}$, les démonstrations sont intuitionnistes ;
+\item dans $\mathsf{PA}$, on peut en outre utiliser les principes de la
+  logique classique.
+\end{itemize}
+
+Toute démonstration intuitionniste étant aussi une démonstration
+classique, on a naturellement
+\[
+\mathsf{HA}\vdash P
+\qquad\Longrightarrow\qquad
+\mathsf{PA}\vdash P.
+\]
+La réciproque est fausse en général.
+
+\thingy
+Par exemple, la formule
+\[
+\forall n.\,\bigl((n=0)\lor\neg(n=0)\bigr)
+\]
+est démontrable dans $\mathsf{HA}$.  Il ne s'agit pas ici d'une
+utilisation générale du tiers exclu : on dispose d'un raisonnement
+arithmétique particulier permettant de décider si un entier est nul ou
+non.
+
+En effet, au rang $0$, on a $0=0$ par réflexivité, donc la première
+branche de la disjonction.  Au rang $Sn$, le premier axiome de Peano
+donne $\neg(Sn=0)$, donc la seconde branche.  Le schéma de récurrence
+permet alors de conclure pour tout $n$.
+
+\thingy
+Cette distinction entre une disjonction démontrable et l'axiome général
+du tiers exclu est fondamentale.  Dans une logique intuitionniste, une
+preuve de
+\[
+P\lor Q
+\]
+doit donner effectivement une preuve de $P$ ou une preuve de $Q$.  Dans
+le cas de
+\[
+(n=0)\lor\neg(n=0),
+\]
+la forme de l'entier $n$ permet précisément de faire ce choix.  On ne
+peut pas en conclure que toute formule arithmétique $P$ satisfait
+nécessairement
+\[
+P\lor\neg P.
+\]
+
+\thingy
+L'arithmétique de Peano obtient davantage de théorèmes en ajoutant les
+principes classiques.  On peut notamment voir la logique classique comme
+une traduction de l'arithmétique intuitionniste par continuation.  Si
+$P^{\cps}$ désigne la formule obtenue en ajoutant une double négation
+devant une formule entière, devant la conclusion de chaque implication,
+et après chaque quantificateur universel, alors les diapositives
+indiquent le principe suivant :
+\[
+\mathsf{PA}\vdash P
+\quad\text{ssi}\quad
+\mathsf{HA}\vdash P^{\cps}.
+\]
+
+\review{La définition syntaxique exacte de la traduction
+$P\mapsto P^{\cps}$ devra être harmonisée avec celle, éventuellement
+introduite dans la partie consacrée au CPS, afin que l'énoncé précédent
+soit complètement précis.}
+
+\subsection{Exemples de preuves par récurrence}
+
+\thingy
+Le schéma de récurrence est un axiome très puissant : il permet de
+retrouver les propriétés usuelles des opérations sur les entiers
+naturels.  La plupart de ces résultats se prouvent en fixant certains
+paramètres et en faisant une récurrence sur l'argument suivant lequel les
+opérations ont été définies.
+
+\thingy
+Montrons en détail que l'on peut démontrer dans $\mathsf{HA}$
+\[
+\forall n.\,\bigl((n=0)\lor\neg(n=0)\bigr).
+\]
+Notons
+\[
+P(k)\;:=\;(k=0)\lor\neg(k=0).
+\]
+Pour le cas de base, la réflexivité de l'égalité fournit $0=0$ ; par
+introduction de la disjonction, on obtient $P(0)$.
+
+Pour le pas de récurrence, il suffit de montrer $P(Sn)$.  Or le premier
+axiome de Peano affirme $\neg(Sn=0)$.  On peut donc introduire la
+seconde branche de la disjonction et conclure
+\[
+(Sn=0)\lor\neg(Sn=0).
+\]
+Le schéma de récurrence donne alors la formule voulue.
+
+\thingy
+La preuve précédente possède une lecture computationnelle.  Une preuve
+de la formule
+\[
+\forall n.\,\bigl((n=0)\lor\neg(n=0)\bigr)
+\]
+doit, étant donné un entier $n$, renvoyer soit une preuve que $n=0$, soit
+une preuve que $n\neq0$.  Elle se comporte donc comme un programme qui
+teste si son argument est zéro.
+
+Les diapositives donnent une expression schématique du terme
+correspondant, fondée sur l'opérateur de récurrence :
+\[
+\begin{aligned}
+\mathsf{recurr}^{(\lambda k.\,(k=0\lor\neg(k=0)))}\,
+(\iota_1^{(0=0,\neg0=0)}(\mathsf{refl}\,0))\,
+\bigl(
+  \lambda(n:\mathsf{nat}).\,
+  \lambda(h:(n=0\lor\neg(n=0))).\,
+  \iota_2^{(Sn=0,\neg Sn=0)}(\mathsf{succnotz}\,n)
+\bigr).
+\end{aligned}
+\]
+Cette écriture ne devra pas être lue comme une définition complète d'un
+langage de programmation : elle illustre seulement le programme caché
+dans la démonstration par récurrence.
+
+\review{Les constantes de preuve
+$\mathsf{recurr}$, $\mathsf{refl}$ et $\mathsf{succnotz}$ sont reprises
+des diapositives.  Leur typage complet devra être vérifié si les notes
+introduisent ultérieurement un calcul de termes formel pour
+l'arithmétique de Heyting.}
+
+\thingy
+On peut de même démontrer les propriétés algébriques usuelles de
+l'addition et de la multiplication :
+\begin{itemize}
+\item l'addition est associative et commutative, et $0$ est son élément
+  neutre ;
+\item la multiplication est associative et commutative, et $1=S0$ est
+  son élément neutre ;
+\item les identités usuelles reliant addition, multiplication et
+  exponentiation sont démontrables.
+\end{itemize}
+Ces résultats ne sont pas ajoutés aux axiomes : ils s'en déduisent par
+des suites de raisonnements par récurrence et par substitution d'égaux.
+
+\subsection{Propriétés arithmétiques et formalisation des calculs}
+
+\thingy
+L'arithmétique de Heyting et l'arithmétique de Peano permettent de
+formaliser une grande partie des calculs ordinaires sur les entiers.  On
+peut notamment y démontrer les propriétés algébriques élémentaires de
+l'addition, de la multiplication et de l'exponentiation, ainsi que
+l'existence et l'unicité de la division euclidienne.
+
+Les diapositives indiquent également que l'on peut formaliser des
+propriétés arithmétiques plus élaborées, telles que l'existence d'une
+infinité de nombres premiers, le théorème fondamental de l'arithmétique,
+ou encore l'irrationalité de $\sqrt{2}$.
+
+\thingy
+Un point particulièrement important pour la suite est que l'arithmétique
+peut parler de codages d'objets finis par des entiers.  Par exemple, le
+codage de Gödel
+\[
+\langle m,n\rangle
+\]
+peut être défini au moyen de l'expression
+\[
+m+\frac{1}{2}(m+n)(m+n+1).
+\]
+Cette formule permet de représenter une paire d'entiers par un seul
+entier.  En itérant ce procédé, on peut coder des suites finies.
+
+Les diapositives proposent notamment le codage
+\[
+\dbllangle a_0,\ldots,a_{k-1}\dblrangle
+:=
+\langle
+a_0,
+\langle
+a_1,
+\langle\cdots,
+\langle a_{k-1},0\rangle+1
+\cdots\rangle+1
+\rangle+1
+\rangle.
+\]
+L'idée est qu'une suite finie est représentée par une succession de
+paires, terminée par un marqueur particulier.
+
+\thingy
+Ces codages ne sont pas seulement des artifices de numérotation.  Une
+fois qu'ils sont suffisamment explicites, les opérations portant sur des
+objets finis peuvent elles-mêmes être traduites en opérations ou
+relations arithmétiques.  On peut ainsi exprimer dans l'arithmétique
+qu'un entier code une formule, une suite de formules, un arbre de calcul
+ou une démonstration.
+
+\thingy
+On peut également formaliser les fonctions générales récursives, ou de
+façon équivalente les calculs effectués par des machines de Turing.  Dans
+les notations des diapositives,
+\[
+\varphi_e(i)\mathord\downarrow
+\]
+signifie qu'il existe un entier $n$ tel que
+\[
+T(n,e,i),
+\]
+où $T$ est un prédicat, primitive récursif, exprimant que $n$ code un
+arbre de calcul valide de la fonction de numéro $e$ sur l'entrée $i$.
+
+Autrement dit, l'assertion « le programme $e$ termine sur l'entrée
+$i$ » peut être exprimée par une formule arithmétique existentielle.
+
+\subsection{Programmes extraits des preuves et propriétés d'existence}
+
+\thingy
+L'interprétation de Curry--Howard donne un sens informatique aux preuves
+de l'arithmétique de Heyting.  Une formule d'égalité comme
+\[
+m=n
+\]
+doit être comprise comme un type de témoignages de l'égalité entre $m$
+et $n$.  Ce type est habité lorsque les deux termes sont effectivement
+égaux, et il ne l'est pas dans le cas contraire.
+
+\thingy
+Chaque axiome de Peano correspond ainsi à un programme, que l'on peut
+voir comme faisant partie d'une bibliothèque élémentaire sur les entiers
+naturels.  Les axiomes concernant $0$, le successeur et les opérations
+correspondent à des fonctions de calcul ou à des témoignages des
+équations de définition.
+
+Le cas le plus intéressant est le schéma de récurrence.  Il correspond à
+une primitive de récursion qui, étant donnés une valeur initiale
+\[
+c\in A_0
+\]
+et une famille de fonctions
+\[
+f(n,\emdash)\colon A_n\longrightarrow A_{n+1},
+\]
+construit une suite
+\[
+u_n\in\prod_{n\in\mathbb{N}} A_n
+\]
+vérifiant
+\[
+u_0=c,
+\qquad
+u_{n+1}=f(n,u_n).
+\]
+C'est exactement la récursion primitive, mais avec des types $A_n$
+susceptibles de dépendre de l'entier $n$.
+
+\thingy
+Cette lecture permet d'extraire des programmes de certaines preuves.  Par
+exemple, une preuve de la commutativité de la multiplication
+\[
+\forall m.\,\forall n.\,(m\times n=n\times m)
+\]
+se comporte comme un programme qui reçoit $m$ et $n$, calcule les deux
+produits, et produit un témoignage qu'ils sont égaux.
+
+De même, une preuve de
+\[
+\forall n.\,\bigl((n=0)\lor\neg(n=0)\bigr)
+\]
+fournit un programme de décision du test « $n=0$ ».
+
+\thingy
+La \defin{propriété d'existence} de l'arithmétique de Heyting affirme,
+informellement, que si $\mathsf{HA}$ démontre
+\[
+\exists n.\,Q(n),
+\]
+alors cette démonstration contient un témoin explicite : on peut en
+extraire un entier $n$ ainsi qu'une démonstration de $Q(n)$.  C'est la
+lecture constructive du quantificateur existentiel.
+
+De même, une preuve de
+\[
+\forall m.\,\exists n.\,Q(m,n)
+\]
+peut être comprise comme un programme qui prend $m$ et renvoie un entier
+$n$, accompagné d'une preuve de $Q(m,n)$.
+
+\thingy
+Ces propriétés reposent sur des résultats de normalisation et ne seront
+pas démontrées ici.  Elles expliquent cependant pourquoi l'arithmétique
+intuitionniste ne peut pas démontrer certaines formules qui seraient
+innocentes du point de vue classique.
+
+En particulier, si $\mathsf{HA}$ démontrait une formule affirmant, pour
+tout programme, qu'il termine ou qu'il ne termine pas, l'extraction de
+programme fournirait un algorithme résolvant le problème de l'arrêt.  Or
+nous avons vu que cela est impossible.
+
+\review{La formulation précise des propriétés de disjonction et
+d'existence, ainsi que les hypothèses de normalisation dont elles
+dépendent, devra être vérifiée.  Les diapositives les présentent comme
+des conséquences de Curry--Howard, sans développer leur preuve.}
+
+\section{Formalisation des démonstrations et théorème de Gödel}
+
+\subsection{Codage des formules, démonstrations et calculs}
+
+\thingy
+L'idée fondamentale du théorème de Gödel est que l'arithmétique peut
+parler non seulement des entiers, mais aussi de ses propres formules et
+de ses propres démonstrations.  Pour cela, on attribue à chaque symbole,
+chaque formule et chaque démonstration un \defin{code de Gödel}, c'est-à-dire
+un entier naturel.
+
+On peut par exemple coder une formule par l'arbre syntaxique qui la
+représente, puis coder cet arbre par une suite finie d'entiers, elle-même
+codée par un entier.  De même, une démonstration est une suite finie de
+formules dont chaque ligne est soit un axiome, soit une hypothèse, soit
+la conséquence de lignes précédentes par une règle d'inférence.
+
+\thingy
+Il est alors possible de tester algorithmiquement si un entier donné code
+une démonstration valide dans une théorie donnée, et, dans l'affirmative,
+d'en lire la conclusion.  Cette vérification est finie : il suffit de
+parcourir le code de la prétendue démonstration et de vérifier chacune de
+ses lignes.
+
+Pour une théorie arithmétique comme $\mathsf{HA}$ ou $\mathsf{PA}$, on
+peut donc construire un prédicat primitif récursif
+\[
+\mathsf{Pf}_{\mathsf{HA}}(n,k)
+\qquad\text{ou}\qquad
+\mathsf{Pf}_{\mathsf{PA}}(n,k),
+\]
+qui signifie que $n$ est le code de Gödel d'une preuve, dans la théorie
+considérée, de la formule dont $k$ est le code.
+
+\thingy
+La formule
+\[
+\exists n.\,\mathsf{Pf}_{\mathsf{HA}}(n,k)
+\]
+signifie alors que $k$ code une formule démontrable dans
+l'arithmétique de Heyting.  L'ensemble des codes des théorèmes est donc
+\defin{semi-décidable} : on peut énumérer toutes les démonstrations
+possibles et finir par trouver une preuve lorsqu'il en existe une, mais
+on ne sait pas nécessairement s'arrêter lorsqu'il n'en existe pas.
+
+\thingy
+Le même procédé s'applique aux calculs de programmes.  Si
+\[
+T(n,e,i)
+\]
+exprime que $n$ code un calcul valide du programme $e$ sur l'entrée $i$,
+alors
+\[
+\exists n.\,T(n,e,i)
+\]
+formalise la terminaison
+\[
+\varphi_e(i)\mathord\downarrow.
+\]
+Les faits concernant des calculs finis deviennent ainsi des théorèmes
+arithmétiques, pourvu que l'on fournisse le code du calcul correspondant.
+
+\subsection{Démontrabilité, semi-décidabilité et problème de l'arrêt}
+
+\thingy
+Tester si une preuve donnée est valide est un problème décid able :
+l'algorithme lit un code fini, vérifie qu'il représente bien une
+démonstration, et contrôle la correction de chacune de ses étapes.  En
+revanche, déterminer si une formule arbitraire est démontrable n'est, en
+général, que semi-décidable : on peut chercher une preuve, mais la
+recherche peut ne jamais aboutir.
+
+\thingy
+Plus précisément, si $k$ est le code d'une formule, l'assertion
+\[
+\exists n.\,\mathsf{Pf}_{\mathsf{HA}}(n,k)
+\]
+se lit comme « $k$ code un théorème de $\mathsf{HA}$ ».  En énumérant
+les entiers $n$, puis en testant le prédicat primitif récursif
+$\mathsf{Pf}_{\mathsf{HA}}(n,k)$, on obtient une procédure qui termine
+lorsque la formule est démontrable, mais qui peut tourner indéfiniment
+dans le cas contraire.
+
+\thingy
+La formalisation des calculs permet de relier ce phénomène au problème de
+l'arrêt.  Si une machine de Turing s'arrête, alors elle laisse une trace
+d'exécution finie.  Cette trace peut être codée par un entier, et sa
+validité peut être vérifiée dans l'arithmétique de Heyting.
+
+On obtient donc le principe suivant :
+\[
+\text{si une machine de Turing s'arrête, alors le fait qu'elle
+s'arrête est prouvable dans $\mathsf{HA}$.}
+\]
+A fortiori, ce fait est aussi prouvable dans $\mathsf{PA}$.
+
+\thingy
+Cette affirmation ne doit pas être confondue avec sa réciproque.  Dire
+qu'une théorie prouve qu'un programme s'arrête implique, si la théorie
+est correcte pour ces énoncés, que le programme s'arrête effectivement.
+Mais la démonstration de la réciproque relève d'une hypothèse de
+correction sémantique de la théorie, et non de la seule formalisation
+syntaxique des preuves.
+
+\review{Il faudra préciser, dans une passe ultérieure, le niveau de
+correction supposé ici : les diapositives utilisent implicitement le fait
+que les preuves arithmétiques considérées ne démontrent pas de fausses
+assertions de terminaison.}
+
+\subsection{L'argument de Gödel, Rosser et Turing}
+
+\thingy
+L'argument d'incomplétude repose sur une idée d'auto-référence.  Grâce
+aux codages de Gödel, une formule peut parler du code d'une autre formule,
+ou même de son propre code.  On peut ainsi construire une phrase qui
+exprime, de façon arithmétique, qu'elle n'est pas démontrable dans une
+théorie donnée.
+
+Les diapositives présentent une variante de cet argument sous la forme
+d'un programme $g$ qui cherche en parallèle une preuve de l'énoncé
+« $g$ termine » et une preuve de l'énoncé « $g$ ne termine pas ».
+
+\thingy
+Plus précisément, le programme $g$ énumère les entiers naturels et teste
+successivement s'ils sont les codes de Gödel d'une preuve, dans
+l'arithmétique de Peano, de l'une des deux assertions
+\[
+\varphi_g(0)\mathord\downarrow
+\qquad\text{ou}\qquad
+\neg\bigl(\varphi_g(0)\mathord\downarrow\bigr).
+\]
+Deux cas sont alors prévus :
+\begin{itemize}
+\item si $g$ trouve en premier une preuve qu'il termine, il entre dans
+  une boucle infinie explicite ;
+\item s'il trouve en premier une preuve qu'il ne termine pas, il
+  termine immédiatement.
+\end{itemize}
+
+La possibilité de construire un tel programme auto-référent est une
+application de l'« astuce de Quine », ou théorème de récursion de
+Kleene, combinée à la décidabilité de la vérification d'une preuve.
+
+\thingy
+Supposons provisoirement que $\mathsf{PA}$ soit consistante, c'est-à-dire
+qu'elle ne démontre pas $\bot$.  Si $g$ trouvait une preuve qu'il ne
+termine pas, alors, par construction, $g$ terminerait.  Or son
+arrêt effectif possède une trace de calcul finie, donc il serait
+démontrable dans $\mathsf{PA}$.  La théorie prouverait alors à la fois
+que $g$ termine et qu'il ne termine pas, ce qui contredirait la
+consistance supposée.
+
+\thingy
+De même, si $g$ trouvait une preuve qu'il termine, alors il entrerait
+dans une boucle infinie explicite.  Cette non-terminaison serait
+arithmétiquement justifiable, de sorte que la théorie disposerait de
+preuves incompatibles avec celle qu'elle vient de trouver.
+
+On en conclut que, sous l'hypothèse de consistance, le programme $g$ ne
+trouve ni preuve de sa terminaison ni preuve de sa non-terminaison.
+
+\review{L'argument précédent condense la présentation des diapositives.
+La version exacte de l'argument de Gödel, sa correction par Turing et la
+variante de Rosser doivent être relues attentivement : les hypothèses de
+consistance nécessaires diffèrent selon la version retenue.}
+
+\subsection{Incomplétude de l'arithmétique de Peano}
+
+\thingy
+L'argument précédent conduit au \defin{théorème d'incomplétude de Gödel}.
+Sous l'hypothèse de consistance de l'arithmétique de Peano, il existe une
+formule arithmétique $G$ telle que ni $G$, ni sa négation $\neg G$, ne
+sont démontrables dans $\mathsf{PA}$.
+
+Dans la présentation par le programme $g$, on peut prendre pour $G$
+l'énoncé affirmant que $g$ ne termine pas.  En effet, le programme ne
+trouve aucune preuve ni de sa terminaison ni de sa non-terminaison ; les
+deux assertions correspondantes ne sont donc pas démontrables dans la
+théorie.
+
+\thingy
+Il est important de distinguer deux affirmations :
+\begin{itemize}
+\item la formule $G$ n'est pas démontrable dans $\mathsf{PA}$ ;
+\item la formule $G$ est vraie dans le sens usuel des entiers naturels.
+\end{itemize}
+La première est une assertion syntaxique, portant sur l'existence ou non
+d'une démonstration formelle.  La seconde est une assertion sémantique,
+portant sur le comportement effectif du programme $g$ ou sur le modèle
+standard des entiers naturels.
+
+Le théorème d'incomplétude établit une limite interne à ce qu'une théorie
+formelle peut démontrer ; il ne dit pas que la formule indécidable serait
+dépourvue de sens.
+
+\thingy
+Le résultat ne concerne pas seulement $\mathsf{PA}$.  Toute théorie
+logique $T$, classique ou intuitionniste, suffisamment expressive pour
+coder les entiers, les programmes et les démonstrations, et dans laquelle
+la validité d'une preuve est vérifiable algorithmiquement, est soumise à
+un phénomène analogue.
+
+Plus précisément, si $T$ ne prouve pas $\bot$, alors le programme
+auto-référent $g_T$ ne termine pas, mais $T$ ne peut pas démontrer qu'il
+ne termine pas.  En particulier, $T$ ne peut pas démontrer sa propre
+consistance.
+
+\thingy
+La formule exprimant la consistance de $T$ peut être écrite comme la
+négation de l'existence d'un code de preuve de contradiction :
+\[
+\mathsf{Consis}(T)
+\;:=\;
+\neg\exists n.\,\mathsf{Pf}_T(n,\ulcorner\bot\urcorner),
+\]
+où $\ulcorner\bot\urcorner$ désigne le code de Gödel de la formule
+$\bot$.
+
+Le second théorème d'incomplétude affirme alors, sous les hypothèses
+appropriées, que si $T$ est consistante, $T$ ne démontre pas
+\[
+\mathsf{Consis}(T).
+\]
+
+\subsection{Consistance, interprétation et portée du théorème}
+
+\thingy
+La consistance de Peano, notée
+\[
+\mathsf{Consis}(\mathsf{PA}),
+\]
+se lit comme l'affirmation que l'arithmétique de Peano ne démontre pas
+$\bot$.  Le programme $g$ utilisé dans l'argument précédent peut être
+interprété ainsi : il cherche une preuve de contradiction dans
+$\mathsf{PA}$ et, dans ce cas, se comporte de manière incompatible avec
+le sens de cette preuve.
+
+L'argument montre que $\mathsf{PA}$ ne peut pas établir sa propre
+consistance, pourvu qu'elle soit effectivement consistante.
+
+\thingy
+On peut comparer ce résultat avec l'arithmétique de Heyting.  La
+traduction par continuations permet de relier les assertions de
+consistance de $\mathsf{HA}$ et de $\mathsf{PA}$.  Les diapositives
+indiquent notamment que la consistance de $\mathsf{HA}$ est équivalente,
+via cette traduction, à celle de $\mathsf{PA}$.
+
+Par ailleurs, l'arithmétique de Peano ne démontre pas non plus
+\[
+\mathsf{Consis}(\mathsf{HA}).
+\]
+Par propriété de disjonction, l'arithmétique de Heyting ne démontre pas
+davantage
+\[
+\mathsf{Consis}(\mathsf{HA})
+\lor
+\neg\mathsf{Consis}(\mathsf{HA}).
+\]
+
+\review{Les relations exactes entre
+$\mathsf{Consis}(\mathsf{HA})$, $\mathsf{Consis}(\mathsf{PA})$ et la
+traduction CPS doivent être vérifiées avant la version finale des notes.
+Elles dépendent de la formalisation retenue de la traduction et de la
+consistance.}
+
+\thingy
+Le théorème de Gödel ne signifie pas que les mathématiques seraient
+impossibles ou incohérentes.  Il montre plutôt qu'aucune théorie
+formelle, effectivement présentable et suffisamment expressive, ne peut
+à la fois capturer toutes les vérités arithmétiques et démontrer de façon
+purement interne sa propre absence de contradiction.
+
+On peut toujours renforcer une théorie en ajoutant de nouveaux axiomes,
+par exemple un énoncé de consistance.  Mais la théorie renforcée sera à
+son tour soumise à une forme d'incomplétude.
+
+\thingy
+Enfin, il faut distinguer l'arithmétique de Peano du cadre usuel des
+mathématiques, la théorie des ensembles $\mathsf{ZFC}$.  Dans
+l'interprétation standard, les axiomes de Peano sont vrais dans
+$\mathbb{N}$ ; par conséquent, $\mathsf{ZFC}$ démontre la consistance de
+$\mathsf{PA}$, à condition que $\mathsf{ZFC}$ soit elle-même
+consistante.
+
+Mais le théorème de Gödel s'applique aussi à $\mathsf{ZFC}$ : une théorie
+plus forte peut démontrer la consistance d'une théorie plus faible, sans
+pouvoir, sous les mêmes hypothèses générales, démontrer sa propre
+consistance.
+
+\thingy
+La portée philosophique de ces résultats ne doit pas être exagérée.  Ils
+ne disent ni que toute vérité est inaccessible, ni qu'un raisonnement
+mathématique ordinaire est inutile.  Ils établissent une limite précise
+aux systèmes formels : dès qu'un système est assez riche pour représenter
+l'arithmétique et ses propres démonstrations, il existe des énoncés qu'il
+ne peut pas décider par ses seules règles.
+
+\review{Cette conclusion synthétise les diapositives et devra être relue
+pour éviter toute formulation philosophique plus forte que le théorème
+mathématique effectivement démontré.}
