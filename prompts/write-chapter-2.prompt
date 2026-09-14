@@ -1,0 +1,37 @@
+Rédige une première version des notes correspondant au contenu de
+slides/transp-inf110-02-typage.tex (partie II : Typage)
+
+Utilise style-guide.md pour le style et la typographie (en te référant aux documents modeles/ si besoin).
+
+Réfère-toi à compilation/notes-inf110.tex (préambule) pour connaître les macros disponibles.
+
+Utilise uniquement les diapositives comme source principale du contenu.
+
+Contraintes :
+
+- conserve l'ordre des sections et des idées ;
+
+- conserve la notation des diapositives ;
+
+- développe les définitions et les explications implicites ;
+
+- transforme les énoncés télégraphiques en texte pédagogique ;
+
+- rédige les preuves lorsque les diapositives les indiquent ou les
+  rendent naturelles ;
+
+- n'ajoute pas de développement substantiel absent des diapositives ;
+
+- signale en rouge ou avec \review{...} toute décision éditoriale,
+  lacune, preuve à vérifier ou affirmation ajoutée ;
+
+- ne recopie pas encore les exercices du répertoire exercices/, mais
+  tu peux ajouter des références nécessaires vers des exercices qui
+  semblent intéressants à signaler.
+
+Produis uniquement le contenu LaTeX du chapitre, sans commentaire
+extérieur.  Si des ajouts ou modifications apparaissent nécessaire au
+préambule (p.ex., pour ajouter de nouvelles macros ou inclure des
+packages supplémentaires), décris les modifications sous forme de
+commentaires commençant par `%% PREAMBLE: ` dans le LaTeX produit (en
+expliquant la modification proposée).

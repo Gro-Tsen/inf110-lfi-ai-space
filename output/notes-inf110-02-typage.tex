@@ -1,0 +1,1829 @@
+%% PREAMBLE: Le chapitre utilise \defin, dont la définition appelle
+%% \index.  Si ce n'est pas déjà fait dans le document maître, ajouter
+%% \usepackage{makeidx} puis \makeindex dans le préambule.
+%% PREAMBLE: Pour compiler l'éventuel index, utiliser par exemple
+%% texindy -C utf8 -L french notes-inf110.idx.
+
+\section{Généralités sur le typage}
+
+\review{Ce chapitre constitue un premier brouillon produit avec l'aide
+d'un modèle d'IA. Il doit être relu et vérifié par l'enseignant,
+notamment en ce qui concerne les formulations mathématiques, les
+preuves esquissées et les choix éditoriaux.}
+
+\subsection{Rôle et variétés des systèmes de typage}
+
+\thingy Informellement, un \defin{système de typage} est une façon
+d'affecter aux expressions et aux valeurs manipulées par un langage
+informatique un \defin{type} qui contraint leur usage.  Parmi les types
+les plus courants, on trouve par exemple les entiers, les booléens, les
+chaînes de caractères et les fonctions.
+
+Cette manière de distinguer différentes sortes de données est, dans
+une certaine mesure, opposée à la philosophie du codage de Gödel
+rencontrée en calculabilité : dans ce dernier, toute donnée finie est
+représentée par un entier, tandis qu'un système de typage cherche au
+contraire à conserver et exploiter les distinctions entre les
+différentes natures de données.
+
+Les buts d'un système de typage sont multiples :
+\begin{itemize}
+\item détecter le plus tôt possible certaines erreurs de
+  programmation : ajouter un entier et une chaîne de caractères est
+  probablement une erreur, ou demande au moins une conversion
+  explicite ;
+\item éviter des plantages ou des problèmes de sécurité, par exemple
+  lorsqu'un programme tente d'exécuter comme du code une donnée qui
+  n'est qu'un entier ;
+\item garantir certaines propriétés du comportement des programmes,
+  dans les limites imposées par les résultats d'indécidabilité tels
+  que le théorème de Rice ;
+\item fournir des informations utiles à l'optimisation, par exemple en
+  indiquant qu'une fonction est pure, c'est-à-dire sans effet de bord.
+\end{itemize}
+L'analogie avec les systèmes d'unités en physique est utile : de même
+que l'homogénéité interdit d'ajouter directement une longueur à une
+durée, le typage interdit certaines combinaisons d'expressions qui
+n'ont pas de sens dans le langage considéré.
+
+\thingy Il existe presque autant de systèmes de typage que de langages
+de programmation. Plusieurs distinctions sont particulièrement
+importantes.
+
+Un typage est dit \defin{statique} lorsqu'il est vérifié au moment de la
+compilation, et \defin{dynamique} lorsqu'il est vérifié pendant
+l'exécution. Certains langages combinent les deux approches ; on parle
+notamment de typage graduel. Du point de vue du programmeur, on préfère
+en général une erreur de compilation à une erreur à l'exécution, et une
+erreur à l'exécution à un plantage ou à un comportement indéfini.
+
+Le typage peut être \defin{annoté}, lorsque le programmeur écrit
+explicitement les types attendus, ou \defin{inféré}, lorsque le langage
+les détermine à partir de l'expression. Cette distinction peut
+s'interpréter de la manière suivante : le type est-il une promesse
+faite par le langage au programmeur, ou une promesse faite par le
+programmeur au langage ?
+
+Il faut également distinguer les systèmes de typage dont les garanties
+sont difficiles à contourner de ceux qui permettent des conversions
+explicites (\textit{casts}), la manipulation directe des
+représentations en mémoire, ou le report de certaines vérifications à
+l'exécution.
+
+Enfin, le typage peut être superficiel, par exemple en affirmant
+seulement qu'une valeur est une liste, ou plus précis, en affirmant
+qu'elle est une liste d'entiers. Il peut aussi enregistrer des
+informations qui ne décrivent pas directement la représentation d'une
+valeur : pureté d'une fonction, exceptions qu'elle peut soulever,
+mutabilité, droits d'accès, utilisation de la mémoire, etc.
+
+\thingy Dans certains langages, les types eux-mêmes sont des objets
+manipulables par les programmes : on dit alors qu'ils sont des
+\defin{citoyens de première classe}. Cette possibilité pose aussitôt la
+question du type des types eux-mêmes. Elle conduit à des systèmes très
+expressifs, mais aussi à des difficultés logiques et algorithmiques
+importantes.
+
+\subsection{Constructions usuelles sur les types}
+
+\thingy En plus de types de base tels que $\texttt{Nat}$, pour les
+entiers naturels, ou $\texttt{Bool}$, pour les booléens, les systèmes de
+typage proposent souvent plusieurs opérations de construction de
+types.
+
+Les \defin{types produits} représentent les couples, triplets et, plus
+généralement, les $k$-uplets. Par exemple,
+\[
+\texttt{Nat}\times\texttt{Bool}
+\]
+est le type des paires dont la première composante est un entier et la
+seconde un booléen. Lorsque les composantes sont nommées, on obtient
+des structures, aussi appelées enregistrements. Le produit vide est le
+type trivial $\texttt{Unit}$, qui ne possède qu'une seule valeur.
+
+Les \defin{types sommes} représentent un choix entre plusieurs cas. Le
+type
+\[
+\texttt{Nat}+\texttt{Bool}
+\]
+contient soit un entier, soit un booléen, avec un sélecteur indiquant
+lequel des deux cas est utilisé. Une somme de plusieurs copies du type
+$\texttt{Unit}$ donne un type d'énumération, dont la seule information
+est précisément ce sélecteur. La somme vide est un type inhabité,
+c'est-à-dire un type ne possédant aucune valeur.
+
+Les \defin{types fonctions}, également appelés types exponentiels, sont
+notés à l'aide d'une flèche. Ainsi,
+\[
+\texttt{Nat}\rightarrow\texttt{Bool}
+\]
+est le type des fonctions de $\texttt{Nat}$ vers $\texttt{Bool}$.
+
+Enfin, on rencontre fréquemment des types de listes. Par exemple,
+$\texttt{List}~\texttt{Nat}$ est le type des listes d'entiers.
+
+\thingy Plusieurs fonctionnalités peuvent enrichir ces constructions.
+
+Le \defin{sous-typage} signifie que toute valeur d'un certain type peut
+automatiquement être utilisée comme une valeur d'un autre type.
+
+Le \defin{polymorphisme} permet à une expression d'être utilisée avec
+plusieurs types. L'exemple fondamental est la fonction identité, dont
+on peut écrire informellement le type
+\[
+(\forall\mathtt{t})\; \mathtt{t}\rightarrow\mathtt{t}.
+\]
+
+Une \defin{famille de types} fabrique un type à partir d'un ou plusieurs
+autres types. Ainsi, $\texttt{List}$ transforme le type $\mathtt{t}$ en
+le type $\texttt{List}~\mathtt{t}$ des listes d'éléments de type
+$\mathtt{t}$.
+
+Un \defin{type récursif} est construit, à l'aide des opérations sur les
+types, en faisant intervenir le type défini lui-même. Les diapositives
+donnent comme exemple schématique
+\[
+\texttt{Tree}=\texttt{List}~\texttt{Tree}.
+\]
+\review{Cet exemple décrit des arbres dont chaque nœud est essentiellement
+une liste de sous-arbres, mais ne fournit pas de cas de base explicite ;
+il convient de vérifier si cette présentation volontairement
+schématique doit être conservée.}
+
+Un \defin{type dépendant} est un type qui dépend d'une valeur. Par
+exemple, à un entier $k$ on peut associer le type $\texttt{Nat}^k$ des
+$k$-uplets d'entiers.
+
+Enfin, un \defin{type opaque}, abstrait ou privé, est un type dont la
+représentation interne est cachée. Ses valeurs ne peuvent alors être
+manipulées qu'au moyen d'une interface publique.
+
+\subsection{Polymorphisme et tâches d'un système de typage}
+
+\thingy On distingue principalement deux sortes de polymorphisme.
+
+Le \defin{polymorphisme paramétrique}, ou polymorphisme générique,
+signifie que la même expression s'applique de la même manière à des
+données de types différents. Quelques exemples sont :
+\[
+\texttt{head} :
+(\forall\mathtt{t})\;
+\texttt{List}~\mathtt{t}\to\mathtt{t},
+\]
+\[
+\lambda xy.\langle x,y\rangle :
+(\forall\mathtt{u},\mathtt{v})\;
+\mathtt{u}\to\mathtt{v}\to
+\mathtt{u}\times\mathtt{v},
+\]
+et
+\[
+\lambda xyz.xz(yz) :
+(\forall\mathtt{u},\mathtt{v},\mathtt{w})\;
+(\mathtt{u}\to\mathtt{v}\to\mathtt{w})
+\to(\mathtt{u}\to\mathtt{v})
+\to\mathtt{u}\to\mathtt{w}.
+\]
+Le polymorphisme ne concerne pas seulement les fonctions. La liste
+vide, par exemple, a informellement le type
+\[
+\texttt{[]} :
+(\forall\mathtt{t})\;\texttt{List}~\mathtt{t}.
+\]
+Dans un langage autorisant les boucles infinies, une expression qui ne
+termine jamais peut également recevoir n'importe quel type, puisqu'elle
+ne produit jamais de valeur contredisant ce type.
+
+Le \defin{polymorphisme ad hoc}, ou surcharge, désigne au contraire une
+opération qui agit différemment selon le type de son argument, ce type
+étant connu au moment où l'opération est choisie.
+
+Les frontières terminologiques sont parfois floues : le sous-typage,
+et quelquefois même les coercions, sont présentés comme des formes de
+polymorphisme.
+
+\thingy Un système de typage peut accomplir plusieurs tâches.
+
+La \defin{vérification de type} consiste à vérifier qu'une expression
+annotée possède bien le type annoncé par ses annotations.
+
+L'\defin{inférence de type}, également appelée reconstruction ou
+assignation de type, consiste à déterminer le type d'une expression en
+l'absence d'annotations, ou en présence d'annotations seulement
+partielles. L'algorithme de Hindley--Milner, étudié à la fin de ce
+chapitre, est un algorithme fondamental d'inférence pour les langages
+fonctionnels à polymorphisme paramétrique.
+
+Dans les systèmes suffisamment complexes, l'inférence, et parfois même
+la vérification, peuvent devenir indécidables. Cela se produit
+notamment lorsque les types sont des objets de première classe ou
+peuvent dépendre de valeurs arbitraires calculées pendant l'exécution.
+
+Enfin, le problème de l'\defin{habitation d'un type} consiste à trouver
+un terme ayant un type donné. Cette question est essentielle en
+logique, où elle correspondra à la recherche d'une preuve. Par exemple,
+on peut demander s'il existe un terme de type
+\[
+(\forall\mathtt{p},\mathtt{q})\;
+((\mathtt{p}\to\mathtt{q})\to\mathtt{p})\to\mathtt{p}.
+\]
+Dans les langages usuels qui autorisent la non-terminaison, tout type
+peut être artificiellement habité par une boucle infinie, y compris un
+type censé être vide. Cette observation explique pourquoi la
+terminaison sera indispensable lorsque les types seront interprétés
+comme des propositions.
+
+\subsection{Autres usages et exemples}
+
+\thingy Les types peuvent annoter des propriétés qui ne sont pas
+simplement la nature des valeurs stockées. Ils peuvent indiquer les
+exceptions susceptibles d'être soulevées, comme en Java, ou distinguer
+les valeurs immuables des références mutables. Ainsi,
+$\texttt{Nat}$ peut désigner un entier immuable, tandis que
+$\texttt{Ref~Nat}$ désigne une référence mutable vers un entier.
+
+Ils peuvent également enregistrer les effets de bord. En Haskell,
+$\texttt{Char}$ représente une valeur pure de type caractère, tandis
+que $\texttt{IO~Char}$ représente une action ayant des effets de bord
+et renvoyant un caractère.
+
+Le \defin{typage linéaire}, ou les types à unicité, imposent qu'une
+valeur soit utilisée une et une seule fois au cours d'un calcul, sauf
+opération spéciale. Ils interdisent donc aussi bien sa duplication que
+sa perte. Cette information peut servir à la gestion de la mémoire,
+comme en Rust, ou à l'annotation des effets de bord, comme en Clean.
+
+\thingy Donnons quelques exemples de systèmes de typage, sans employer
+les expressions ambiguës de typage « faible » ou « fort ».
+
+L'assembleur ne possède essentiellement aucun typage : toute donnée
+est représentée par une suite de bits. La même remarque vaut, dans des
+cadres théoriques différents, pour les machines de Turing, les
+fonctions générales récursives et le $\lambda$-calcul non typé.
+
+Le langage C possède un typage annoté et vérifié à la compilation, mais
+celui-ci est contournable, notamment à l'aide des pointeurs génériques
+de type \texttt{void*}. Python, JavaScript, Perl ou Scheme effectuent
+principalement les vérifications à l'exécution. Java combine des
+vérifications à la compilation et à l'exécution ; les types génériques
+ont été ajoutés avec Java 5. Rust fait interagir le typage et la gestion
+de la mémoire au moyen de mécanismes proches du typage affine ou
+linéaire.
+
+Les langages fonctionnels ont souvent des systèmes plus complexes.
+OCaml dispose notamment de l'inférence de type à la Hindley--Milner, du
+polymorphisme paramétrique, de types récursifs et d'un système de
+modules. Haskell possède des fonctionnalités comparables, auxquelles
+s'ajoutent les classes de types et l'encapsulation des effets de bord
+dans des monades. Mercury combine des idées issues de Haskell et de
+Prolog. Idris est à la fois un langage fonctionnel et un assistant de
+preuve.
+
+Parmi les exemples plus spécialisés, F\# peut intégrer les unités de
+mesure au système de typage, Rust peut exclure certaines situations de
+concurrence dangereuses, et divers langages garantissent des propriétés
+telles que des bornes de complexité, la validation de documents XML ou
+l'absence de fuite d'information.
+
+\subsection{Typage, terminaison et correspondance de Curry--Howard}
+
+\thingy\label{typing-and-termination} Un système de typage peut garantir
+que tout programme bien typé termine. Ce n'est pas le cas des langages
+usuels tels qu'OCaml ou Haskell, dans lesquels un programme bien typé
+peut effectuer une boucle infinie.
+
+Si le typage doit lui-même être décidable, garantir la terminaison
+impose nécessairement des limites à l'expressivité du langage, en
+raison de l'indécidabilité du problème de l'arrêt. Un tel langage ne
+peut notamment pas écrire son propre interpréteur universel. Il ne
+peut pas non plus autoriser des boucles illimitées, des appels récursifs
+non contraints ou un type $\mathtt{t}$ satisfaisant
+\[
+\mathtt{t}\cong(\mathtt{t}\rightarrow\mathtt{t}).
+\]
+Son type vide doit réellement être inhabité.
+
+Ces restrictions n'empêchent cependant pas le langage de définir des
+fonctions beaucoup plus générales que les seules fonctions primitives
+récursives. Rocq, anciennement appelé Coq, fournit un exemple de
+langage et d'assistant de preuve garantissant la terminaison.
+
+\thingy La \defin{correspondance de Curry--Howard} établit une analogie,
+et dans des systèmes précisément définis une correspondance exacte,
+entre :
+\begin{itemize}
+\item les types et leurs termes, c'est-à-dire les programmes possédant
+  ces types ;
+\item les propositions et leurs preuves.
+\end{itemize}
+Par exemple, la preuve évidente de
+\[
+(A\land B)\Rightarrow A
+\]
+correspond à la première projection, de type
+\[
+a\times b\rightarrow a.
+\]
+De même, le terme $\lambda xy.x$, de type $u\to v\to u$, correspond à
+la preuve de la proposition
+\[
+U\Rightarrow V\Rightarrow U.
+\]
+
+Cette correspondance exige certaines précautions. Le langage de
+programmation doit garantir la terminaison, faute de quoi une boucle
+infinie jouerait le rôle d'une preuve circulaire. La logique
+correspondante est en général intuitionniste, donc dépourvue du tiers
+exclu. Enfin, les quantificateurs et les types dépendants font
+intervenir des subtilités supplémentaires.
+
+Dans un premier aperçu, la correspondance associe :
+\begin{itemize}
+\item le type fonction $A\to B$ à l'implication $A\Rightarrow B$ ;
+\item l'application d'une fonction au \textit{modus ponens} ;
+\item l'abstraction à l'ouverture puis à la décharge d'une hypothèse ;
+\item le produit $A\times B$ à la conjonction $A\land B$ ;
+\item la somme $A+B$ à la disjonction $A\lor B$ ;
+\item les types trivial et vide à $\top$ et $\bot$.
+\end{itemize}
+La négation demandera une discussion particulière.
+
+\thingy Le paradoxe de Curry illustre le danger des preuves
+circulaires. Supposons que l'on puisse construire une proposition $A$
+telle que
+\[
+A\Leftrightarrow(A\Rightarrow B).
+\]
+Alors $B$ est effectivement démontrable : sous l'hypothèse $A$,
+l'équivalence donne $A\Rightarrow B$, donc $B$. Cela établit
+$A\Rightarrow B$, qui, par l'équivalence, donne à son tour $A$, puis
+finalement $B$.
+
+L'erreur ne se trouve donc pas dans cette déduction, mais dans la
+supposition tacite qu'une proposition $A$ satisfaisant une telle
+auto-référence peut toujours être construite. Une construction de
+Quine permet une auto-référence syntaxique, mais ne suffit pas à
+obtenir une auto-référence sur la vérité.
+
+\thingy Les \defin{théories des types} utilisées en logique sont des
+langages permettant d'écrire à la fois des programmes et des preuves.
+Elles peuvent être étudiées comme des systèmes abstraits ou
+implémentées dans des assistants de preuve tels que Rocq, Agda ou Lean.
+Elles garantissent la terminaison des programmes, ou plus précisément,
+dans le cadre du $\lambda$-calcul, la normalisation forte.
+
+Parmi les grandes familles, on peut citer les théories des types à la
+Martin-Löf, les variantes du calcul des constructions, et la théorie
+homotopique des types. Le $\lambda$-cube de Barendregt organise huit
+théories selon la présence ou l'absence de trois fonctionnalités :
+\begin{itemize}
+\item les termes peuvent dépendre de types ;
+\item les types peuvent dépendre de types ;
+\item les types peuvent dépendre de termes.
+\end{itemize}
+Le $\lambda$-calcul simplement typé ne possède aucune de ces trois
+fonctionnalités, tandis que le calcul des constructions les possède
+toutes.
+
+\section{Le \texorpdfstring{$\lambda$}{lambda}-calcul simplement typé}
+
+\subsection{Syntaxe et règles de typage}
+
+\thingy Le \defin{$\lambda$-calcul simplement typé}, abrégé
+$\lambda$CST et également noté $\lambda_\rightarrow$, est une variante
+typée du $\lambda$-calcul. Il ne possède qu'une seule opération sur les
+types : si $\sigma$ et $\tau$ sont deux types, alors
+$\sigma\to\tau$ est le type des fonctions qui prennent un argument de
+type $\sigma$ et renvoient une valeur de type $\tau$.
+
+L'application et l'abstraction doivent respecter les types :
+\begin{itemize}
+\item si $P$ a pour type $\sigma\to\tau$ et $Q$ a pour type $\sigma$,
+  alors $PQ$ a pour type $\tau$ ;
+\item si $E$ a pour type $\tau$ sous l'hypothèse que la variable libre
+  $v$ a pour type $\sigma$, alors
+  $\lambda(v:\sigma).E$ a pour type $\sigma\to\tau$.
+\end{itemize}
+
+Le typage considéré est annoté, ou « à la Church » : on écrit
+$\lambda(v:\sigma).E$, et non simplement $\lambda v.E$.
+
+\thingy Un \defin{type} du $\lambda$CST est défini inductivement par les
+deux clauses suivantes :
+\begin{itemize}
+\item toute variable de type $\alpha,\beta,\gamma,\ldots$ est un type ;
+\item si $\sigma$ et $\tau$ sont des types, alors
+  $(\sigma\to\tau)$ est un type.
+\end{itemize}
+
+Un \defin{préterme} est défini inductivement par :
+\begin{itemize}
+\item toute variable de terme est un préterme ;
+\item si $P$ et $Q$ sont des prétermes, alors $(PQ)$ est un préterme ;
+\item si $v$ est une variable, $\sigma$ un type et $E$ un préterme,
+  alors $\lambda(v:\sigma).E$ est un préterme.
+\end{itemize}
+
+On adopte les conventions de parenthésage
+\[
+\rho\to\sigma\to\tau
+  :=\rho\to(\sigma\to\tau)
+\qquad\text{et}\qquad
+xyz:=((xy)z).
+\]
+L'application est donc associative à gauche dans la notation, tandis
+que le constructeur de type fonction est associatif à droite.
+L'abstraction est moins prioritaire que l'application. On peut abréger
+\[
+\lambda(x:\sigma).\lambda(t:\tau).E
+\]
+en $\lambda(x:\sigma,t:\tau).E$ ou
+$\lambda(x:\sigma)(t:\tau).E$. Enfin, les termes sont considérés à
+renommage près de leurs variables liées, c'est-à-dire à
+$\alpha$-conversion près.
+
+\begin{defn}
+Un \defin{contexte de typage} est un ensemble fini $\Gamma$ de typages
+$x_i:\sigma_i$, où les $x_i$ sont des variables de terme distinctes.
+On l'écrit généralement
+\[
+\Gamma=x_1:\sigma_1,\ldots,x_k:\sigma_k.
+\]
+
+Un \defin{jugement de typage} est une expression
+\[
+\Gamma\vdash E:\tau,
+\]
+signifiant que $E$ est un terme de type $\tau$ dans le contexte
+$\Gamma$. Lorsque $\Gamma$ est vide, on écrit simplement
+$\vdash E:\tau$.
+\end{defn}
+
+\thingy Les règles de typage du $\lambda$CST sont les suivantes :
+\[
+\inferrule*[Left={Var}]
+ { }
+ {\Gamma,x:\sigma\vdash x:\sigma}
+\]
+\[
+\inferrule*[Left={App},sep=4em]
+ {\Gamma\vdash P:\sigma\to\tau\\
+  \Gamma\vdash Q:\sigma}
+ {\Gamma\vdash PQ:\tau}
+\]
+\[
+\inferrule*[Left={Abs}]
+ {\Gamma,v:\sigma\vdash E:\tau}
+ {\Gamma\vdash\lambda(v:\sigma).E:\sigma\to\tau}.
+\]
+Chaque barre horizontale signifie que le jugement placé en dessous
+découle, par la règle indiquée, des jugements placés au-dessus.
+L'ensemble des jugements de typage est le plus petit ensemble fermé
+par ces règles.
+
+Une \defin{dérivation} d'un jugement est un arbre d'instances de ces
+règles dont la racine est le jugement considéré.
+
+\thingy Voici quelques exemples de jugements :
+\[
+f:\alpha\to\beta,\;x:\alpha\vdash fx:\beta,
+\]
+\[
+f:\beta\to\alpha\to\gamma,\;x:\alpha,\;y:\beta
+  \vdash fyx:\gamma,
+\]
+\[
+f:\beta\to\alpha\to\gamma,\;x:\alpha
+  \vdash\lambda(y:\beta).fyx:\beta\to\gamma,
+\]
+\[
+x:\alpha\vdash
+  \lambda(f:\alpha\to\beta).fx:(\alpha\to\beta)\to\beta,
+\]
+et
+\[
+\vdash
+\lambda(x:\alpha).\lambda(f:\alpha\to\beta).fx:
+\alpha\to(\alpha\to\beta)\to\beta.
+\]
+
+À titre d'exemple plus développé, on obtient la dérivation suivante :
+{\footnotesize
+\[
+\inferrule*[Left={Abs}]{
+ \inferrule*[Left={Abs}]{
+  \inferrule*[Left={Abs}]{
+   \inferrule*[Left={App}]{
+    \inferrule*[Left={App}]{
+     \inferrule*[Left={Var}]{ }
+      {f:\beta\to\alpha\to\gamma,x:\alpha,y:\beta
+       \vdash f:\beta\to\alpha\to\gamma}
+     \\
+     \inferrule*[Right={Var}]{ }
+      {f:\beta\to\alpha\to\gamma,x:\alpha,y:\beta
+       \vdash y:\beta}
+    }{
+     f:\beta\to\alpha\to\gamma,x:\alpha,y:\beta
+     \vdash fy:\alpha\to\gamma
+    }
+    \\
+    \inferrule*[Right={Var}]{ }
+     {f:\beta\to\alpha\to\gamma,x:\alpha,y:\beta
+      \vdash x:\alpha}
+   }{
+    f:\beta\to\alpha\to\gamma,x:\alpha,y:\beta
+    \vdash fyx:\gamma
+   }
+  }{
+   f:\beta\to\alpha\to\gamma,x:\alpha
+   \vdash\lambda(y:\beta).fyx:\beta\to\gamma
+  }
+ }{
+  f:\beta\to\alpha\to\gamma
+  \vdash\lambda(x:\alpha).\lambda(y:\beta).fyx:
+  \alpha\to\beta\to\gamma
+ }
+}{
+ \vdash
+ \lambda(f:\beta\to\alpha\to\gamma).
+ \lambda(x:\alpha).\lambda(y:\beta).fyx:
+ (\beta\to\alpha\to\gamma)\to(\alpha\to\beta\to\gamma)
+}
+\]
+}
+
+\subsection{Propriétés élémentaires du typage}
+
+\begin{prop}[Affaiblissement]
+Si $\Gamma\subseteq\Gamma'$ sont deux contextes et si
+$\Gamma\vdash M:\sigma$, alors $\Gamma'\vdash M:\sigma$.
+\end{prop}
+
+\begin{proof}
+On raisonne par induction sur la dérivation de
+$\Gamma\vdash M:\sigma$. Dans le cas d'une variable, le typage utilisé
+appartient à $\Gamma$, donc également à $\Gamma'$. Les règles
+d'application et d'abstraction se transportent immédiatement en
+appliquant l'hypothèse d'induction à leurs prémisses.
+\end{proof}
+
+\begin{prop}[Variables libres]
+Si
+\[
+x_1:\sigma_1,\ldots,x_k:\sigma_k\vdash E:\tau,
+\]
+alors toute variable libre de $E$ appartient à
+$\{x_1,\ldots,x_k\}$.
+\end{prop}
+
+\begin{proof}
+La propriété se vérifie par induction sur la dérivation. La règle
+variable ne peut introduire qu'une variable présente dans le contexte.
+L'application réunit les variables libres de ses deux sous-termes.
+Enfin, l'abstraction lie précisément la variable ajoutée au contexte.
+\end{proof}
+
+En conséquence, les typages du contexte qui ne concernent aucune
+variable libre de $E$ peuvent être supprimés. Le typage est également
+invariant par renommage cohérent des variables libres.
+
+\thingy La dérivation du typage d'un préterme se construit
+systématiquement à partir de sa syntaxe :
+\begin{itemize}
+\item une variable doit être présente dans le contexte ;
+\item pour une application $PQ$, les types obtenus pour $P$ et $Q$
+  doivent être respectivement $\sigma\to\tau$ et $\sigma$ ;
+\item pour une abstraction $\lambda(v:\sigma).E$, on type $E$ dans le
+  contexte enrichi par $v:\sigma$.
+\end{itemize}
+Il n'y a donc aucun choix substantiel à effectuer.
+
+\begin{prop}[Unicité du type]
+Pour un contexte $\Gamma$ et un préterme annoté $M$ donnés, il existe
+au plus un type $\sigma$ tel que $\Gamma\vdash M:\sigma$.
+\end{prop}
+
+\begin{proof}
+On raisonne par induction sur la structure de $M$. Le type d'une
+variable est imposé par le contexte. Celui d'une abstraction est imposé
+par l'annotation de sa variable et par le type, unique par hypothèse
+d'induction, de son corps. Enfin, dans une application, le type de la
+fonction et celui de l'argument imposent de manière unique le type du
+résultat.
+\end{proof}
+
+\subsection{Substitution, réduction et normalisation}
+
+\begin{lem}[Substitution]\label{substitution-lemma}
+Si
+\[
+\Gamma,v:\sigma\vdash E:\tau
+\qquad\text{et}\qquad
+\Gamma\vdash T:\sigma,
+\]
+alors
+\[
+\Gamma\vdash E[v\backslash T]:\tau,
+\]
+où $E[v\backslash T]$ désigne la substitution correcte de $v$ par $T$
+dans $E$.
+\end{lem}
+
+\begin{proof}
+On raisonne par induction sur la dérivation de
+$\Gamma,v:\sigma\vdash E:\tau$. Les règles d'application et
+d'abstraction se transportent en appliquant l'hypothèse d'induction aux
+prémisses, après avoir renommé si nécessaire les variables liées pour
+éviter toute capture.
+
+Dans le cas de la règle variable, si la variable considérée est $v$,
+on remplace la feuille correspondante par la dérivation de
+$\Gamma\vdash T:\sigma$. Si elle est différente de $v$, la même règle
+variable reste applicable dans $\Gamma$. Ceci construit une dérivation
+de $\Gamma\vdash E[v\backslash T]:\tau$.
+\end{proof}
+
+\thingy La $\beta$-réduction remplace un redex
+\[
+(\lambda(v:\sigma).E)T
+\]
+par son réduit
+\[
+E[v\backslash T].
+\]
+On note $X\rightarrow_\beta X'$ pour une étape de
+$\beta$-réduction et $X\twoheadrightarrow_\beta X'$ pour une suite de
+telles étapes.
+
+\begin{prop}[Préservation du typage]
+Si $\Gamma\vdash X:\tau$ et
+$X\twoheadrightarrow_\beta X'$, alors
+$\Gamma\vdash X':\tau$.
+\end{prop}
+
+\begin{proof}
+Il suffit de considérer une étape de réduction. Lorsqu'un redex
+$(\lambda(v:\sigma).E)T$ est bien typé, on dispose de
+\[
+\Gamma,v:\sigma\vdash E:\tau
+\qquad\text{et}\qquad
+\Gamma\vdash T:\sigma.
+\]
+Le lemme de substitution donne alors
+$\Gamma\vdash E[v\backslash T]:\tau$. La réduction à l'intérieur d'un
+contexte se traite par induction sur ce contexte. Une suite de
+réductions se traite ensuite par induction sur sa longueur.
+\end{proof}
+
+\begin{thm}[Turing, Tait, Girard]
+Le $\lambda$-calcul simplement typé est \defin{fortement normalisant} :
+toute suite de $\beta$-réductions issue d'un terme bien typé est finie.
+\end{thm}
+
+\begin{proof}
+Les diapositives indiquent la méthode dite de calculabilité. On définit
+par induction sur le type la notion de terme \emph{fortement
+calculable} :
+\begin{itemize}
+\item un terme de type atomique est fortement calculable lorsqu'il est
+  fortement normalisable ;
+\item un terme $P$ de type $\sigma\to\tau$ est fortement calculable
+  lorsque, pour tout terme $Q$ de type $\sigma$ fortement calculable,
+  le terme $PQ$ est fortement calculable.
+\end{itemize}
+On montre d'abord, par induction sur le type, que tout terme fortement
+calculable est fortement normalisable. On montre ensuite, par induction
+sur une dérivation de typage, que la substitution de termes fortement
+calculables aux variables libres d'un terme bien typé produit un terme
+fortement calculable. En substituant les variables elles-mêmes, on
+obtient que tout terme bien typé est fortement calculable, donc
+fortement normalisable.
+
+\review{La preuve précédente développe seulement l'esquisse donnée dans
+les diapositives. Une version finale devrait préciser les propriétés de
+stabilité des termes fortement calculables utilisées dans le cas de
+l'abstraction.}
+\end{proof}
+
+\subsection{Reconstruction des termes et problèmes algorithmiques}
+
+\thingy La syntaxe du terme détermine directement la forme de sa
+dérivation de typage. Réciproquement, si l'on connaît un arbre de
+dérivation dans lequel les types et les règles sont indiqués, mais où
+les termes ont été effacés, les termes peuvent être reconstruits en
+suivant l'arbre :
+\begin{itemize}
+\item une règle variable détermine la variable utilisée ;
+\item une règle d'application reconstruit l'application des deux termes
+  obtenus dans les prémisses ;
+\item une règle d'abstraction reconstruit la variable liée et le corps.
+\end{itemize}
+Il faut seulement distinguer correctement les variables lorsque
+plusieurs hypothèses du contexte ont le même type.
+
+\thingy Les problèmes suivants ont des difficultés différentes :
+\begin{itemize}
+\item étant donné un préterme annoté, calculer son type ou vérifier un
+  jugement est facile et décidable ;
+\item étant donné un arbre de dérivation typé dont les termes ont été
+  effacés, reconstruire le terme est également facile ;
+\item étant donné un terme non annoté, déterminer s'il admet des
+  annotations de type demande un véritable algorithme d'inférence ;
+\item étant donné un type, déterminer s'il est habité correspond, par
+  Curry--Howard, à la décidabilité du calcul propositionnel
+  intuitionniste.
+\end{itemize}
+
+\section{Le calcul propositionnel intuitionniste}
+
+\subsection{Formules et déduction naturelle}
+
+\thingy Le \defin{calcul propositionnel} est une logique dont les
+objets de base sont des propositions, sans variables d'individus ni
+quantificateurs $\forall$ ou $\exists$. Ses connecteurs sont
+\[
+\Rightarrow,\qquad \land,\qquad \lor,\qquad \top,\qquad \bot.
+\]
+La négation est une abréviation :
+\[
+\neg P:=P\Rightarrow\bot.
+\]
+
+Une \defin{formule propositionnelle} est définie inductivement comme
+une variable propositionnelle, ou comme l'application d'un connecteur
+aux formules appropriées. On adopte les priorités usuelles : $\neg$
+est plus prioritaire que $\land$, qui est plus prioritaire que $\lor$,
+qui est plus prioritaire que $\Rightarrow$. L'implication associe à
+droite.
+
+Un \defin{séquent}
+\[
+P_1,\ldots,P_r\vdash Q
+\]
+signifie que $Q$ est démontrable sous les hypothèses
+$P_1,\ldots,P_r$.
+
+\thingy La logique classique admet le tiers exclu, sous l'une de ses
+formes équivalentes. La logique intuitionniste étudiée ici ne l'admet
+pas. Il ne faut pas l'interpréter comme une logique possédant une
+troisième valeur de vérité : elle impose plutôt une notion plus
+constructive de preuve.
+
+Chaque connecteur possède des règles d'\defin{introduction}, permettant
+de le démontrer, et des règles d'\defin{élimination}, permettant de
+l'utiliser.
+
+Les règles de la déduction naturelle intuitionniste sont :
+\[
+\inferrule*[Left={Ax}]
+ { }
+ {\Gamma,P\vdash P}
+\]
+\[
+\inferrule*[Left={$\Rightarrow$Int}]
+ {\Gamma,P\vdash Q}
+ {\Gamma\vdash P\Rightarrow Q}
+\qquad
+\inferrule*[Left={$\Rightarrow$Élim}]
+ {\Gamma\vdash P\Rightarrow Q\\
+  \Gamma\vdash P}
+ {\Gamma\vdash Q}
+\]
+\[
+\inferrule*[Left={$\land$Int}]
+ {\Gamma\vdash Q_1\\
+  \Gamma\vdash Q_2}
+ {\Gamma\vdash Q_1\land Q_2}
+\]
+\[
+\inferrule*[Left={$\land$Élim$_1$}]
+ {\Gamma\vdash Q_1\land Q_2}
+ {\Gamma\vdash Q_1}
+\qquad
+\inferrule*[Left={$\land$Élim$_2$}]
+ {\Gamma\vdash Q_1\land Q_2}
+ {\Gamma\vdash Q_2}
+\]
+\[
+\inferrule*[Left={$\lor$Int$_1$}]
+ {\Gamma\vdash Q_1}
+ {\Gamma\vdash Q_1\lor Q_2}
+\qquad
+\inferrule*[Left={$\lor$Int$_2$}]
+ {\Gamma\vdash Q_2}
+ {\Gamma\vdash Q_1\lor Q_2}
+\]
+\[
+\inferrule*[Left={$\lor$Élim}]
+ {\Gamma\vdash P_1\lor P_2\\
+  \Gamma,P_1\vdash Q\\
+  \Gamma,P_2\vdash Q}
+ {\Gamma\vdash Q}
+\]
+\[
+\inferrule*[Left={$\top$Int}]
+ { }
+ {\Gamma\vdash\top}
+\qquad
+\inferrule*[Left={$\bot$Élim}]
+ {\Gamma\vdash\bot}
+ {\Gamma\vdash Q}.
+\]
+
+Dans ces règles, les hypothèses mises en évidence dans une prémisse
+d'une règle d'introduction de $\Rightarrow$ ou d'élimination de $\lor$
+sont déchargées dans la conclusion.
+
+\thingy Par exemple, la commutativité de la conjonction se démontre par
+\[
+\inferrule*[Left={$\Rightarrow$Int}]{
+ \inferrule*[Left={$\land$Int}]{
+  \inferrule*[Left={$\land$Élim$_2$}]{
+   \inferrule*[Left={Ax}]{ }{A\land B\vdash A\land B}
+  }{A\land B\vdash B}
+  \\
+  \inferrule*[Right={$\land$Élim$_1$}]{
+   \inferrule*[Right={Ax}]{ }{A\land B\vdash A\land B}
+  }{A\land B\vdash A}
+ }{A\land B\vdash B\land A}
+}{\vdash A\land B\Rightarrow B\land A}.
+\]
+
+La commutativité de la disjonction se démontre en distinguant les deux
+cas fournis par une preuve de $A\lor B$ :
+\[
+\inferrule*[Left={$\Rightarrow$Int}]{
+ \inferrule*[Left={$\lor$Élim}]{
+  \inferrule*[Left={Ax}]{ }{A\lor B\vdash A\lor B}
+  \\
+  \inferrule*[Right={$\lor$Int$_2$}]{
+   \inferrule*[Right={Ax}]{ }{A\lor B,A\vdash A}
+  }{A\lor B,A\vdash B\lor A}
+  \\
+  \inferrule*[Right={$\lor$Int$_1$}]{
+   \inferrule*[Right={Ax}]{ }{A\lor B,B\vdash B}
+  }{A\lor B,B\vdash B\lor A}
+ }{A\lor B\vdash B\lor A}
+}{\vdash A\lor B\Rightarrow B\lor A}.
+\]
+
+\subsection{Théorèmes et non-théorèmes}
+
+\thingy Une formule $P$ telle que $\vdash P$ est dite
+\defin{valable}, ou encore un \defin{théorème} du calcul
+propositionnel intuitionniste.
+
+Parmi les théorèmes importants figurent
+\[
+A\Rightarrow A,
+\qquad
+A\Rightarrow B\Rightarrow A,
+\]
+\[
+(A\Rightarrow B\Rightarrow C)
+\Rightarrow(A\Rightarrow B)\Rightarrow A\Rightarrow C,
+\]
+ainsi que les lois usuelles d'associativité, de commutativité et de
+distributivité de $\land$ et $\lor$, sous leurs formes
+intuitionnistement valables.
+
+En revanche, les implications marquées dans les diapositives comme
+classiques ne sont pas nécessairement démontrables
+intuitionnistement. Parmi les non-théorèmes figurent :
+\[
+((A\Rightarrow B)\Rightarrow A)\Rightarrow A,
+\]
+\[
+A\lor\neg A,
+\qquad
+\neg\neg A\Rightarrow A,
+\]
+\[
+\neg(A\land B)\Rightarrow\neg A\lor\neg B,
+\]
+\[
+(A\Rightarrow B)\Rightarrow\neg A\lor B,
+\]
+et
+\[
+(\neg B\Rightarrow\neg A)\Rightarrow(A\Rightarrow B).
+\]
+Ces formules sont valables en logique classique, mais pas dans la
+logique intuitionniste.
+
+\thingy Il faut distinguer une preuve de la négation d'une preuve par
+l'absurde.
+
+Pour démontrer $\neg A$, on suppose $A$ et on en déduit $\bot$. Cette
+démonstration est intuitionnistement valable, puisqu'elle construit une
+preuve de $A\Rightarrow\bot$.
+
+Une preuve classique par l'absurde suppose au contraire $\neg A$,
+obtient une contradiction, puis conclut $A$. Intuitionnistement, cet
+argument démontre seulement $\neg\neg A$, et non nécessairement $A$.
+Ainsi, $\neg A$ peut se lire « $A$ conduit à l'absurde », tandis que
+$\neg\neg A$ signifie seulement que la négation de $A$ conduit à
+l'absurde.
+
+\subsection{Logique classique}
+
+\thingy La logique classique peut être obtenue en remplaçant la règle
+d'élimination de $\bot$ par une règle de raisonnement par l'absurde :
+\[
+\inferrule*[Left={Absurde}]
+ {\Gamma,\neg Q\vdash\bot}
+ {\Gamma\vdash Q}.
+\]
+Elle possède donc davantage de théorèmes que la logique
+intuitionniste.
+
+La sémantique booléenne fournit une caractérisation de la logique
+classique : une formule $P$ est un théorème classique si et seulement
+si toute affectation de $\bot$ ou $\top$ à ses variables lui donne la
+valeur $\top$.
+
+\begin{thm}[Correction et complétude classiques]
+Les tables de vérité booléennes sont correctes et complètes pour le
+calcul propositionnel classique.
+\end{thm}
+
+La correction se démontre par induction sur les dérivations. Pour la
+complétude, on peut raisonner successivement sur les valeurs possibles
+des variables et utiliser le tiers exclu afin de couvrir toutes les
+lignes de la table de vérité.
+
+\subsection{Interprétation de Brouwer--Heyting--Kolmogorov}
+
+\thingy L'interprétation de Brouwer--Heyting--Kolmogorov donne une
+lecture constructive des connecteurs :
+\begin{itemize}
+\item un témoignage de $P\land Q$ est un témoignage de $P$ accompagné
+  d'un témoignage de $Q$ ;
+\item un témoignage de $P\lor Q$ est un témoignage de l'un des deux,
+  accompagné de l'indication du cas choisi ;
+\item un témoignage de $P\Rightarrow Q$ est un moyen de transformer
+  tout témoignage de $P$ en un témoignage de $Q$ ;
+\item un témoignage de $\top$ est trivial ;
+\item il n'existe aucun témoignage de $\bot$.
+\end{itemize}
+Cette interprétation explique directement les règles de déduction
+naturelle.
+
+\subsection{Correspondance de Curry--Howard}
+
+\thingy Pour le connecteur $\Rightarrow$, les règles du $\lambda$CST et
+celles de la déduction naturelle sont exactement les mêmes, au
+changement de vocabulaire près :
+\[
+\begin{array}{c|c}
+\text{Typage du $\lambda$CST}
+&
+\text{Calcul propositionnel intuitionniste}
+\\[1ex]\hline\\[-2ex]
+\inferrule*[Left={Var}]
+ { }
+ {\Gamma,x:\sigma\vdash x:\sigma}
+&
+\inferrule*[Left={Ax}]
+ { }
+ {\Gamma,P\vdash P}
+\\[3ex]
+\inferrule*[Left={App}]
+ {\Gamma\vdash f:\sigma\to\tau\\
+  \Gamma\vdash x:\sigma}
+ {\Gamma\vdash fx:\tau}
+&
+\inferrule*[Left={$\Rightarrow$Élim}]
+ {\Gamma\vdash P\Rightarrow Q\\
+  \Gamma\vdash P}
+ {\Gamma\vdash Q}
+\\[3ex]
+\inferrule*[Left={Abs}]
+ {\Gamma,v:\sigma\vdash t:\tau}
+ {\Gamma\vdash\lambda(v:\sigma).t:\sigma\to\tau}
+&
+\inferrule*[Left={$\Rightarrow$Int}]
+ {\Gamma,P\vdash Q}
+ {\Gamma\vdash P\Rightarrow Q}
+\end{array}
+\]
+On peut donc identifier les termes du $\lambda$CST aux preuves en
+déduction naturelle restreinte à l'implication.
+
+Par exemple, le terme
+\[
+\lambda(f:\beta\to\alpha\to\gamma).
+\lambda(x:\alpha).
+\lambda(y:\beta).fyx
+\]
+correspond à une preuve de
+\[
+(B\Rightarrow A\Rightarrow C)
+\Rightarrow(A\Rightarrow B\Rightarrow C).
+\]
+
+\thingy Pour traiter la conjonction, on enrichit le $\lambda$CST de
+types produits. Les règles sont
+\[
+\inferrule*[Left={Pair}]
+ {\Gamma\vdash t_1:\tau_1\\
+  \Gamma\vdash t_2:\tau_2}
+ {\Gamma\vdash\langle t_1,t_2\rangle:\tau_1\times\tau_2}
+\]
+et
+\[
+\inferrule*[Left={Proj$_i$}]
+ {\Gamma\vdash t:\tau_1\times\tau_2}
+ {\Gamma\vdash\pi_i t:\tau_i}
+ \qquad(i\in\{1,2\}).
+\]
+Elles correspondent exactement aux règles d'introduction et
+d'élimination de $\land$. Les réductions associées sont
+\[
+\pi_i\langle t_1,t_2\rangle\rightsquigarrow t_i.
+\]
+La preuve de $A\land B\Rightarrow B\land A$ correspond ainsi au terme
+\[
+\lambda(u:\alpha\times\beta).
+\langle\pi_2u,\pi_1u\rangle.
+\]
+
+Pour traiter la disjonction, on ajoute des types sommes, avec deux
+injections
+\[
+\iota_i^{(\tau_1,\tau_2)}:\tau_i\to\tau_1+\tau_2
+\qquad(i\in\{1,2\}),
+\]
+et une construction par analyse de cas :
+\[
+\inferrule*[Left={Match}]
+ {\Gamma\vdash r:\sigma_1+\sigma_2\\
+  \Gamma,v_1:\sigma_1\vdash t_1:\tau\\
+  \Gamma,v_2:\sigma_2\vdash t_2:\tau}
+ {\Gamma\vdash
+  (\texttt{match~}r\texttt{~with~}
+   \iota_1v_1\mapsto t_1,\;
+   \iota_2v_2\mapsto t_2):\tau}.
+\]
+Les réductions associées sont
+\[
+(\texttt{match~}\iota_i s\texttt{~with~}
+ \iota_1v_1\mapsto t_1,\;
+ \iota_2v_2\mapsto t_2)
+\rightsquigarrow t_i[v_i\backslash s].
+\]
+
+Enfin, $\top$ correspond à un type unité $1$ possédant une unique
+valeur $\bullet$, tandis que $\bot$ correspond à un type vide $0$.
+Une élimination du type vide fournit un terme de n'importe quel type :
+\[
+\inferrule*[Left={Void}]
+ {\Gamma\vdash r:0}
+ {\Gamma\vdash\texttt{exfalso}^{(\tau)}r:\tau}.
+\]
+
+Ces extensions restent fortement normalisantes.
+
+\thingy La correspondance de Curry--Howard peut alors se résumer ainsi :
+\begin{center}
+\begin{tabular}{c|c}
+Types & Propositions\\ \hline
+$\sigma\to\tau$ & $P\Rightarrow Q$\\
+$\sigma\times\tau$ & $P\land Q$\\
+$\sigma+\tau$ & $P\lor Q$\\
+$1$ & $\top$\\
+$0$ & $\bot$
+\end{tabular}
+\end{center}
+Les termes correspondent aux preuves, l'abstraction à l'ouverture
+d'une hypothèse, l'application au \textit{modus ponens}, et les
+variables liées aux hypothèses déchargées.
+
+Une même proposition peut avoir plusieurs preuves fonctionnellement
+différentes. Par exemple, les entiers de Church
+\[
+\overline{0}_\alpha
+ :=\lambda(f:\alpha\to\alpha).\lambda(x:\alpha).x,
+\]
+\[
+\overline{1}_\alpha
+ :=\lambda(f:\alpha\to\alpha).\lambda(x:\alpha).fx,
+\]
+\[
+\overline{2}_\alpha
+ :=\lambda(f:\alpha\to\alpha).\lambda(x:\alpha).f(fx)
+\]
+ont tous le type
+\[
+(\alpha\to\alpha)\to(\alpha\to\alpha)
+\]
+et correspondent donc à différentes preuves du même énoncé
+$(A\Rightarrow A)\Rightarrow(A\Rightarrow A)$.
+
+\subsection{Calcul des séquents et élimination des coupures}
+
+\thingy Le \defin{calcul des séquents} est une autre présentation de la
+même logique propositionnelle intuitionniste. Il distingue, pour
+chaque connecteur, une règle droite qui l'introduit dans la conclusion
+et une règle gauche qui l'introduit dans les hypothèses. On conserve
+notamment l'axiome
+\[
+\inferrule*[Left={Ax}]{ }{\Gamma,Q\vdash Q},
+\]
+ainsi que les règles structurelles
+\[
+\inferrule*[Left={Contr}]
+ {\Gamma,P,P\vdash Q}
+ {\Gamma,P\vdash Q}
+\qquad
+\inferrule*[Left={Weak}]
+ {\Gamma\vdash Q}
+ {\Gamma,P\vdash Q}.
+\]
+
+La règle de \defin{coupure} est
+\[
+\inferrule*[Left={Cut}]
+ {\Gamma\vdash P\\
+  \Gamma,P\vdash Q}
+ {\Gamma\vdash Q}.
+\]
+Elle exprime la composition de deux démonstrations, $P$ étant la
+formule coupée.
+
+\begin{thm}[Gentzen]
+La règle de coupure est éliminable : tout séquent démontrable avec la
+règle de coupure est démontrable sans elle.
+\end{thm}
+
+\begin{proof}
+La preuve transforme localement une démonstration contenant une
+coupure. On effectue une double récurrence : d'abord sur le degré de la
+formule coupée, puis, à degré fixé, sur la somme des hauteurs des deux
+branches de la coupure.
+
+Lorsque la dernière règle de l'une des branches ne concerne pas la
+formule coupée, on fait remonter la coupure au-dessus de cette règle.
+Lorsqu'une branche se termine par l'axiome portant sur la formule
+coupée, la coupure disparaît. Enfin, lorsque les deux dernières règles
+introduisent le connecteur principal de la formule coupée, on remplace
+la coupure par une ou plusieurs coupures portant sur des sous-formules
+strictes. Le degré diminue alors, ce qui permet d'appliquer l'hypothèse
+de récurrence.
+
+\review{La preuve complète demande l'examen systématique de toutes les
+paires de règles principales. Les diapositives n'en donnent que la
+méthode et quelques exemples de transformations locales.}
+\end{proof}
+
+\thingy L'élimination des coupures a plusieurs conséquences.
+
+Elle implique la \defin{propriété de la disjonction} :
+\[
+\text{si }\vdash Q_1\lor Q_2,\quad
+\text{alors }\vdash Q_1\text{ ou }\vdash Q_2.
+\]
+En effet, une démonstration sans coupure d'une disjonction sans
+hypothèse doit se terminer par l'une des deux règles d'introduction de
+$\lor$.
+
+Elle implique également la \defin{propriété de la sous-formule} : une
+preuve sans coupure de
+\[
+P_1,\ldots,P_r\vdash Q
+\]
+ne fait intervenir que des sous-formules des $P_i$ et de $Q$.
+
+On en déduit un algorithme de décision du calcul propositionnel
+intuitionniste : il suffit d'énumérer les séquents construits avec les
+sous-formules pertinentes et de fermer cet ensemble par les règles
+autres que la coupure.
+
+\section{Le call/cc et la logique classique}
+
+\subsection{Continuations}
+
+\thingy Dans un langage de programmation, la \defin{continuation} d'un
+appel de fonction est l'état du calcul qui attend que cette fonction
+renvoie une valeur. On peut la voir comme une copie de la pile d'appels
+au moment de l'appel.
+
+Certains langages permettent de capturer cette continuation, de la
+stocker comme une valeur et de l'invoquer explicitement. Invoquer une
+continuation avec une valeur $v$ restaure la pile capturée et fait
+comme si l'appel concerné avait renvoyé $v$, même si ce calcul avait
+déjà terminé. Une continuation est ainsi comparable à un
+\texttt{goto} qui restaure en même temps la pile d'appels.
+
+Les continuations peuvent remplacer certains mécanismes d'exception,
+mais aussi reprendre un calcul interrompu. Elles permettent notamment
+d'implémenter des générateurs et certaines formes de multitâche
+coopératif. Leur coût d'implémentation porte essentiellement sur la
+gestion de la pile.
+
+\thingy La fonction \defin{call/cc}, abréviation de
+\textit{call-with-current-continuation}, prend en argument une fonction
+$g$, capture sa propre continuation et passe celle-ci à $g$.
+
+Une continuation ne retourne jamais au point où elle est invoquée.
+Elle peut donc être typée comme $\alpha\to\bot$, ou plus généralement
+comme $\alpha\to\beta$ pour un type de retour arbitraire $\beta$.
+La fonction $g$ attend une continuation de type $\alpha\to\beta$ et
+renvoie une valeur de type $\alpha$. On obtient ainsi
+\[
+\texttt{call/cc}:
+((\alpha\to\beta)\to\alpha)\to\alpha.
+\]
+Ce type correspond à la loi de Peirce
+\[
+((A\Rightarrow B)\Rightarrow A)\Rightarrow A,
+\]
+qui est une formule caractéristique de la logique classique.
+
+La présence de \texttt{call/cc} transforme donc la logique du typage :
+la correspondance de Curry--Howard ne donne plus seulement une logique
+intuitionniste, mais une logique classique. Cette interprétation peut
+être formalisée par le $\lambda\mu$-calcul.
+
+\thingy Le tiers exclu
+\[
+A\lor\neg A
+\]
+peut alors être implémenté en capturant une continuation. L'idée est de
+renvoyer provisoirement le cas $\neg A$. Si cette prétendue négation
+est ensuite appliquée à une valeur de type $A$, la continuation
+capturée est invoquée afin de revenir en arrière et de renvoyer cette
+fois le cas $A$.
+
+Cette possibilité montre pourquoi la logique classique est moins
+constructive : une valeur somme annoncée comme appartenant à l'un des
+deux cas n'est plus stable, puisqu'une continuation peut faire revenir
+le calcul dans le passé et modifier le choix.
+
+\subsection{Continuation Passing Style}
+
+\thingy Même lorsqu'un langage ne fournit pas directement de
+continuations de première classe, on peut réécrire les programmes en
+\defin{Continuation Passing Style}, ou CPS. Au lieu de renvoyer une
+valeur $v$, une fonction reçoit en argument une continuation $k$ et
+appelle $k$ sur $v$. Tous les appels deviennent ainsi terminaux.
+
+Fixons un type $Z$ de retour ultime et posons
+\[
+\mathop{\sim}P:=(P\Rightarrow Z),
+\qquad
+\mathop{\sim}\mathop{\sim}P
+  :=((P\Rightarrow Z)\Rightarrow Z).
+\]
+Une valeur de type $P$ passée par continuation a donc pour type
+$\mathop{\sim}\mathop{\sim}P$.
+
+Pour les termes du $\lambda$-calcul non typé, la transformation
+essentielle est donnée par
+\[
+v^{\mathrm{CPS}}:=\lambda k.kv,
+\]
+\[
+(\lambda v.t)^{\mathrm{CPS}}
+ :=\lambda k.\,k(\lambda v.t^{\mathrm{CPS}}),
+\]
+et
+\[
+(fx)^{\mathrm{CPS}}
+ :=\lambda k.\,
+ f^{\mathrm{CPS}}
+ \bigl(\lambda f_0.\,
+ x^{\mathrm{CPS}}
+ \bigl(\lambda x_0.\,f_0x_0k\bigr)\bigr).
+\]
+Cette dernière formule évalue d'abord $f$, puis $x$, puis applique la
+fonction obtenue à la valeur obtenue et à la continuation du calcul
+complet.
+
+\thingy Pour typer systématiquement cette transformation, on définit
+d'abord $P^\diamond$ par
+\[
+A^\diamond=A
+\]
+pour une variable de type $A$, et
+\[
+(P\Rightarrow Q)^\diamond
+ :=P^\diamond\Rightarrow
+   \mathop{\sim}\mathop{\sim}Q^\diamond.
+\]
+Les produits, sommes, $\top$ et $\bot$ sont transformés composante par
+composante. On pose ensuite
+\[
+P^{\mathrm{CPS}}
+ :=\mathop{\sim}\mathop{\sim}P^\diamond.
+\]
+La transformation des termes est définie de manière à garantir
+\[
+\text{si }\vdash t:P,
+\qquad
+\text{alors }\vdash t^{\mathrm{CPS}}:P^{\mathrm{CPS}}.
+\]
+
+Lorsque $Z=\bot$, cette transformation correspond à une traduction de
+la logique classique dans la logique intuitionniste par double
+négation. Elle donne notamment
+\[
+\mathsf{CPC}\vdash P
+\quad\Longleftrightarrow\quad
+\mathsf{IPC}\vdash P^{\mathrm{CPS}}.
+\]
+\review{Les diapositives indiquent plusieurs variantes de la traduction
+par double négation, notamment celles de Gödel--Gentzen et de Glivenko.
+Il faudra décider dans une version ultérieure jusqu'où développer leur
+comparaison.}
+
+\section{Sémantique du calcul propositionnel intuitionniste}
+
+\subsection{Sémantiques, correction et complétude}
+
+\thingy Une logique $\mathsf{L}$ est définie syntaxiquement par des
+formules, des axiomes et des règles de déduction. On note
+$\mathsf{L}\vdash\varphi$ lorsque $\varphi$ est démontrable dans cette
+logique.
+
+Une \defin{sémantique} est une classe de modèles donnant un sens aux
+symboles de la logique. On note
+\[
+\mathcal{M}\vDash\varphi
+\]
+lorsque la formule $\varphi$ est vraie dans le modèle $\mathcal{M}$.
+
+Une sémantique est \defin{correcte} lorsque tout théorème est vrai dans
+tout modèle :
+\[
+\mathsf{L}\vdash\varphi
+\quad\Longrightarrow\quad
+\mathsf{S}\vDash\varphi.
+\]
+Elle est \defin{complète} lorsque toute formule vraie dans tous les
+modèles est démontrable :
+\[
+\mathsf{S}\vDash\varphi
+\quad\Longrightarrow\quad
+\mathsf{L}\vdash\varphi.
+\]
+
+La sémantique booléenne est correcte et complète pour la logique
+classique, mais elle n'est que correcte pour la logique
+intuitionniste. Il faut donc chercher des modèles plus riches pour
+caractériser exactement cette dernière.
+
+\subsection{Cadres de Kripke}
+
+\begin{defn}
+Un \defin{cadre de Kripke} est un ensemble partiellement ordonné
+$(W,\leq)$. Ses éléments sont appelés des \defin{mondes}. Si
+$w\leq w'$, on dit que $w'$ est accessible depuis $w$.
+
+Une affectation de vérité sur ce cadre associe à chaque variable
+propositionnelle une fonction
+\[
+p:W\to\{0,1\}
+\]
+croissante : si $p(w)=1$ et $w\leq w'$, alors $p(w')=1$. Cette
+propriété est appelée permanence.
+
+Un modèle de Kripke est un cadre muni d'une telle affectation pour
+chaque variable propositionnelle.
+\end{defn}
+
+\thingy Les connecteurs sont interprétés dans un monde $w$ par
+\begin{itemize}
+\item $(q_1\mathbin{\dottedland}q_2)(w)=1$ si et seulement si
+  $q_1(w)=q_2(w)=1$ ;
+\item $(q_1\mathbin{\dottedlor}q_2)(w)=1$ si et seulement si
+  $q_1(w)=1$ ou $q_2(w)=1$ ;
+\item $(q_1\mathbin{\dottedlimp}q_2)(w)=1$ si et seulement si, pour
+  tout $w'\geq w$, $q_1(w')=1$ implique $q_2(w')=1$ ;
+\item $\dottedtop(w)=1$ et $\dottedbot(w)=0$.
+\end{itemize}
+En particulier,
+\[
+\dot{\neg}p
+ :=p\mathbin{\dottedlimp}\dottedbot
+\]
+vaut dans $w$ lorsque $p$ est faux dans tout monde accessible depuis
+$w$.
+
+Ainsi, $A\Rightarrow B$ ne signifie pas simplement que $A$ est faux ou
+que $B$ est vrai dans le monde actuel. Il signifie que, dans tout
+monde futur où $A$ deviendra vrai, $B$ sera également vrai.
+
+Une formule est valide dans un modèle lorsqu'elle vaut dans tous ses
+mondes, et valide pour la sémantique de Kripke lorsqu'elle vaut dans
+tout modèle de Kripke.
+
+\begin{thm}[Kripke]
+La sémantique de Kripke est correcte et complète pour le calcul
+propositionnel intuitionniste.
+\end{thm}
+
+\review{La preuve du théorème de Kripke n'est pas donnée dans les
+diapositives et n'est donc pas développée ici.}
+
+\thingy La complétude exige de considérer tous les cadres. Un cadre
+réduit à un singleton redonne la sémantique booléenne. Un cadre
+totalement ordonné valide
+\[
+(A\Rightarrow B)\lor(B\Rightarrow A),
+\]
+qui n'est pourtant pas démontrable intuitionnistement en général.
+
+Le cadre à deux mondes $u\leq v$ donne une logique à trois valeurs
+$\{0,\mathsf{q},1\}$, où $\mathsf{q}$ signifie qu'une proposition est
+fausse dans $u$ mais vraie dans $v$.
+
+\subsection{Sémantique topologique}
+
+\thingy Fixons un espace topologique $X$ et notons $\mathcal{O}(X)$ son
+ensemble d'ouverts. On interprète les connecteurs sur les ouverts par
+\[
+U\mathbin{\dottedland}V:=U\cap V,
+\qquad
+U\mathbin{\dottedlor}V:=U\cup V,
+\]
+\[
+\dottedtop:=X,
+\qquad
+\dottedbot:=\varnothing,
+\]
+et
+\[
+U\mathbin{\dottedlimp}V
+ :=\operatorname{int}\bigl((X\setminus U)\cup V\bigr).
+\]
+Autrement dit, $U\mathbin{\dottedlimp}V$ est le plus grand ouvert $W$
+tel que
+\[
+U\cap W\subseteq V.
+\]
+On obtient notamment
+\[
+\dot{\neg}U=\operatorname{int}(X\setminus U)
+\]
+et
+\[
+\dot{\neg}\dot{\neg}U
+ =\operatorname{int}(\operatorname{adh}(U)).
+\]
+
+Une formule est interprétée en substituant des ouverts à ses variables.
+Elle est valide si son interprétation est toujours l'ouvert $X$.
+
+\begin{thm}[Tarski]
+La sémantique des ouverts est correcte et complète pour le calcul
+propositionnel intuitionniste. Pour la complétude, il suffit même de
+considérer les espaces $\mathbb{R}^n$, pour $n\geq1$.
+\end{thm}
+
+Cette sémantique traduit l'intuition suivant laquelle la vérité est
+locale : si une propriété est vraie en un point, elle doit rester vraie
+dans un voisinage de ce point.
+
+\thingy À titre d'exemple, dans $X=\mathbb{R}$, soit
+$U={]0,1[}$. Alors
+\[
+\dot{\neg}U
+ ={]-\infty,0[}\cup{]1,+\infty[},
+\qquad
+\dot{\neg}\dot{\neg}U=U.
+\]
+On vérifie également que
+\[
+(\dot{\neg}\dot{\neg}U\mathbin{\dottedlimp}U)=\mathbb{R}.
+\]
+En revanche,
+\[
+U\mathbin{\dottedlor}\dot{\neg}U
+ =\mathbb{R}\setminus\{0,1\},
+\]
+ce qui fournit un contre-modèle topologique au tiers exclu.
+
+\subsection{Réalisabilité propositionnelle}
+
+\thingy Reprenons une numérotation
+\[
+\Phi_e:\mathbb{N}\dashrightarrow\mathbb{N}
+\]
+des fonctions générales récursives. On interprète maintenant une
+formule par un ensemble d'entiers, ses réalisateurs.
+
+Pour $P,Q\subseteq\mathbb{N}$, on pose
+\[
+P\mathbin{\dottedland}Q
+ :=\{\langle m,n\rangle:m\in P,\ n\in Q\},
+\]
+\[
+P\mathbin{\dottedlor}Q
+ :=\{\langle0,m\rangle:m\in P\}
+   \cup\{\langle1,n\rangle:n\in Q\},
+\]
+et
+\[
+P\mathbin{\dottedlimp}Q
+ :=\{e\in\mathbb{N}:
+     \forall m\in P,\;
+     \Phi_e(m)\mathord{\downarrow}\in Q\}.
+\]
+Enfin,
+\[
+\dottedtop:=\mathbb{N},
+\qquad
+\dottedbot:=\varnothing.
+\]
+Une formule $\varphi(A_1,\ldots,A_r)$ est dite
+\defin{réalisable} lorsqu'il existe un même entier $n$ appartenant à
+\[
+\bigcap_{P_1,\ldots,P_r\subseteq\mathbb{N}}
+\dot{\varphi}(P_1,\ldots,P_r).
+\]
+
+\begin{thm}[Dragalin, Troelstra, Nelson]
+La sémantique de la réalisabilité est correcte pour le calcul
+propositionnel intuitionniste.
+\end{thm}
+
+Le réalisateur peut être extrait de la preuve : il s'agit d'une autre
+forme de la correspondance de Curry--Howard.
+
+Cette sémantique n'est toutefois pas complète. Il existe des formules
+réalisables qui ne sont pas démontrables intuitionnistement.
+
+\thingy La formule $A\land B\Rightarrow B\land A$ est réalisée par un
+programme qui permute les composantes d'un couple. C'est exactement
+l'algorithme correspondant au terme
+\[
+\lambda z.\langle\pi_2z,\pi_1z\rangle
+\]
+déjà obtenu par Curry--Howard.
+
+En revanche, $A\lor\neg A$ ne peut pas être uniformément réalisé : il
+faudrait produire le même entier qui, pour toute partie
+$P\subseteq\mathbb{N}$, indique soit un élément de $P$, soit un
+programme certifiant que $P$ est vide.
+
+\subsection{Sémantique des problèmes finis}
+
+\thingy Un \defin{problème fini} est un couple $(X,S)$ où $X$ est un
+ensemble fini non vide de candidats et $S\subseteq X$ l'ensemble de ses
+solutions.
+
+On définit
+\[
+(X,S)\mathbin{\dottedland}(Y,T)
+ :=(X\times Y,S\times T),
+\]
+\[
+(X,S)\mathbin{\dottedlor}(Y,T)
+ :=(X\uplus Y,S\uplus T),
+\]
+et
+\[
+(X,S)\mathbin{\dottedlimp}(Y,T)
+ :=(Y^X,U),
+\]
+où
+\[
+U:=\{f:X\to Y:f(S)\subseteq T\}.
+\]
+Enfin,
+\[
+\dottedtop:=(\{\bullet\},\{\bullet\}),
+\qquad
+\dottedbot:=(\{\bullet\},\varnothing).
+\]
+
+Une formule est dite valide au sens de Medvedev lorsqu'il existe, pour
+tous les ensembles de candidats choisis, un même candidat qui est une
+solution du problème interprétant la formule, quels que soient les
+sous-ensembles de solutions.
+
+\begin{thm}[Medvedev]
+La sémantique des problèmes finis est correcte pour le calcul
+propositionnel intuitionniste.
+\end{thm}
+
+Elle n'est pas complète. Elle formalise néanmoins de manière précise
+l'idée de Brouwer--Heyting--Kolmogorov selon laquelle une preuve d'une
+implication est une fonction transformant les solutions du premier
+problème en solutions du second.
+
+\section{Inférence de type à la Hindley--Milner}
+
+\subsection{Désannotation et problème de l'inférence}
+
+\thingy Le $\lambda$CST présenté jusqu'ici porte toutes les annotations
+de type. La \defin{désannotation} d'un terme consiste à les supprimer.
+Par exemple,
+\[
+\lambda(x:\alpha).
+\lambda(f:(\alpha\to\beta)\to\beta\to\gamma).
+f(\lambda(h:\alpha\to\beta).hx)
+\]
+se désannote en
+\[
+\lambda xf.\,f(\lambda h.hx).
+\]
+
+Le problème de l'inférence de type est alors le suivant :
+\begin{itemize}
+\item décider si un terme non typé est la désannotation d'un terme du
+  $\lambda$CST ;
+\item si oui, retrouver ses annotations et son type ;
+\item trouver même un type principal, c'est-à-dire le type le plus
+  général dont tous les autres s'obtiennent par substitution.
+\end{itemize}
+
+L'algorithme de Hindley--Milner, également appelé algorithme de
+Damas--Milner ou algorithme W, accomplit ces tâches. Il transforme les
+variables de type opaques du $\lambda$CST en un véritable mécanisme de
+polymorphisme.
+
+\subsection{Collection et résolution des contraintes}
+
+\thingy La première phase de l'algorithme consiste à collecter des
+contraintes. On attribue une variable de type fraîche à chaque
+variable et à chaque résultat intermédiaire.
+
+Pour une variable $v$, on renvoie le type qui lui est associé dans le
+contexte. Pour une abstraction $\lambda v.e$, on attribue à $v$ un
+type frais $\eta$, on infère un type $\zeta$ pour $e$, puis on renvoie
+$\eta\to\zeta$. Pour une application $fx$, si les types provisoires de
+$f$ et $x$ sont $\zeta$ et $\xi$, on introduit un type frais $\eta$,
+on ajoute la contrainte
+\[
+\zeta=(\xi\to\eta)
+\]
+et on attribue le type $\eta$ à l'application.
+
+À titre d'exemple, pour
+\[
+\lambda xyz.xz(yz),
+\]
+on collecte
+\[
+x:\eta_1,\qquad y:\eta_2,\qquad z:\eta_3,
+\]
+\[
+xz:\eta_4
+\quad\text{avec}\quad
+\eta_1=(\eta_3\to\eta_4),
+\]
+\[
+yz:\eta_5
+\quad\text{avec}\quad
+\eta_2=(\eta_3\to\eta_5),
+\]
+et
+\[
+xz(yz):\eta_6
+\quad\text{avec}\quad
+\eta_4=(\eta_5\to\eta_6).
+\]
+Le type provisoire renvoyé est
+\[
+\eta_1\to\eta_2\to\eta_3\to\eta_6.
+\]
+
+\thingy La deuxième phase résout les contraintes par
+\defin{unification}. Une substitution des variables de type est
+cherchée de manière à rendre égaux les deux membres de chaque
+contrainte.
+
+L'algorithme procède ainsi :
+\begin{itemize}
+\item une contrainte déjà satisfaite est supprimée ;
+\item si l'un des membres est une variable $\eta$ qui n'apparaît pas
+  dans l'autre membre, on substitue cet autre membre à $\eta$ partout ;
+\item si les deux membres sont des types fonctions, on les décompose
+  composante par composante ;
+\item dans tous les autres cas, l'unification échoue.
+\end{itemize}
+La condition interdisant de remplacer $\eta$ par un type contenant
+$\eta$ est appelée \defin{test d'occurrence}. Elle interdit notamment
+de résoudre
+\[
+\eta=(\eta\to\zeta).
+\]
+
+\thingy Reprenons
+\[
+t:=(\lambda xy.x)(\lambda x'y'.x').
+\]
+La première phase donne les variables de type
+\[
+x:\eta_1,\quad y:\eta_2,\quad
+x':\eta_3,\quad y':\eta_4
+\]
+et la contrainte
+\[
+(\eta_1\to\eta_2\to\eta_1)
+ =
+((\eta_3\to\eta_4\to\eta_3)\to\eta_5).
+\]
+L'unification produit successivement
+\[
+\eta_1\mapsto(\eta_3\to\eta_4\to\eta_3)
+\]
+et
+\[
+\eta_5\mapsto(\eta_2\to\eta_3\to\eta_4\to\eta_3).
+\]
+On obtient finalement le typage
+\[
+\vdash
+(\lambda(x:\eta_3\to\eta_4\to\eta_3).
+ \lambda(y:\eta_2).x)
+(\lambda(x':\eta_3).\lambda(y':\eta_4).x')
+:
+\eta_2\to\eta_3\to\eta_4\to\eta_3.
+\]
+
+\begin{thm}[Propriétés de l'algorithme de Hindley--Milner]
+L'algorithme d'unification termine. Lorsqu'il renvoie une substitution,
+celle-ci satisfait les contraintes. S'il existe une solution, il
+renvoie une solution principale dont toute autre solution s'obtient
+par substitution.
+\end{thm}
+
+\begin{proof}
+La terminaison se montre par une double récurrence, d'abord sur le
+nombre de variables de type restant à éliminer, puis sur la taille
+totale des types présents dans les contraintes.
+
+La correction se vérifie directement à chaque transformation du
+système de contraintes. La propriété de principalité se montre par
+induction sur les appels récursifs de l'algorithme : toute solution du
+système initial doit effectuer les identifications imposées par
+l'étape courante, puis se factorise par la solution renvoyée pour le
+système simplifié.
+
+\review{Les diapositives ne donnent que les idées de ces preuves. La
+notion exacte de composition des substitutions et la mesure de
+terminaison devront être détaillées dans une version ultérieure.}
+\end{proof}
+
+\thingy Le terme $\lambda x.xx$ n'est pas typable dans le
+$\lambda$CST. La collecte des contraintes imposerait
+\[
+\eta_1=(\eta_1\to\eta_2),
+\]
+ce que le test d'occurrence interdit. Cette impossibilité est cohérente
+avec la normalisation forte : si $\lambda x.xx$ était typable, le terme
+\[
+(\lambda x.xx)(\lambda x.xx)
+\]
+le serait aussi, alors qu'il se réduit indéfiniment à lui-même.
+
+On peut étendre certains systèmes à des types récursifs sans
+constructeur, en supprimant ce test. L'option
+\texttt{ocaml -rectypes} permet par exemple d'accepter de tels types.
+Cette extension doit cependant être utilisée avec précaution.
+
+\subsection{Polymorphisme du \texttt{let} et restriction de valeur}
+
+\thingy Dans un langage fonctionnel,
+\[
+\texttt{let }v=x\texttt{ in }t
+\]
+peut être vu comme un sucre syntaxique pour
+\[
+(\lambda v.t)x.
+\]
+Cette traduction pose toutefois un problème pour le polymorphisme. Si
+une même valeur doit être utilisée à plusieurs types dans $t$, le
+typage ordinaire d'une abstraction impose un type unique à $v$.
+
+L'idée de Hindley--Milner est de typer d'abord $x$, puis de
+\defin{généraliser} les variables de type qui n'apparaissent pas dans
+le contexte extérieur. Chaque occurrence de $v$ dans $t$ reçoit
+ensuite des variables de type fraîches obtenues par instanciation du
+type généralisé.
+
+Cette opération permet par exemple d'utiliser une même fonction
+\texttt{twice} aussi bien sur des entiers que sur des booléens dans le
+corps d'un même \texttt{let}.
+
+\thingy Lorsque le langage possède des effets de bord et des références
+mutables, une généralisation sans restriction serait dangereuse.
+Considérons schématiquement
+\[
+\texttt{let r = ref (fun x -> x) in
+  r := (fun x -> x+1); (!r) true}.
+\]
+Si le type de \texttt{r} était généralisé, la même cellule pourrait être
+vue à la fois comme une référence vers une fonction
+$\texttt{int}\to\texttt{int}$ et comme une référence vers une fonction
+$\texttt{bool}\to\texttt{bool}$. Le programme appliquerait alors une
+fonction entière à un booléen.
+
+OCaml utilise donc la \defin{restriction de valeur} : le membre droit
+d'un \texttt{let} n'est pleinement généralisé que lorsqu'il est une
+valeur statique déterminable à la compilation. Dans un langage
+purement fonctionnel comme Haskell, ce problème ne se pose pas de la
+même manière, puisque les valeurs et les fonctions sont pures.
