@@ -1,0 +1,681 @@
+\chapter{Introduction aux quantificateurs}
+\label{chapter-quantifiers}
+
+{\footnotesize\noindent
+\review{Premier brouillon produit avec l'aide d'un modèle d'IA : ce
+chapitre doit être relu, complété et vérifié par l'enseignant avant toute
+diffusion.}\par}
+
+\section{Les quantificateurs et les systèmes logiques}
+
+\subsection{Les quantificateurs comme conjonctions et disjonctions en
+famille}
+
+\thingy
+Jusqu'à présent, nous avons surtout considéré le \defin{calcul
+propositionnel}, c'est-à-dire une logique dans laquelle les formules
+représentent des affirmations et dans laquelle on peut les combiner par
+les connecteurs propositionnels
+\[
+\Rightarrow,\qquad \land,\qquad \lor,\qquad \top,\qquad \bot.
+\]
+Ces connecteurs permettent déjà d'exprimer beaucoup de raisonnements.
+Ils ne permettent toutefois pas d'exprimer directement des affirmations
+du genre « tout entier possède telle propriété » ou « il existe un objet
+possédant telle propriété ».
+
+\thingy
+Pour cela, on introduit deux notations logiques fondamentales : les
+\defin{quantificateurs} universel et existentiel, notés respectivement
+$\forall$ et $\exists$.  Ils s'appliquent à une formule $P(v)$ qui
+dépend d'une variable libre $v$, supposée ici de type $I$.  Le
+quantificateur lie alors cette variable et forme une nouvelle formule
+\[
+\forall (v:I).\,P(v)
+\qquad\hbox{ou}\qquad
+\exists (v:I).\,P(v).
+\]
+Lorsque le type des individus est clair ou laissé implicite, on écrit
+souvent plus brièvement
+\[
+\forall v.\,P(v)
+\qquad\hbox{et}\qquad
+\exists v.\,P(v).
+\]
+
+\thingy
+Intuitivement, on peut voir les quantificateurs comme des « $\land$ et
+$\lor$ en famille ».  Plus précisément, la formule $\forall v.\,P(v)$,
+parfois notée $\bigwedge_v P(v)$, joue le rôle d'une conjonction portant
+sur toute une famille de formules.  De même, $\exists v.\,P(v)$, parfois
+notée $\bigvee_v P(v)$, joue le rôle d'une disjonction portant sur une
+famille.
+
+Cette analogie est la même que celle qui relie les produits et les
+sommes indexés aux produits et sommes binaires :
+\[
+\forall v.\,P(v)
+\quad\hbox{est à}\quad
+P\land Q
+\quad\hbox{ce que}\quad
+\prod_i p_i
+\quad\hbox{est à}\quad
+p\times q,
+\]
+et
+\[
+\exists v.\,P(v)
+\quad\hbox{est à}\quad
+P\lor Q
+\quad\hbox{ce que}\quad
+\sum_i p_i
+\quad\hbox{est à}\quad
+p+q.
+\]
+
+\thingy
+Il faut cependant faire attention au fait que cette présentation reste
+pour l'instant informelle.  Il existe de nombreux systèmes logiques,
+qui diffèrent notamment par les objets sur lesquels on a le droit de
+quantifier.  Autrement dit, il faudra préciser ce que peut être la
+variable $v$, quel est son domaine ou son type $I$, et comment sont
+formés les termes qui représentent des individus de ce type.
+
+\subsection{Interprétation de Brouwer--Heyting--Kolmogorov}
+
+\thingy
+L'interprétation de Brouwer--Heyting--Kolmogorov, ou interprétation
+\defin{BHK}, donne une lecture constructive des formules logiques : une
+formule est comprise à travers ce qui constituerait un témoignage, ou
+une preuve, de cette formule.  Pour les connecteurs propositionnels,
+nous avons déjà vu les idées suivantes :
+\begin{itemize}
+\item un témoignage de $P\land Q$ est la donnée d'un témoignage de $P$
+  et d'un témoignage de $Q$ ;
+\item un témoignage de $P\lor Q$ est la donnée d'un témoignage de $P$
+  ou d'un témoignage de $Q$, ainsi que l'indication du cas choisi ;
+\item un témoignage de $P\Rightarrow Q$ est un moyen de transformer
+  tout témoignage de $P$ en un témoignage de $Q$ ;
+\item un témoignage de $\top$ est trivial ;
+\item il n'existe pas de témoignage de $\bot$.
+\end{itemize}
+
+\thingy
+Les quantificateurs prolongent naturellement cette lecture.  Un
+témoignage de
+\[
+\forall v.\,P(v)
+\]
+est un moyen qui, à partir d'un individu quelconque $x$, fournit un
+témoignage de $P(x)$.  En revanche, un témoignage de
+\[
+\exists v.\,P(v)
+\]
+est la donnée d'un certain individu $t_0$, accompagnée d'un témoignage
+de $P(t_0)$.
+
+Autrement dit, pour démontrer universellement une propriété, il faut
+savoir traiter un individu arbitraire ; pour démontrer existentiellement
+une propriété, il faut exhiber un individu qui convient.
+
+\subsection{Introduction et élimination de $\forall$ et $\exists$}
+
+\thingy
+Pour introduire une quantification universelle
+$\forall (v:I).\,Q(v)$, on choisit une variable $v:I$ arbitraire.  Il
+faut que cette variable soit \defin{fraîche}, c'est-à-dire qu'elle
+n'apparaisse librement dans aucune des hypothèses actuellement en cours.
+Si l'on démontre alors $Q(v)$ pour ce $v$ arbitraire, on peut conclure
+\[
+\forall (v:I).\,Q(v).
+\]
+
+Dans une rédaction mathématique, le schéma correspondant est le
+suivant : « soit $v$ arbitraire ; montrons $Q(v)$ ; donc
+$\forall (v:I).\,Q(v)$ ».  La condition de fraîcheur est essentielle :
+si $v$ dépendait d'une hypothèse particulière, il ne serait plus
+véritablement arbitraire.
+
+\thingy
+Pour éliminer une quantification universelle, on part d'une preuve de
+$\forall (v:I).\,Q(v)$ et l'on choisit un terme $t$ de type $I$.  On
+obtient alors la formule $Q[v\backslash t]$, c'est-à-dire la formule
+$Q$ dans laquelle les occurrences libres de $v$ ont été remplacées par
+$t$ :
+\[
+\inferrule
+  {\Gamma\vdash \forall (v:I).\,Q
+   \\
+   \Gamma\vdash t:I}
+  {\Gamma\vdash Q[v\backslash t]}.
+\]
+En termes plus ordinaires, si une propriété est vraie pour tout
+individu, elle est vraie en particulier pour l'individu représenté par
+$t$.
+
+\thingy
+Pour introduire une quantification existentielle
+$\exists (v:I).\,Q(v)$, il suffit au contraire d'exhiber un terme $t$
+de type $I$, puis de démontrer $Q[v\backslash t]$.  On peut alors
+conclure
+\[
+\inferrule
+  {\Gamma\vdash t:I
+   \\
+   \Gamma\vdash Q[v\backslash t]}
+  {\Gamma\vdash \exists (v:I).\,Q}.
+\]
+Le terme $t$ est le témoin de l'existence affirmée.
+
+\thingy
+Enfin, pour éliminer une quantification existentielle, on suppose que
+l'on dispose de $\exists (v:I).\,P(v)$ et que l'on cherche à démontrer
+une conclusion $Q$.  On peut alors considérer un individu $v:I$
+arbitraire satisfaisant $P(v)$, à condition que $v$ soit frais : il ne
+doit apparaître librement ni dans les hypothèses déjà présentes, ni
+dans la conclusion $Q$.  Si, sous les hypothèses supplémentaires
+$v:I$ et $P(v)$, on arrive à démontrer $Q$, alors on peut conclure $Q$
+à partir de l'existence initiale :
+\[
+\inferrule
+  {\Gamma\vdash \exists (v:I).\,P
+   \\
+   \Gamma,\,v:I,\,P\vdash Q}
+  {\Gamma\vdash Q}.
+\]
+
+La condition portant sur $Q$ exprime que la conclusion ne doit pas
+dépendre du témoin particulier choisi.  On raisonne bien à partir de
+l'existence d'un témoin quelconque, et non à partir d'un témoin que
+l'on aurait le droit de retenir en dehors de la démonstration.
+
+\thingy
+On peut résumer les règles de déduction naturelle ainsi obtenues par le
+tableau suivant.  Le contexte $\Gamma$ peut contenir à la fois des
+formules, qui jouent le rôle d'hypothèses logiques, et des variables
+d'individus avec leur type, comme $v:I$.
+\[
+\begin{array}{c|c|c}
+ & \text{Introduction} & \text{Élimination}\\\hline
+\forall &
+\inferrule{\Gamma,\,v:I\vdash Q}
+          {\Gamma\vdash\forall(v:I).\,Q}
+\quad(v\ \text{frais})
+&
+\inferrule{\Gamma\vdash\forall(v:I).\,Q\\\Gamma\vdash t:I}
+          {\Gamma\vdash Q[v\backslash t]}
+\\[1em]\hline
+\exists &
+\inferrule{\Gamma\vdash t:I\\\Gamma\vdash Q[v\backslash t]}
+          {\Gamma\vdash\exists(v:I).\,Q}
+&
+\inferrule{\Gamma\vdash\exists(v:I).\,P\\
+           \Gamma,\,v:I,\,P\vdash Q}
+          {\Gamma\vdash Q}
+\quad(v\ \text{frais})
+\end{array}
+\]
+
+\subsection{Preuves, termes d'individus et notations de Curry--Howard}
+
+\thingy
+Dans l'interprétation de Curry--Howard, la conjonction $P\land Q$
+correspond à un type produit $\sigma\times\tau$.  Une preuve de la
+conjonction contient donc une preuve de chacune des deux composantes,
+de même qu'une valeur d'un produit contient une valeur de chacun des
+deux types.
+
+Par analogie, la quantification universelle $\forall v.\,P(v)$
+correspond à un \defin{type produit en famille}
+\[
+\prod_v \sigma(v).
+\]
+Un élément d'un tel type est une fonction qui, pour chaque $v$, fournit
+une valeur de type $\sigma(v)$.  Une preuve de
+$\forall(v:I).\,P(v)$ se note donc naturellement sous la forme
+\[
+\lambda(v:I).\,(\cdots),
+\]
+où le corps de l'abstraction est une preuve de $P(v)$.
+
+\thingy
+Avec les notations des $\lambda$-termes, la règle d'introduction de
+$\forall$ devient
+\[
+\inferrule
+  {\Gamma,\,v:I\vdash s:Q}
+  {\Gamma\vdash\lambda(v:I).\,s
+   \;:\;\forall(v:I).\,Q}.
+\]
+La variable $v$ peut apparaître dans $Q$ et dans le terme $s$, mais elle
+ne doit pas apparaître dans le contexte $\Gamma$.
+
+L'élimination de $\forall$ est alors une application ordinaire :
+\[
+\inferrule
+  {\Gamma\vdash f:\forall(v:I).\,Q
+   \\
+   \Gamma\vdash t:I}
+  {\Gamma\vdash ft:Q[v\backslash t]}.
+\]
+Une preuve de $\forall(v:I).\,Q(v)$ se comporte donc comme une fonction
+qui reçoit un individu $t$ de type $I$ et renvoie une preuve de $Q(t)$.
+
+\thingy
+De même, la disjonction $P\lor Q$ correspond à un type somme
+$\sigma+\tau$.  La quantification existentielle $\exists v.\,P(v)$
+correspond alors à un \defin{type somme en famille}
+\[
+\sum_v \sigma(v).
+\]
+Une valeur de ce type est la donnée d'un indice $t_0$, accompagnée
+d'une valeur de type $\sigma(t_0)$.  Une preuve de
+$\exists(v:I).\,P(v)$ prend ainsi la forme d'une paire
+\[
+\langle t_0,\cdots\rangle.
+\]
+
+\thingy
+La règle d'introduction de $\exists$ peut se noter
+\[
+\inferrule
+  {\Gamma\vdash t:I
+   \\
+   \Gamma\vdash z:Q[v\backslash t]}
+  {\Gamma\vdash\langle t,z\rangle
+   \;:\;\exists(v:I).\,Q}.
+\]
+Le premier composant est le témoin, et le second est la preuve que ce
+témoin satisfait la propriété demandée.
+
+Pour éliminer une preuve existentielle, on utilise un filtrage de motif
+analogue à celui employé pour les types sommes :
+\[
+\inferrule
+  {\Gamma\vdash z:\exists(v:I).\,P
+   \\
+   \Gamma,\,v:I,\,h:P\vdash s:Q}
+  {\Gamma\vdash
+   (\texttt{match~}z\texttt{~with~}\langle v,h\rangle\mapsto s)
+   \;:\;Q}.
+\]
+Ici encore, $v$ peut apparaître dans $s$, mais ne doit apparaître ni
+dans $\Gamma$ ni dans $Q$.
+
+\thingy
+Cette correspondance entre quantificateurs et produits ou sommes en
+famille a toutefois une limite importante.  Il n'est pas toujours
+possible, dans un système logique donné, d'extraire le témoin $t_0$
+d'une preuve de $\exists v.\,P(v)$ afin de l'utiliser comme une donnée
+ordinaire.  Dans certains systèmes, le témoin ne peut être exploité
+qu'à l'intérieur d'une preuve logique.
+
+\review{La portée exacte de cette restriction dépend du système de types
+considéré.  Elle devra être vérifiée lors de l'harmonisation du présent
+chapitre avec les chapitres consacrés à Curry--Howard et aux systèmes de
+types dépendants.}
+
+\subsection{Ce que l'on peut quantifier : systèmes de types et
+$\lambda$-cube}
+
+\thingy
+Les règles précédentes ne suffisent pas encore à définir complètement
+un système logique.  Il faut aussi préciser la formation des termes
+d'individus, ainsi que la façon dont le monde des individus et le monde
+des propositions interagissent.
+
+On peut distinguer, selon les systèmes, deux mondes plus ou moins
+séparés :
+\begin{itemize}
+\item le monde des termes, ou individus, et de leurs types ;
+\item le monde logique, constitué des propositions et de leurs preuves.
+\end{itemize}
+Les règles de déduction naturelle présentées ci-dessus construisent des
+démonstrations et appartiennent donc au monde logique.  Les prémisses de
+la forme $\Gamma\vdash t:I$, qui assurent qu'un terme $t$ est bien un
+individu de type $I$, relèvent du monde des termes.
+
+\thingy
+Dans Coq/Rocq, ces deux mondes sont séparés mais parallèles : les
+propositions appartiennent à $\mathit{Prop}$, tandis que les types
+d'individus appartiennent à $\mathit{Type}$.  D'autres systèmes adoptent
+des séparations différentes, ou mélangent davantage ces deux niveaux.
+
+Les questions suivantes permettent notamment de distinguer les
+systèmes :
+\begin{itemize}
+\item peut-on quantifier sur les propositions, comme dans
+  \[
+  \forall(A:*).\,\bigl(A\Rightarrow A\bigr),
+  \]
+  avec la preuve
+  $\lambda(A:*).\,\lambda(h:A).\,h$ ?
+\item peut-on abstraire sur une proposition, et former par exemple
+  \[
+  \lambda(A:*).\,A
+  \]
+  de type $*\rightarrow *$ ?
+\item peut-on quantifier sur des individus $x:I$ dans une famille de
+  propositions $A:I\rightarrow *$, comme dans
+  \[
+  \forall(x:I).\,A(x)?
+  \]
+\end{itemize}
+
+\thingy
+Les réponses possibles à ces questions conduisent notamment aux huit
+systèmes du \defin{$\lambda$-cube} de Barendregt.  Le but n'est pas ici
+de les étudier en détail, mais de retenir que les règles de quantification
+dépendent étroitement de ce que le système autorise comme objets, types,
+propositions et abstractions.
+
+\subsection{Quantification existentielle, types sommes et
+imprédicativité}
+
+\thingy
+Considérons l'énoncé suivant, pour deux types $U$ et $V$ :
+\[
+\bigl(\forall(x:U).\,\exists(y:V).\,P(x,y)\bigr)
+\Rightarrow
+\bigl(\exists(f:U\Rightarrow V).\,\forall(x:U).\,P(x,f(x))\bigr).
+\]
+Cet énoncé est un analogue, dans le langage des types, de l'\defin{axiome
+du choix}.  Il affirme que, si pour chaque $x:U$ on dispose d'un $y:V$
+tel que $P(x,y)$, alors on peut réunir les témoins ainsi obtenus dans une
+fonction $f:U\Rightarrow V$.
+
+\thingy
+Si $\forall$ et $\exists$ sont interprétés respectivement comme un
+produit et une somme en famille, cet énoncé paraît naturel.  Une preuve
+de
+\[
+\forall(x:U).\,\exists(y:V).\,P(x,y)
+\]
+est alors une fonction qui, à chaque $x$, associe une paire constituée
+d'un $y$ et d'une preuve de $P(x,y)$.  On peut donc définir la fonction
+qui extrait le premier composant de cette paire, et conserver dans une
+seconde preuve le second composant.
+
+En revanche, si $\exists$ est seulement un quantificateur logique, le
+témoin fourni par une preuve existentielle ne peut pas nécessairement
+être extrait comme une valeur utilisable dans le monde des programmes.
+L'énoncé ci-dessus n'est alors pas nécessairement démontrable.
+
+\thingy
+Cette différence est particulièrement visible entre des systèmes tels
+que Coq, où l'énoncé précédent n'est pas en général démontrable lorsque
+$P:U\times V\to\mathit{Prop}$, et des systèmes à la Martin-Löf tels
+qu'Agda, dans lesquels les preuves existentielles sont des paires
+effectives et permettent cette construction.
+
+\review{Cette comparaison entre Coq/Rocq et Agda reprend l'idée des
+diapositives, mais devra être vérifiée avec soin au regard des univers,
+des restrictions d'élimination de \texttt{Prop} et des bibliothèques
+effectivement utilisées.}
+
+\thingy
+On appelle \defin{imprédicativité} la possibilité de définir une
+proposition ou un type en quantifiant sur toutes les propositions ou
+tous les types, y compris celui que l'on est en train de définir.  Il
+s'agit donc d'une certaine forme de circularité.
+
+Par exemple, en notant $*$ un « type des types » imprédicatif, on peut
+considérer les expressions suivantes :
+\[
+A \;\cong\; \forall(Z:*).\,\bigl(Z\Rightarrow A\bigr),
+\]
+\[
+A \;\cong\;
+\forall(Z:*).\,\bigl((A\Rightarrow Z)\Rightarrow Z\bigr),
+\]
+\[
+\bot\;\cong\;\forall(Z:*).\,Z,
+\]
+\[
+A\land B\;\cong\;
+\forall(Z:*).\,\bigl((A\Rightarrow B\Rightarrow Z)\Rightarrow Z\bigr),
+\]
+et
+\[
+A\lor B\;\cong\;
+\forall(Z:*).\,\bigl((A\Rightarrow Z)\Rightarrow
+(B\Rightarrow Z)\Rightarrow Z\bigr).
+\]
+Ces équivalences sont à comprendre ici comme des indications
+informelles de codages possibles grâce à la quantification
+imprédicative.
+
+\thingy
+L'imprédicativité est utile pour définir certaines constructions sur les
+types.  Elle doit néanmoins être maniée avec prudence : sous des formes
+trop générales, elle peut mener à des incohérences logiques, comme le
+montre le paradoxe de Girard.
+
+\review{Les codages imprédicatifs ci-dessus sont seulement esquissés dans
+les diapositives.  Une passe ultérieure devra décider s'il convient de
+donner les termes précis des deux sens de chaque isomorphisme, ou de
+conserver cette présentation informelle.}
+
+\section{Logique du premier ordre}
+
+\subsection{Individus, prédicats et syntaxe des formules}
+
+\thingy
+La \defin{logique du premier ordre}, aussi appelée \defin{calcul des
+prédicats} du premier ordre, est le système logique le plus simple qui
+ajoute les quantificateurs au calcul propositionnel.  Les objets sur
+lesquels il est permis de quantifier sont appelés des \defin{individus}.
+
+Du point de vue des systèmes de types, cette logique est assez
+rudimentaire : les individus forment un unique type implicite $I$,
+spécialement réservé à ce rôle.  La logique pure du premier ordre ne
+permet pas directement de construire des couples, des fonctions ou
+d'autres objets à partir de ces individus.  Cette limitation est
+compensée, dans les usages mathématiques ordinaires, par la théorie que
+l'on exprime dans cette logique.
+
+\thingy
+La logique du premier ordre possède une importance mathématique
+considérable.  La position classique est que les mathématiques peuvent
+être formalisées dans la théorie des ensembles de Zermelo--Fraenkel avec
+l'axiome du choix, notée $\mathsf{ZFC}$, elle-même formulée en logique
+du premier ordre.  Les objets mathématiques élaborés, tels que couples,
+fonctions ou structures, sont alors construits à l'intérieur de la
+théorie des ensembles plutôt que fournis directement par la logique.
+
+\thingy
+Dans la logique du premier ordre pure, on dispose de deux sortes de
+variables :
+\begin{itemize}
+\item des variables d'individus, notées par exemple $x$, $y$, $z$,
+  en nombre illimité ;
+\item pour chaque entier naturel $n$, des variables de prédicats
+  $n$-aires, aussi appelées relations $n$-aires entre individus, notées
+  par exemple $A^{(n)}$, $B^{(n)}$, $C^{(n)}$.
+\end{itemize}
+L'arité est généralement omise lorsqu'elle se lit immédiatement sur la
+formule.
+
+\thingy
+Les formules sont définies inductivement.  Une formule est :
+\begin{itemize}
+\item une application $A^{(n)}(x_1,\ldots,x_n)$ d'une variable de
+  prédicat $n$-aire à $n$ variables d'individus ;
+\item une combinaison de deux formules $P$ et $Q$ par l'un des
+  connecteurs $(P\Rightarrow Q)$, $(P\land Q)$ ou $(P\lor Q)$, ou bien
+  l'une des constantes $\top$ et $\bot$ ;
+\item une quantification $\forall x.\,P$ ou $\exists x.\,P$, qui lie la
+  variable d'individu $x$ dans $P$.
+\end{itemize}
+Le type $I$ des individus reste implicite : les notations
+$\forall x.\,P$ et $\exists x.\,P$ abrègent donc
+$\forall(x:I).\,P$ et $\exists(x:I).\,P$.
+
+\thingy
+Il ne faut pas confondre les variables de prédicats avec les variables
+d'individus.  Dans la logique du premier ordre, on peut quantifier sur
+les individus, mais non sur les prédicats eux-mêmes : c'est précisément
+le sens de l'expression « premier ordre ».
+
+\subsection{Règles de déduction naturelle et conditions de fraîcheur}
+
+\thingy
+Les règles logiques de la logique du premier ordre reprennent les règles
+du calcul propositionnel, auxquelles s'ajoutent les règles
+d'introduction et d'élimination de $\forall$ et $\exists$.  Elles sont
+les mêmes que celles données en
+\ref{section-quantifiers-and-logical-systems}, mais la variable
+quantifiée est désormais une variable d'individu $x$ du type implicite
+$I$.
+
+\review{Le label
+\texttt{section-quantifiers-and-logical-systems} doit être ajouté à la
+première section si l'on souhaite conserver ce renvoi.}
+
+\thingy
+Un point essentiel est que les prémisses de formation des termes,
+comme
+\[
+\Gamma\vdash t:I,
+\]
+ne doivent pas être oubliées.  Elles assurent que le terme substitué
+dans une formule universelle ou existentielle désigne effectivement un
+individu.  Dans les arbres de preuve, ces prémisses sont parfois
+omises pour alléger la présentation, mais elles restent nécessaires.
+
+\thingy
+Dans la variante la plus simple de la logique du premier ordre, les
+seuls termes d'individus sont les variables d'individus.  Ainsi, la
+seule façon d'obtenir une dérivation de $t:I$ est essentiellement
+d'avoir déclaré $t:I$ dans le contexte.  La règle d'axiome doit donc
+être comprise sous la forme
+\[
+\inferrule{}{\,\Gamma,\,x:I\vdash x:I}
+\]
+et, pour une formule atomique,
+\[
+\inferrule
+  {\Gamma\vdash x_1:I\\\cdots\\\Gamma\vdash x_n:I}
+  {\Gamma,\,A(x_1,\ldots,x_n)\vdash A(x_1,\ldots,x_n)}.
+\]
+
+\thingy
+On ne suppose pas que le domaine des individus soit habité.  En
+particulier, la formule
+\[
+\exists x.\,\top
+\]
+n'est pas démontrable sans hypothèse supplémentaire.  Pour la même
+raison, on ne peut pas démontrer en général
+\[
+\bigl(\forall x.\,A(x)\bigr)\Rightarrow\bigl(\exists x.\,A(x)\bigr).
+\]
+Une preuve universelle ne fournit pas à elle seule un individu auquel
+l'appliquer.
+
+\subsection{Exemples de démonstrations et notation des preuves}
+
+\thingy
+Les formules propositionnelles sont des cas particuliers de formules du
+premier ordre.  Il suffit, pour cela, de considérer les variables
+propositionnelles comme des prédicats $0$-aires, aussi dits
+\defin{nullaires}.  Ainsi,
+\[
+A\land B\Rightarrow B\land A
+\]
+est à la fois une formule propositionnelle et une formule du premier
+ordre.
+
+\thingy
+Voici quelques exemples de formules du premier ordre :
+\begin{itemize}
+\item
+  \[
+  (\forall x.\,A(x))\land(\exists x.\,\top)
+  \Rightarrow(\exists x.\,A(x));
+  \]
+\item
+  \[
+  (\forall x.\,\neg A(x))\Leftrightarrow(\neg\exists x.\,A(x));
+  \]
+\item
+  \[
+  (\exists x.\,\neg A(x))\Rightarrow(\neg\forall x.\,A(x));
+  \]
+\item
+  \[
+  (\exists x.\,A)\Leftrightarrow(\exists x.\,\top)\land A,
+  \]
+  où $A$ est un prédicat nullaire ;
+\item
+  \[
+  (\forall x.\,A)\Leftrightarrow((\exists x.\,\top)\Rightarrow A),
+  \]
+  avec la même convention ;
+\item
+  \[
+  (\exists x.\,\forall y.\,B(x,y))
+  \Rightarrow
+  (\forall y.\,\exists x.\,B(x,y)).
+  \]
+\end{itemize}
+
+\thingy
+Dans ces notes, nous suivons la convention selon laquelle les
+quantificateurs $\forall$ et $\exists$ ont une priorité plus faible que
+les connecteurs $\Rightarrow$, $\lor$, $\land$ et $\neg$.  Cette
+convention n'est pas universelle : lorsque la moindre ambiguïté est
+possible, il est préférable d'ajouter des parenthèses.
+
+\thingy
+Démontrons l'implication
+\[
+(\exists x.\,\forall y.\,B(x,y))
+\Rightarrow
+(\forall y.\,\exists x.\,B(x,y)).
+\]
+Supposons donc $\exists x.\,\forall y.\,B(x,y)$.  Soit $y'$ un individu
+arbitraire.  Par élimination de l'existentielle, considérons un
+individu $x$ tel que $\forall y.\,B(x,y)$.  Par élimination de
+l'universelle, on obtient $B(x,y')$.  En introduisant l'existentielle
+avec le témoin $x$, on en déduit $\exists x'.\,B(x',y')$.
+
+Ce raisonnement ne dépend pas du choix de $y'$ ; on peut donc introduire
+$\forall y'$.  De même, le témoin $x$ utilisé dans le raisonnement
+intermédiaire était obtenu à partir de l'hypothèse existentielle ; on
+peut donc conclure sans le conserver hors de cette élimination.  Enfin,
+on décharge l'hypothèse initiale pour introduire l'implication.
+
+\thingy
+Avec les notations de Curry--Howard, la preuve précédente s'écrit
+\[
+\lambda(u:\exists x.\,\forall y.\,B(x,y)).\;
+\lambda(y':I).\;
+(\texttt{match~}u\texttt{~with~}\langle x,v\rangle\mapsto
+\langle x,vy'\rangle).
+\]
+Le terme $u$ contient une paire existentielle : le filtrage de motif en
+extrait un témoin $x$ et une preuve $v$ de $\forall y.\,B(x,y)$.  En
+appliquant $v$ à $y'$, on obtient $vy':B(x,y')$, puis la paire
+$\langle x,vy'\rangle$ constitue une preuve de
+$\exists x'.\,B(x',y')$.
+
+\subsection{Le monde des individus et le monde logique}
+
+\thingy
+La logique du premier ordre maintient une séparation particulièrement
+nette entre le type implicite $I$ des individus et les relations
+$A,B,C,\ldots$ qui servent à former des propositions.  Le type $I$ est
+spécial : on ne l'écrit généralement pas, et la logique pure ne permet
+pas de former directement des types tels que $I\times I$ ou $I\to I$.
+
+\thingy
+Les individus ne se mélangent donc pas directement aux preuves.  Les
+variables $x$, $y$, $z$ appartiennent au monde des individus, tandis
+que les formules et leurs démonstrations appartiennent au monde
+logique.  Les prédicats permettent de parler logiquement des individus,
+mais ils ne transforment pas pour autant les individus en propositions
+ni les preuves en individus.
+
+Cette organisation explique à la fois la simplicité de la logique du
+premier ordre et ses limitations du point de vue du typ
