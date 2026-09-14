@@ -13,11 +13,14 @@ placés dans exercices/ seront à recopier verbatim, sauf modification
 strictement nécessaire pour permettre la compilation ou l'intégration
 au document d'ensemble.
 
-Le fichier compilation/notes-inf110.tex est celui sur lequel pdfLaTeX
+Le fichier `compilation/notes-inf110.tex` est celui sur lequel pdfLaTeX
 sera appelé.  C'est lui qui définit les packages inclus et les macros
 disponibles.
 
-Le fichier style-guide.md contient le guide de style à suivre généré
+Le fichier `plan-notes-inf110.tex` est le plan d'ensemble des notes,
+qui doit être suivi lors de la rédaction des chapitres.
+
+Le fichier `style-guide.md` contient le guide de style à suivre généré
 par IA à partir de l'analyse des fichiers de modèle (légèrement édité
 par humain).
 
@@ -43,6 +46,8 @@ Objectifs précis :
 
 * conserver essentiellement la structure et l'ordre des slides, ainsi
   que la terminologie et les notations de celles-ci ;
+
+* suivre le plan donné par `plan-notes-inf110.tex` ;
 
 * conserver exactement (autant que possible) la notation mathématique
   des slides (ou, à défaut, des exercices et des modèles) ;
