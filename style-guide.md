@@ -52,6 +52,8 @@ Le ton est pédagogique, direct et parfois légèrement personnel. Il est accept
 
 ### 3.1. Préambule
 
+Le préambule qui sera utilisé pour la compilation des notes final est le fichier `compilation/notes-inf110.tex` (qui inclura les autres fichiers).
+
 Le préambule suit globalement cette organisation :
 
 1. classe `article`, en 12 points, sur papier A4 ;
@@ -70,7 +72,7 @@ Le préambule suit globalement cette organisation :
 Dans le modèle récent, les choix sont notamment :
 
 - `\usepackage[a4paper,margin=2.5cm]{geometry}` ;
-- `\usepackage[french]{babel}` ;
+- `\usepackage[shorthands=off,french]{babel}` ;
 - `\usepackage{lmodern}` ;
 - `\usepackage{newtxtext}` ;
 - `amsmath`, `amsfonts`, `amssymb`, `amsthm` ;
@@ -591,6 +593,8 @@ Les expressions françaises sont généralement entourées de guillemets frança
 
 Dans les fichiers modèles, les guillemets sont parfois directement présents sous forme Unicode. Il faut éviter les guillemets droits anglais pour du texte français, sauf lorsqu’ils font partie d’une chaîne de caractères ou d’une notation informatique.
 
+L'apostrophe est à représenter dans le texte source par le caractère Unicode U+0027 APOSTROPHE et le guillemet simple fermant, s'il devait être utilisé, comme U+2019 RIGHT SINGLE QUOTATION MARK.
+
 ### 11.3. Italique et gras
 
 Utiliser :
@@ -839,23 +843,14 @@ Ne pas réécrire ou moderniser inutilement ces commandes si le document d’ens
 
 ## 17. Points à vérifier et annotations
 
-Les modèles ne fournissent pas de macro explicite `\review{...}` ou équivalente. Ils utilisent toutefois des formulations visibles telles que :
-
-- « Attention ! »
-- « Il faut cependant… »
-- « Pour être tout à fait rigoureux… »
-- « On ne développera pas… »
-- « [et toute occurrence … sera probablement un lapsus …] »
-
-Pour les futures notes produites avec l’aide d’une IA, il est recommandé d’utiliser une annotation clairement identifiable, par exemple `\review{...}`, si cette commande est ajoutée au préambule du document.
-
-Ces annotations doivent être réservées aux cas où :
+Les notes produites par l’IA doivent utiliser la commande `\review{...}` pour signaler tout point à revoir par l'humain, notamment lorsque :
 
 - la notation des slides est ambiguë ;
 - une preuve est incomplète ;
 - deux formulations sont contradictoires ;
 - un résultat semble nécessiter une hypothèse supplémentaire ;
-- la source ne permet pas de décider entre deux interprétations.
+- la source ne permet pas de décider entre deux interprétations ;
+- ou tout autre point délicat dans lequel il est préférable que l'humain fasse un choix.
 
 Il ne faut pas transformer silencieusement une ambiguïté en choix éditorial définitif.
 
