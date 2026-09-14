@@ -1,0 +1,1811 @@
+%% This is a LaTeX document.  Hey, Emacs, -*- latex -*- , get it?
+\newif\ifbeamermode
+\beamermodetrue
+\ifbeamermode
+\documentclass[mathserif,a4paper,aspectratio=169]{beamer}
+\else
+\documentclass[a4paper]{article}
+\usepackage{beamerarticle}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\fi
+\usepackage[shorthands=off,french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{2026}{...}
+% Beamer theme:
+\usetheme{Goettingen}
+%\usecolortheme{albatross}
+%\usecolortheme{lily}
+%\setbeamercovered{transparent}
+% A tribute to the worthy AMS:
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+%
+\usepackage{mathrsfs}
+\usepackage{mathpartir}
+\usepackage{flagderiv}
+%
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata,calc}
+\usepackage{hyperref}
+%
+\newcommand{\itempoint}{\strut\hbox{\color{beamerstructure}\donotcoloroutermaths$\blacktriangleright$}\nobreak\hskip.5em plus.5em\relax}
+\renewcommand{\thefootnote}{\textdagger}
+\newcommand{\dbllangle}{\mathopen{\langle\!\langle}}
+\newcommand{\dblrangle}{\mathclose{\rangle\!\rangle}}
+\newcommand{\cps}{\mathrm{CPS}}
+%\newcommand{\dottedlimp}{\mathbin{\dot\Rightarrow}}
+%\newcommand{\dottedland}{\mathbin{\dot\land}}
+%\newcommand{\dottedlor}{\mathbin{\dot\lor}}
+%\newcommand{\dottedtop}{\mathord{\dot\top}}
+%\newcommand{\dottedbot}{\mathord{\dot\bot}}
+%\newcommand{\dottedneg}{\mathop{\dot\neg}}
+\mathchardef\emdash="07C\relax
+\newcommand{\mpdotsabove}[1]{\inferrule*{\vdots}{#1}}
+%\setlength{\derivskip}{4pt}
+%
+\mode<article>{
+    \newcommand{\donotcoloroutermaths}{\relax}
+    \renewcommand{\frametitle}[1]{\subsubsection*{#1 {\footnotesize[transp. \insertframenumber]}}}
+    \newcommand{\myitemmark}{\hbox{$\blacktriangleright$}}
+    \renewcommand{\itempoint}{\strut\myitemmark\nobreak\hskip.5em plus.5em\relax}
+    \setlength{\parindent}{0pt}
+    \renewcommand{\thepage}{III–\arabic{page}}
+}
+%
+%
+%
+\title{{\footnotesize Partie III:} Introduction aux quantificateurs}
+\subtitle{CSC-3TC34-TP / INF110 (Logique et Fondements de l'Informatique)}
+\author[David Madore]{David A. Madore\\
+{\footnotesize Télécom Paris}\\
+\texttt{david.madore@}(nom de l'école)\texttt{.fr}}
+\date{2023–2026}
+\mode<presentation>{%
+\beamertemplatenavigationsymbolsempty
+\usenavigationsymbolstemplate{\vbox{\hbox{\footnotesize(III) \hyperlinkslideprev{$\leftarrow$}\insertframenumber/\inserttotalframenumber\hyperlinkslidenext{$\rightarrow$}}}}
+}
+\setbeamercolor{myhighlight}{fg=black,bg=white!90!green}
+\colorlet{mydarkgreen}{green!50!black}
+\begin{document}
+\mode<article>{\maketitle\renewcommand{\labelitemi}{\myitemmark}}
+%
+\setlength\abovedisplayskip{2pt plus 2pt minus 2pt}
+\setlength\belowdisplayskip{2pt plus 2pt minus 2pt}
+%
+\begin{frame}
+\titlepage
+{\footnotesize\center{\url{http://perso.enst.fr/madore/inf110/transp-inf110.pdf}}\par}
+{\tiny
+\immediate\write18{sh ./vc > vcline.tex}
+\begin{center}
+Git: \input{vcline.tex}
+\end{center}
+\immediate\write18{echo ' (stale)' >> vcline.tex}
+\par}
+\end{frame}
+%
+\section*{Plan}
+\begin{frame}
+\frametitle{Plan}
+\tableofcontents
+\end{frame}
+%
+\section{Les quantificateurs : discussion informelle}
+\begin{frame}
+\frametitle{Limitations du calcul propositionnel}
+
+\itempoint On a parlé pour l'instant de \textbf{calcul
+  propositionnel}, qui ne connaît que les affirmations logiques et les
+connecteurs propositionnels $\Rightarrow,\land,\lor,\top,\bot$.
+
+\medskip
+
+\itempoint Mais il y a deux notations logiques essentielles en
+mathématiques au-delà de ces connecteurs : les
+\textbf{quantificateurs} $\forall,\exists$, qui :
+\begin{itemize}
+\item prennent une formule $P(v)$ dépendant d'une variable $v$ libre
+  {\footnotesize (de type $I$)},
+\item lient cette variable, pour former une nouvelle formule :
+  $\forall (v:I). P(v)$ ou $\exists (v:I). P(v)$
+  {\footnotesize (parfois juste $\forall v. P(v)$ et $\exists v. P(v)$)}.
+\end{itemize}
+
+\medskip
+
+\itempoint Intuitivement, il faut penser à $\forall$ et $\exists$
+comme des « $\land$ et $\lor$ en famille », c'est-à-dire que :
+\begin{itemize}
+\item $\forall v.P(v)$, parfois noté $\bigwedge_v P(v)$ est à $P\land
+  Q$ ce que $\prod_i p_i$ est à $p\times q$,
+\item $\exists v.P(v)$, parfois noté $\bigvee_v P(v)$ est à $P\lor Q$
+  ce que $\sum_i p_i$ est à $p + q$.
+\end{itemize}
+
+\medskip
+
+\itempoint Il existe de \alert{nombreux systèmes logiques} différant
+notamment en \alert{ce qu'on a le droit de quantifier} (qui sont les
+$v$ ici ? quel est leur domaine $I$ ?).
+
+\smallskip
+
+\textcolor{brown}{Commençons par une discussion informelle de
+  $\forall$ et $\exists$.}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{L'interprétation BHK des quantificateurs}
+
+On a déjà vu l'interprétation informelle des connecteurs, on introduit
+maintenant les quantificateurs :
+
+\begin{itemize}
+\item {\color{darkgray} un témoignage de $P\land Q$, est un témoignage
+  de $P$ et un de $Q$,}
+\item {\color{darkgray} un témoignage de $P\lor Q$, est un témoignage
+  de $P$ ou un de $Q$, et la donnée duquel des deux on a choisi,}
+\item {\color{darkgray} un témoignage de $P\Rightarrow Q$ est un moyen
+  de transformer un témoignage de $P$ en un témoignage de $Q$,}
+\item {\color{darkgray} un témoignage de $\top$ est trivial,} \quad
+  \itempoint {\color{darkgray} un témoignage de $\bot$ n'existe pas,}
+\item un témoignage de $\forall v.P(v)$ est un moyen
+  de transformer un $x$ quelconque en un témoignage de $P(x)$,
+\item un témoignage de $\exists v.P(v)$ est la donnée d'un certain
+  $t_0$ et d'un témoignage de $P(t_0)$.
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Curry-Howard pour le $\forall$}
+
+\itempoint On a vu que Curry-Howard fait correspondre
+\alert{conjonction logique} $P\land Q$ {\footnotesize (« un témoignage
+  de $P$ et un de $Q$ »)} avec \alert{type produit} $\sigma\times\tau$
+      {\footnotesize (« une valeur de $\sigma$ et une de $\tau$ »)}.
+
+\medskip
+
+\itempoint De façon analogue, la \alert{quantification universelle}
+$\forall v. P(v)$ {\footnotesize (« une façon de transformer $v$ en un
+  témoignage de $P(v)$ »)}, qui est une sorte de \emph{conjonction en
+famille} $\bigwedge_v P(v)$, correspondra au \alert{type produit en
+  famille} $\prod_v \sigma(v)$ {\footnotesize (« fonction renvoyant
+  pour chaque $v$ une valeur de $\sigma(v)$ »)}.
+
+\medskip
+
+\itempoint Ceci présuppose l'existence de \alert{familles de types} $v
+\mapsto \sigma(v)$ (= types dépendant de quelque chose) dont on puisse
+prendre le produit.
+
+\medskip
+
+\itempoint Une preuve de $\forall (v:I).P(v)$ correspondra à un terme
+de forme $\lambda(v:I).\,(\cdots)$, où le type de $(\cdots)$
+correspond à $P(v)$.
+
+\medskip
+
+\itempoint Remarquer que $\forall (v:I).P$, si $P$ ne dépend pas de
+$v$, « ressemble » à $I \Rightarrow P$ de la même manière que
+$\prod_{i\in I} S = S^I$ (ensemblistement ou numériquement).
+           {\footnotesize (Les détails dépendent de la nature de la
+             quantification.)}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Curry-Howard pour le $\exists$}
+
+\itempoint On a vu que Curry-Howard fait correspondre
+\alert{disjonction logique} $P\lor Q$ {\footnotesize (« un témoignage
+  de $P$ ou un de $Q$, avec la donnée duquel on a choisi »)} avec
+\alert{type somme} $\sigma+\tau$ {\footnotesize (« une valeur de
+  $\sigma$ ou une de $\tau$, avec un sélecteur entre les deux »)}.
+
+\medskip
+
+\itempoint De façon analogue, la \alert{quantification existentielle}
+$\exists v. P(v)$ {\footnotesize (« la donnée d'un $t_0$ et d'un
+  témoignage de $P(t_0)$ »)}, qui est une sorte de \emph{disjonction
+en famille} $\bigvee_v P(v)$, correspondra au \alert{type somme en
+  famille} $\sum_v \sigma(v)$ {\footnotesize (« donnée d'un $t_0$ et
+  d'une valeur de type $\sigma(t_0)$ »)}.
+
+\medskip
+
+\itempoint Une preuve de $\exists (v:I).P(v)$ correspondra à un terme de
+forme $\langle t_0, \cdots\rangle$, où le type de $(\cdots)$
+correspond à $P(t_0)$.  {\footnotesize (De nouveau, il faut des
+  « familles de types ».)}
+
+\medskip
+
+\itempoint Remarquer que $\exists (v:I).P$, si $P$ ne dépend pas de $v$,
+« ressemble » à $I \times P$ de la même manière que $\sum_{i\in I} S =
+I\times S$.  {\footnotesize (Les détails dépendent de la nature de la
+  quantification.)}
+
+\medskip
+
+\itempoint Mais Curry-Howard atteint ses limites : il n'est pas dit
+que d'une preuve de $\exists v.P(v)$ on \alert{puisse extraire} le
+$t_0$ correspondant dans autre chose qu'une preuve.  {\footnotesize
+  (Les détails dépendent du système logique précis considéré {\tiny et
+    si Martin-Löf est dans la salle}.)}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Règles d'introduction et d'élimination de $\forall$}
+
+{\footnotesize\textcolor{orange}{Les règles ci-dessous (et
+    transp. suivants) sont \alert{incomplètes} : il manque des
+    explications sur le type $I$ sur lequel on quantifie et comment on
+    peut en former des « termes d'individus ».}\par}
+
+\medskip
+
+\itempoint \underline{Introduction du $\forall$ :} pour montrer
+$\forall (v:I).\, Q$, on s'arrange (quitte à renommer la variable
+liée) pour que $v:I$ soit « frais », c'est-à-dire qu'il n'apparaisse
+(libre) dans \alert{aucune hypothèse} en cours : si on montre $Q$ sur
+ce $v$ « arbitraire », on peut conclure $\forall (v:I).\, Q$.
+
+\smallskip
+
+{\footnotesize (Rédaction : « soit $v$ arbitraire (…) on a $Q(v)$ ;
+  donc $\forall (v:I).\, Q(v)$ ».)\par}
+
+\medskip
+
+\textcolor{teal}{Ceci donnera un $\lambda$-terme noté
+  $\lambda(v:I).(\cdots)$ comme l'ouverture d'une hypothèse.}
+
+\bigskip
+
+\itempoint \underline{Élimination du $\forall$ :} pour utiliser
+$\forall (v:I). Q$, on peut l'appliquer à un $t$ quelconque (un
+\alert{terme} de type $I$).
+
+\smallskip
+
+{\footnotesize (Rédaction : « on a $\forall (v:I). Q(v)$ et $t$ de
+  type $I$ ; en particulier, on a $Q(t)$ ».)\par}
+
+\medskip
+
+\textcolor{teal}{Ceci donnera un $\lambda$-terme noté $ft$ comme
+  l'application d'une implication.}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Règles d'introduction et d'élimination de $\exists$}
+
+\itempoint \underline{Introduction du $\exists$ :} pour montrer
+$\exists (v:I). Q$, on peut le montrer sur un terme $t$ quelconque de
+type $I$.
+
+\smallskip
+
+{\footnotesize (Rédaction : « pour ce $t$ de type $I$ on a $Q(t)$ ; en
+  particulier, on a $\exists (v:I). Q(v)$ ».)\par}
+
+\medskip
+
+\textcolor{teal}{Ceci donnera un $\lambda$-terme noté $\langle
+  t,\cdots\rangle$ comme pour une conjonction.}
+
+\bigskip
+
+\itempoint \underline{Élimination du $\exists$ :} pour utiliser
+$\exists (v:I). P(v)$ pour montrer une conclusion $Q$, on s'arrange
+(quitte à renommer la variable liée) pour que $v$ soit « frais »,
+c'est-à-dire qu'il n'apparaisse (libre) dans \alert{aucune hypothèse}
+en cours \alert{ni dans la conclusion} $Q$ : si on montre $Q$ à partir
+de $P$ sur ce $v$ « arbitraire », on peut conclure $Q$ à partir de
+$\exists v. P$.
+
+\smallskip
+
+{\footnotesize (Rédaction : « on a $\exists (v:I). P(v)$ : soit $v$
+  arbitraire tel que $P(v)$ : (…) on a $Q$ ; donc $Q$ ».)\par}
+
+\medskip
+
+\textcolor{teal}{Ceci donnera un $\lambda$-terme noté
+  $(\texttt{match~}\cdots\texttt{~with~}\langle v,h\rangle \mapsto
+  \cdots)$.}
+
+\end{frame}
+%
+\begin{frame}
+\label{natural-deduction-rules-with-quantifiers}
+\frametitle{Aperçu d'ensemble des règles de la déduction naturelle}
+
+\begin{tabular}{c|c|c}
+&Intro&Élim\\\hline
+$\Rightarrow$
+&\scalebox{0.65}{$\inferrule{\Gamma,{\color{mydarkgreen}P}\vdash Q}{\Gamma\vdash P\Rightarrow Q}$}
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash P\Rightarrow Q\\\Gamma\vdash P}{\Gamma\vdash Q}$}
+\\\hline
+$\land$
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash Q_1\\\Gamma\vdash Q_2}{\Gamma\vdash Q_1\land Q_2}$}
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash Q_1\land Q_2}{\Gamma\vdash Q_1}$}
+\quad\scalebox{0.65}{$\inferrule{\Gamma\vdash Q_1\land Q_2}{\Gamma\vdash Q_2}$}
+\\\hline
+$\lor$
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash Q_1}{\Gamma\vdash Q_1\lor Q_2}$}
+\quad\scalebox{0.65}{$\inferrule{\Gamma\vdash Q_2}{\Gamma\vdash Q_1\lor Q_2}$}
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash P_1\lor P_2\\\Gamma,{\color{mydarkgreen}P_1}\vdash Q\\\Gamma,{\color{mydarkgreen}P_2}\vdash Q}{\Gamma\vdash Q}$}
+\\\hline
+$\top$
+&\scalebox{0.65}{$\inferrule{\strut}{\Gamma\vdash \top}$}
+&\scalebox{0.65}{(néant)}
+\\\hline
+$\bot$
+&\scalebox{0.65}{(néant)}
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash \bot}{\Gamma\vdash Q}$
+(ou pour la logique classique : $\inferrule{\Gamma,\neg Q\vdash \bot}{\Gamma\vdash Q}$)}
+\\\hline
+$\forall$
+&$\inferrule{\Gamma, {\color{mydarkgreen}v:I}\vdash Q}{\Gamma\vdash \forall (v:I).\, Q}$ ($v$ \alert{frais})
+&$\inferrule{\Gamma\vdash \forall (v:I).\, Q\\{\color{gray}\Gamma\vdash t:I}}{\Gamma\vdash Q[v\backslash t]}$
+\\\hline
+$\exists$
+&$\inferrule{{\color{gray}\Gamma\vdash t:I}\\\Gamma\vdash Q[v\backslash t]}{\Gamma\vdash \exists (v:I).\, Q}$
+&$\inferrule{\Gamma\vdash \exists (v:I).\, P\\\Gamma, {\color{mydarkgreen}v:I}, {\color{mydarkgreen}P}\vdash Q}{\Gamma\vdash Q}$
+($v$ \alert{frais})
+\\
+\end{tabular}
+
+\smallskip
+
+\itempoint « $v$ frais » = « $v$ n'apparaît nulle part ailleurs »
+(cf. transp. précédents).
+
+\smallskip
+
+\itempoint Le contexte $\Gamma$ peut contenir des formules
+(hypothèses) et des variables d'« individus » (avec leur type,
+p.ex. $v:I$).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Notations des $\lambda$-termes pour $\forall$}
+
+{\footnotesize
+
+\itempoint On a vu en calcul propositionnel qu'on peut noter les
+démonstrations par des « $\lambda$-termes » qui peuvent ensuite être
+réinterprétés comme des programmes (c'est Curry-Howard).  Complétons
+ces notations pour $\forall, \exists$ :
+
+\par}
+
+\medskip
+
+\itempoint \textcolor{blue}{\underline{Introduction du $\forall$ :}}
+si $s$ désigne une preuve de $Q$ faisant intervenir $v$ variable libre
+de type $I$, on notera $\lambda(v:I).\,s$ la preuve de
+$\forall(v:I).\,Q$ obtenue par introduction du $\forall$.
+{\footnotesize (\textbf{N.B.} $v$ peut apparaître dans $Q$ mais pas
+  dans $\Gamma$.)}
+\[
+\inferrule{\Gamma, v:I\vdash s:Q}{\Gamma\vdash \lambda(v:I).\,s\;:\;\forall (v:I).\, Q}
+\]
+
+\medskip
+
+\itempoint \textcolor{blue}{\underline{Élimination du $\forall$ :}} si
+$f$ désigne une preuve de $\forall(v:I).\,Q$ et $t$ un terme de
+type $I$, on notera $ft$ la preuve de $Q[v\backslash t]$ {\footnotesize
+  (c'est-à-dire $Q$ avec $v$ remplacé par $t$)} obtenue par
+élimination du $\forall$ sur ce terme.
+
+{\footnotesize (\textbf{N.B.} on n'explique pas comment le « terme
+  d'individu » $t$ est formé.)}
+\[
+\inferrule{\Gamma\vdash f \;:\; \forall (v:I).\, Q\\{\color{gray}\Gamma\vdash t:I}}{\Gamma\vdash ft \;:\; Q[v\backslash t]}
+\]
+
+\medskip
+
+\itempoint Ceci est conforme à l'idée de BHK : une preuve de
+$\forall(v:I).\, Q(v)$ prend un $x$ de type $I$ et renvoie une preuve
+de $Q(x)$.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Notations des $\lambda$-termes pour $\exists$}
+
+\itempoint \textcolor{blue}{\underline{Introduction du $\exists$ :}}
+si $t$ désigne un terme de type type $I$ et $z$ une preuve de
+$Q[v\backslash t]$ (pour ce $t$-là, donc), on notera $\langle
+t,z\rangle$ la preuve de $\exists(v:I).\,Q$ obtenue par introduction
+du $\exists$.
+\[
+\inferrule{{\color{gray}\Gamma\vdash t:I}\\\Gamma\vdash z \;:\; Q[v\backslash t]}{\Gamma\vdash \langle t,z\rangle \;:\; \exists (v:I).\, Q}
+\]
+
+\medskip
+
+\itempoint \textcolor{blue}{\underline{Élimination du $\exists$ :}} si
+$z$ désigne une preuve de $\exists(v:I).\,P$ et $s$ une preuve,
+faisant intervenir $v$ variable libre de type $I$, de $Q$ qui ne fait
+pas intervenir $v$, et $h$ hypothèse supposant $P$ (pour ce $v$-là,
+donc), on notera $(\texttt{match~}z\texttt{~with~}\langle v,h\rangle
+\mapsto s)$ la preuve de $Q$ obtenue par élimination du $\exists$.
+
+{\footnotesize (\textbf{N.B.} $v$ peut apparaître dans $s$ mais pas
+  dans $\Gamma$ ni $Q$.)}
+\[
+\inferrule{\Gamma\vdash z \;:\; \exists (v:I).\, P\\\Gamma,\, v:I,\, h:P\vdash s \;:\; Q}{\Gamma\vdash (\texttt{match~}z\texttt{~with~}\langle v,h\rangle \mapsto s) \;:\; Q}
+\]
+
+\medskip
+
+\itempoint Ceci est conforme à l'idée de BHK : une preuve de
+$\exists(v:I).\, P(v)$ est la donnée d'un $t$ de type $I$ d'une preuve
+de $Q(t)$.
+
+\end{frame}
+%
+\begin{frame}
+\label{natural-deduction-rules-with-quantifiers-and-notations}
+\frametitle{Récapitulatif des notations}
+
+{\footnotesize(À comparer au
+  transp. \ref{natural-deduction-rules-with-quantifiers}.)\par}
+
+\medskip
+
+\begin{tabular}{c|c|c}
+&Intro&Élim\\\hline
+$\Rightarrow$
+&\scalebox{0.65}{$\inferrule{\Gamma,v:P\vdash s:Q}{\Gamma\vdash \lambda(v:P).\,s : P\Rightarrow Q}$}
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash f:P\Rightarrow Q\\\Gamma\vdash z:P}{\Gamma\vdash fz:Q}$}
+\\\hline
+$\land$
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash z_1:Q_1\\\Gamma\vdash z_2:Q_2}{\Gamma\vdash \langle z_1,z_2\rangle : Q_1\land Q_2}$}
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash z:Q_1\land Q_2}{\Gamma\vdash \pi_1 z:Q_1}$}
+\quad\scalebox{0.65}{$\inferrule{\Gamma\vdash z:Q_1\land Q_2}{\Gamma\vdash \pi_2 z:Q_2}$}
+\\\hline
+$\lor$
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash z:Q_i}{\Gamma\vdash \iota_i^{(Q_1,Q_2)}z : Q_1\lor Q_2}$} {\footnotesize ($i\in\{1,2\}$)}
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash r:P_1\lor P_2\\\Gamma,h_1:P_1\vdash s_1:Q\\\Gamma,h_2:P_2\vdash s_2:Q}{\Gamma\vdash (\texttt{match~}r\texttt{~with~}\iota_1 h_1 \mapsto s_1,\; \iota_2 h_2 \mapsto s_2):Q}$}
+\\\hline
+$\top$
+&\scalebox{0.65}{$\inferrule{\strut}{\Gamma\vdash \bullet:\top}$}
+&\scalebox{0.65}{(néant)}
+\\\hline
+$\bot$
+&\scalebox{0.65}{(néant)}
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash r:\bot}{\Gamma\vdash \texttt{exfalso}^{(Q)} r:Q}$}
+\\\hline
+$\forall$
+&\scalebox{0.80}{$\inferrule{\Gamma, v:I\vdash s:Q}{\Gamma\vdash \lambda(v:I).\,s\;:\;\forall (v:I).\, Q}$}
+&\scalebox{0.80}{$\inferrule{\Gamma\vdash f \;:\; \forall (v:I).\, Q\\{\color{gray}\Gamma\vdash t:I}}{\Gamma\vdash ft \;:\; Q[v\backslash t]}$}
+\\\hline
+$\exists$
+&\scalebox{0.80}{$\inferrule{{\color{gray}\Gamma\vdash t:I}\\\Gamma\vdash z \;:\; Q[v\backslash t]}{\Gamma\vdash \langle t,z\rangle \;:\; \exists (v:I).\, Q}$}
+&\scalebox{0.80}{$\inferrule{\Gamma\vdash z \;:\; \exists (v:I).\, P\\\Gamma,\, v:I,\, h:P\vdash s \;:\; Q}{\Gamma\vdash (\texttt{match~}z\texttt{~with~}\langle v,h\rangle \mapsto s) \;:\; Q}$}
+\\
+\end{tabular}
+
+\medskip
+
+\itempoint Les séquents en gris sont des formations de termes
+d'individus (cf. transp. suivant).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Monde des termes et monde logique}
+
+\itempoint Les règles pour les démonstrations écrites notamment
+transp. \ref{natural-deduction-rules-with-quantifiers} à \ref{natural-deduction-rules-with-quantifiers-and-notations}
+\alert{ne sont pas complètes}, il manque les explications sur les
+séquents en gris (formation des termes).
+
+\medskip
+
+\itempoint Selon le système logique, on peut distinguer deux
+« mondes » \alert{plus ou moins séparés ou confondus} :
+\begin{itemize}
+\item le monde des termes (individus) et types (d'individus),
+\item le monde logique, avec preuves et propositions.
+\end{itemize}
+
+\medskip
+
+\itempoint Les règles données aux transp. précédents sont les règles
+de construction des \alert{démonstrations} ($\rightarrow$ monde
+logique), où se placent tous les séquents sauf ceux marqués en gris.
+
+\medskip
+
+\itempoint Les règles du monde des termes peuvent être calquées sur le
+monde des démonstrations, plus simples, ou différentes.
+
+\medskip
+
+\itempoint En Coq/Rocq, les deux mondes sont \alert{séparés mais
+  parallèles} : $\mathit{Prop}$ pour le type des propositions et
+$\mathit{Type}$ pour le type des types d'individus.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Que peut-on quantifier au juste ?}
+
+\itempoint Outre la question des termes d'individus et leur séparation
+du monde logique, il manque les explications sur ce qu'on a le droit
+de quantifier et d'abstraire ; notamment :
+\begin{itemize}
+\item peut-on former des propositions comme
+  $\forall(A:*).\,(A\Rightarrow A)$ {\footnotesize (où « $*$ » est le
+  type des propositions)} avec preuve $\lambda(A:*).\,\lambda(h:A).h$,
+  i.e., quantifier sur les propositions (et abstraire dessus dans les
+  termes) ?
+\item peut-on former des objets comme $\lambda(A:*).\,A$ de type
+  $*\rightarrow *$, i.e., abstraire sur les propositions ?
+\item peut-on former des propositions comme $\forall(x:I).\,A(x)$ où
+  $A$ a pour type $I \rightarrow *$, i.e., quantifier et abstraire sur
+  des individus ?
+\end{itemize}
+
+\medskip
+
+\itempoint Différents systèmes logiques diffèrent dans la réponse à
+ces questions, notamment, les $8$ systèmes du « $\lambda$-cube » de
+Barendregt (jusqu'à mélanger complètement preuves et individus).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Le problème du $\exists$ et des types sommes}
+
+Doit-on croire à ceci (pour $U$ et $V$ deux types) ?
+\[
+(\forall(x:U).\,\exists(y:V).\,P(x,y))
+\Rightarrow
+(\exists(f:U\Rightarrow V).\,\forall(x:U).\,P(x,f(x)))
+\]
+{\footnotesize
+\[
+\begin{aligned}
+\text{« preuve(?) » :~}
+\lambda(h:\cdots).\,
+\langle
+&\lambda(x:U).\,
+(\texttt{match~}hx\texttt{~with~}\langle v,z\rangle \mapsto v),\\
+&\lambda(x:U).\,
+(\texttt{match~}hx\texttt{~with~}\langle v,z\rangle \mapsto z)
+\rangle
+\end{aligned}
+\]
+\par}
+
+\medskip
+
+{\footnotesize (Cet énoncé porte le nom d'\alert{axiome du choix} :
+  c'est un analogue pour la théorie des types de l'axiome du choix (de
+  Zermelo) en théorie des ensembles.)\par}
+
+\medskip
+
+\itempoint Si on voit $\forall$ et $\exists$ comme des types produit
+et \alert{somme} en famille respectivement, \alert{oui} :
+$\forall(x:U).\,\exists(y:V).\,P(x,y)$ représente une fonction qui
+prend un $x$ de type $U$ et renvoie un $y$ de type $V$ ainsi qu'un
+$P(x,y)$ correspondant : on peut collecter tous ces $y$ en une
+fonction $f : U \Rightarrow V$.
+
+\medskip
+
+\itempoint Si on voit $\exists$ comme un quantificateur
+\alert{logique}, alors \alert{non} : le $y$ renvoyé par $\exists$ ne
+peut servir qu'à l'intérieur d'une preuve, pas être collecté en une
+fonction.
+
+\medskip
+
+{\footnotesize
+
+\itempoint C'est ici la différence principale entre des systèmes comme
+Coq (où l'énoncé ci-dessus ne sera pas prouvable pour $P : U\times V
+\to \mathit{Prop}$) et les systèmes à la Martin-Löf comme Agda (où
+Curry-Howard est suivi « jusqu'au bout » : il n'y a pas de $\exists$
+uniquement logique, et cet énoncé est prouvable comme indiqué).
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Imprédicativité}
+
+\itempoint On appelle \textbf{imprédicativité} la possibilité de
+définir une proposition ou un type en quantifiant sur toutes les
+propositions ou types \alert{y compris celui qu'on définit} : c'est
+une forme de circularité.
+
+\medskip
+
+\itempoint P.ex., $\forall (Z:*).\, (Z \Rightarrow A)$ représente le
+type des fonctions capables de renvoyer un type $A$ à partir d'un type
+$Z$ quelconque, y compris celui qu'on définit.
+
+\smallskip
+
+Cette imprédicativité est utile pour définir des constructions sur les
+types.
+
+\medskip
+
+{\footnotesize
+
+Exemples (informellement, et en notant « $*$ » le « type des types »
+imprédicatif) :
+\begin{itemize}
+\item $A \; \cong \; \forall (Z:*).\, (Z \Rightarrow A)$ : donné une
+  valeur $x$ de type $A$ on peut en fabriquer une de type
+  $Z\Rightarrow A$ comme $\lambda(z:Z).\, x$ pour tout type $Z$, mais
+  réciproquement, donné une valeur de type $\forall (Z:*).\, (Z
+  \Rightarrow A)$ on peut l'appliquer à $Z = \top$ pour obtenir une
+  valeur de type $A$.
+\item $A \; \cong \; \forall (Z:*).\, ((A \Rightarrow Z) \Rightarrow
+  Z)$ : dans un sens on fabrique $\lambda(k:A \Rightarrow Z).\, kx$
+  comme pour le CPS, dans l'autre sens, appliquer à $Z = A$ et
+  l'identité.
+\item $\bot \; \cong \; \forall (Z:*).\, Z$
+\quad\itempoint $A\land B \; \cong \; \forall (Z:*).\, ((A \Rightarrow B
+  \Rightarrow Z) \Rightarrow Z)$
+\item $A\lor B \; \cong \; \forall (Z:*).\, ((A \Rightarrow Z)
+  \Rightarrow (B\Rightarrow Z) \Rightarrow Z)$
+\end{itemize}
+
+\par}
+
+\medskip
+
+\itempoint Cela \alert{peut} donner des incohérences logiques
+(paradoxe de Girard).
+
+\end{frame}
+%
+\section{Logique du premier ordre}
+\begin{frame}
+\frametitle{Logique du premier ordre : principe}
+
+\itempoint La \textbf{logique du premier ordre} ou \textbf{calcul des
+  prédicats} (du 1\textsuperscript{er} ordre) est la plus simple qui
+ajoute les quantificateurs.  Les « choses » sur lesquelles on a le
+droit de quantifier s'appellent des \textbf{individus}.
+
+\medskip
+
+\itempoint Côté typage, elle n'est pas très heureuse : les
+« individus » apparaissent comme un type $I$ unique, \textit{ad hoc},
+qu'on ne peut presque pas manipuler (la logique ne permet pas de faire
+des couples, fonctions, etc., des individus).
+
+\medskip
+
+\itempoint Néanmoins, elle a une \alert{grande importance
+  mathématique} car le dogme « orthodoxe » est que :
+\begin{center}
+Les mathématiques se font dans la « théorie des ensembles\\ de
+Zermelo-Fraenkel en logique du premier ordre » ($\mathsf{ZFC}$).
+\end{center}
+
+Le manque d'expressivité de la logique (pas de couples, fonctions,
+etc.) est \alert{compensé par la théorie elle-même} (constructions
+ensemblistes des couples, fonctions, etc.).
+
+\medskip
+
+{\footnotesize\itempoint La \alert{sémantique} (Tarskienne) de la
+  logique du premier ordre a aussi des propriétés agréables (théorème
+  de complétude de Gödel).\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Logique du premier ordre : sortes de variables et syntaxe}
+
+\itempoint En (pure) logique du premier ordre, on a diverses sortes de
+variables :
+\begin{itemize}
+\item les \textbf{variables d'individus} ($x$, $y$, $z$...) en nombre
+  illimité,
+\item les \textbf{variables de prédicats} $n$-aires, ou de
+  \textbf{relations} $n$-aires [entre individus] ($A^{(n)}$,
+  $B^{(n)}$, $C^{(n)}$...), pour chaque entier naturel $n$.
+\end{itemize}
+
+\medskip
+
+\itempoint L'indication d'arité des variables de prédicats est
+généralement omise (elle peut se lire sur la formule).
+
+\medskip
+
+\itempoint Une \textbf{formule} (logique) est (inductivement) :
+\begin{itemize}
+\item l'application $A^{(n)}(x_1,\ldots,x_n)$ d'une variable
+  de prédicat à $n$ variables d'individus,
+\item l'application d'un connecteur : $(P\Rightarrow Q)$, $(P\land
+  Q)$, $(P\lor Q)$ où $P,Q$ sont deux formules, ou encore $\top$,
+  $\bot$,
+\item une quantification : $\forall x.P$ ou $\exists x.P$
+  {\footnotesize (pour $\forall (x:I).P$ ou $\exists (x:I).P$)}, qui
+  \alert{lie} la variable d'individu $x$ dans $P$.
+\end{itemize}
+
+\medskip
+
+\itempoint\alert{On ne peut quantifier que sur les individus
+  (« premier ordre »).}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Exemples de formules du premier ordre}
+
+\itempoint Les \textbf{formules propositionnelles} sont encore des
+formules du premier ordre, en interprétant chaque variable
+propositionnelle comme une variable de prédicat $0$-aire
+(« nullaire ») : $A\land B \Rightarrow B\land A$ par exemple.
+
+\bigskip
+
+Autres exemples (qui seront par ailleurs tous démontrables) :
+\begin{itemize}
+\item $(\forall x.A(x)) \land (\exists x.\top) \Rightarrow (\exists
+  x.A(x))$ (ici, $A$ est un prédicat unaire)
+\item $(\forall x.\neg A(x)) \Leftrightarrow (\neg\exists x.A(x))$ (idem)
+\item $(\exists x.\neg A(x)) \Rightarrow (\neg\forall x.A(x))$ (idem)
+\item $(\exists x.A) \Leftrightarrow (\exists x.\top) \land A$ (ici,
+  $A$ est un prédicat \alert{nullaire})
+\item $(\forall x.A) \Leftrightarrow ((\exists x.\top) \Rightarrow A)$
+  (idem)
+\item $(\exists x.\forall y.B(x,y))\Rightarrow (\forall y.\exists
+  x.B(x,y))$ (ici, $B$ est un prédicat binaire)
+\end{itemize}
+
+\bigskip
+
+\textbf{N.B.} On a suivi la convention que $\forall,\exists$ ont une
+priorité plus faible que les connecteurs
+$\Rightarrow,\lor,\land,\neg$.  Tout le monde n'est pas d'accord avec
+cette convention !
+
+\smallskip
+
+\textbf{N.B.2 :} Il serait peut-être préférable de noter $Bxy$ que
+$B(x,y)$.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Remarques sur la logique du premier ordre}
+
+\itempoint Le type $I$ (non écrit) des « individus », le seul sur
+lequel on peut quantifier, est \alert{complètement spécial} en logique
+du premier ordre : on ne l'écrit même pas, on ne peut pas former
+$I\times I$ ni $I\to I$ ni rien d'autre.
+
+\medskip
+
+\itempoint Ce type $I$ ne se « mélange » pas aux relations
+$A,B,C,\ldots$ : les individus vivent dans un monde hermétiquement
+séparé des preuves.
+
+\medskip
+
+\itempoint Dans la variante la plus simple, les seuls termes
+d'individus sont les variables d'individus (i.e., la seule façon
+d'obtenir $t:I$ est d'avoir $t:I$ dans le contexte !).
+
+\medskip
+
+\itempoint On ne suppose pas $I$ habité, i.e. $\exists x.\top$ n'est
+pas démontrable (pas plus que $\forall x. A(x) \Rightarrow \exists
+x. A(x)$).  Cf. transp. \ref{caveat-inhabited-domain}.
+
+\medskip
+
+\itempoint Pour avoir le droit d'écrire $A(x)$, la variable $x$ doit
+avoir été introduite : la règle d'axiome devrait s'écrire
+correctement :
+\[
+\inferrule{ }{\Gamma,\; x:I\vdash x:I}
+\quad\text{~et~}\quad
+\inferrule{\Gamma\vdash x_1:I\\\cdots\\\Gamma\vdash x_n:I}{\Gamma,\;A(x_1,\ldots,x_n)\vdash A(x_1,\ldots,x_n)}
+\]
+
+\end{frame}
+%
+\begin{frame}
+\label{first-order-logic-rules}
+\frametitle{Logique du premier ordre : reprise des règles logiques}
+
+\begin{tabular}{c|c|c}
+&Intro&Élim\\\hline
+$\Rightarrow$
+&\scalebox{0.65}{$\inferrule{\Gamma,{\color{mydarkgreen}P}\vdash Q}{\Gamma\vdash P\Rightarrow Q}$}
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash P\Rightarrow Q\\\Gamma\vdash P}{\Gamma\vdash Q}$}
+\\\hline
+$\land$
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash Q_1\\\Gamma\vdash Q_2}{\Gamma\vdash Q_1\land Q_2}$}
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash Q_1\land Q_2}{\Gamma\vdash Q_1}$}
+\quad\scalebox{0.65}{$\inferrule{\Gamma\vdash Q_1\land Q_2}{\Gamma\vdash Q_2}$}
+\\\hline
+$\lor$
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash Q_1}{\Gamma\vdash Q_1\lor Q_2}$}
+\quad\scalebox{0.65}{$\inferrule{\Gamma\vdash Q_2}{\Gamma\vdash Q_1\lor Q_2}$}
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash P_1\lor P_2\\\Gamma,{\color{mydarkgreen}P_1}\vdash Q\\\Gamma,{\color{mydarkgreen}P_2}\vdash Q}{\Gamma\vdash Q}$}
+\\\hline
+$\top$
+&\scalebox{0.65}{$\inferrule{\strut}{\Gamma\vdash \top}$}
+&\scalebox{0.65}{(néant)}
+\\\hline
+$\bot$
+&\scalebox{0.65}{(néant)}
+&\scalebox{0.65}{$\inferrule{\Gamma\vdash \bot}{\Gamma\vdash Q}$
+(ou pour la logique classique : $\inferrule{\Gamma,\neg Q\vdash \bot}{\Gamma\vdash Q}$)}
+\\\hline
+$\forall$
+&$\inferrule{\Gamma, {\color{mydarkgreen}x:I}\vdash Q}{\Gamma\vdash \forall x.\, Q}$ ($x$ \alert{frais})
+&$\inferrule{\Gamma\vdash \forall x.\, Q\\{\color{gray}\Gamma\vdash t:I}}{\Gamma\vdash Q[x\backslash t]}$
+\\\hline
+$\exists$
+&$\inferrule{{\color{gray}\Gamma\vdash t:I}\\\Gamma\vdash Q[x\backslash t]}{\Gamma\vdash \exists x.\, Q}$
+&$\inferrule{\Gamma\vdash \exists x.\, P\\\Gamma, {\color{mydarkgreen}x:I}, {\color{mydarkgreen}P}\vdash Q}{\Gamma\vdash Q}$
+($x$ \alert{frais})
+\\
+\end{tabular}
+
+\itempoint Les hypothèses en gris $\Gamma \vdash t:I$ (formation des
+termes) ne sont parfois pas écrites dans les arbres de démonstration,
+mais sont essentielles (cf. transp. \ref{caveat-inhabited-domain}).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Exemple de preuve en logique du premier ordre}
+
+{\footnotesize
+
+\[
+\inferrule*[left={$\Rightarrow$Int}]{
+\inferrule*[Left={$\forall$Int}]{
+\inferrule*[Left={$\exists$Élim}]{
+\inferrule*[Left={Ax}]{ }{\exists x.\forall y.B(x,y) \vdash \exists x.\forall y.B(x,y)}
+\\
+\inferrule*[Right={$\exists$Int}]{
+\inferrule*[Right={$\forall$Élim}]{
+\inferrule*[Right=Ax]{ }{x:I,\;\forall y.B(x,y),\;y':I \vdash \forall y.B(x,y)}
+}{x:I,\;\forall y.B(x,y),\;y':I \vdash B(x,y')}
+}{x:I,\;\forall y.B(x,y),\;y':I \vdash \exists x'.B(x',y')}
+}{\exists x.\forall y.B(x,y),\;y':I \vdash \exists x'.B(x',y')}
+}{\exists x.\forall y.B(x,y) \vdash \forall y'.\exists x'.B(x',y')}
+}{\vdash (\exists x.\forall y.B(x,y))\Rightarrow (\forall y'.\exists x'.B(x',y'))}
+\]
+
+}
+
+Présentation avec les seules conclusions :
+
+{\footnotesize
+
+\[
+\inferrule*[left={$\Rightarrow$Int(\textcolor{mydarkgreen}{$u$})}]{
+\inferrule*[Left={$\forall$Int(\textcolor{mydarkgreen}{$y'$})}]{
+\inferrule*[Left={$\exists$Élim(\textcolor{mydarkgreen}{$x$},\textcolor{mydarkgreen}{$v$})}]{
+\inferrule*[Left={\textcolor{mydarkgreen}{$u$}}]{ }{\exists x.\forall y.B(x,y)}
+\\
+\inferrule*[Right={$\exists$Int}]{
+\inferrule*[Right={$\forall$Élim}]{
+\inferrule*[Right={\textcolor{mydarkgreen}{$v$}}]{ }{\forall y.B(x,y)}
+}{B(x,y')}
+}{\exists x'.B(x',y')}
+}{\exists x'.B(x',y')}
+}{\forall y'.\exists x'.B(x',y')}
+}{(\exists x.\forall y.B(x,y))\Rightarrow (\forall y'.\exists x'.B(x',y'))}
+\]
+
+}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Exemple de preuve : présentation drapeau}
+
+{\footnotesize
+\begin{flagderiv}[example-1st-order-proof]
+\assume{mainhyp}{\exists x.\forall y.B(x,y)}{}
+\assume{vary}{y'}{}
+\assume{exhyp}{x,\;\forall y.B(x,y)}{}
+\step{bare}{B(x,y')}{$\forall$Élim sur \ref{exhyp} et $y'$}
+\step{exbare}{\exists x'.B(x',y')}{$\exists$Int sur $x$ et \ref{bare}}
+\conclude{extrude}{\exists x'.B(x',y')}{$\exists$Elim sur \ref{mainhyp} de \ref{exhyp} dans \ref{exbare}}
+\conclude{mainconc}{\forall y'.\exists x'.B(x',y')}{$\forall$Int de \ref{vary} dans \ref{extrude}}
+\conclude{}{(\exists x.\forall y.B(x,y))\Rightarrow(\forall y'.\exists x'.B(x',y'))}{$\Rightarrow$Int de \ref{mainhyp} dans \ref{mainconc}}
+\end{flagderiv}
+\par}
+
+\smallskip
+
+{\footnotesize « Supposons $\exists x.\forall y.B(x,y)$.  Considérons
+  un $y'$ arbitraire.  Considérons un $x$ tel que $\forall y.B(x,y)$.
+  En particulier, on a $B(x,y')$.  En particulier, $\exists
+  x'.B(x',y')$.  Or on pouvait trouver un tel $x$ car $\exists
+  x.\forall y.B(x,y)$, donc on a bien la conclusion $\exists
+  x'.B(x',y')$.  Le choix de $y'$ étant arbitraire, $\forall
+  y'. \exists x'. B(x',y')$.  Finalement, on a prouvé $(\exists
+  x.\forall y.B(x,y))\Rightarrow(\forall y'.\exists
+  x'.B(x',y'))$. »\par\strut\par}
+
+\end{frame}
+%
+\begin{frame}
+\label{example-predicate-proof-as-lambda-term}
+\frametitle{Notation des preuves par des $\lambda$-termes}
+
+On reprend la preuve donnée aux transp. précédents :
+
+\begin{center}
+\scalebox{0.8}{\footnotesize
+$
+\inferrule*[left={$\Rightarrow$Int}]{
+\inferrule*[Left={$\forall$Int}]{
+\inferrule*[Left={$\exists$Élim}]{
+\inferrule*[Left={Ax}]{ }{\exists x.\forall y.B(x,y) \vdash \exists x.\forall y.B(x,y)}
+\\
+\inferrule*[Right={$\exists$Int}]{
+\inferrule*[Right={$\forall$Élim}]{
+\inferrule*[Right=Ax]{ }{x:I,\;\forall y.B(x,y),\;y':I \vdash \forall y.B(x,y)}
+}{x:I,\;\forall y.B(x,y),\;y':I \vdash B(x,y')}
+}{x:I,\;\forall y.B(x,y),\;y':I \vdash \exists x'.B(x',y')}
+}{\exists x.\forall y.B(x,y),\;y':I \vdash \exists x'.B(x',y')}
+}{\exists x.\forall y.B(x,y) \vdash \forall y'.\exists x'.B(x',y')}
+}{\vdash (\exists x.\forall y.B(x,y))\Rightarrow (\forall y'.\exists x'.B(x',y'))}
+$
+}
+\end{center}
+
+Avec les notations du
+transp. \ref{natural-deduction-rules-with-quantifiers-and-notations}
+elle se note :
+\[
+\lambda(u:\exists x.\forall y.B(x,y)).\;
+\lambda(y':I).\;
+(\texttt{match~}u\texttt{~with~}\langle x,v\rangle \mapsto
+\langle x,vy'\rangle)
+\]
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Exemples de preuves écrites comme $\lambda$-termes}
+
+\itempoint $(\forall x.(A(x)\Rightarrow C)) \Rightarrow ((\exists
+x. A(x)) \Rightarrow C)$
+
+\smallskip
+
+{\footnotesize Preuve :} $\lambda(f:\forall x.(A(x)\Rightarrow C)).\,
+\lambda(p:\exists x. A(x)).\, (\texttt{match~}p\texttt{~with~}\langle
+x,w\rangle \mapsto fxw)$
+
+\medskip
+
+\itempoint $((\exists x. A(x)) \Rightarrow C) \Rightarrow (\forall
+x.(A(x)\Rightarrow C))$
+
+\smallskip
+
+{\footnotesize Preuve :} $\lambda(g:(\exists x. A(x)) \Rightarrow
+C).\, \lambda(x:I).\, \lambda(u:A(x)).\, g\langle x,u\rangle$
+
+\medskip
+
+{\footnotesize
+
+\itempoint Notamment pour $C$ valant $\bot$ on a prouvé $(\forall
+x.\neg A(x)) \Leftrightarrow \neg(\exists x. A(x))$ ci-dessus.
+
+\par}
+
+\medskip
+
+\itempoint $(\exists x.(A(x)\Rightarrow C)) \Rightarrow ((\forall
+x. A(x)) \Rightarrow C)$
+
+\smallskip
+
+{\footnotesize Preuve :} $\lambda(p:\exists x.(A(x)\Rightarrow C)).\,
+\lambda(f:\forall x. A(x)).\, (\texttt{match~}\!p\!\texttt{~with~}\!\langle
+x,w\rangle \mapsto w(fx))$
+
+\medskip
+
+{\footnotesize
+
+\itempoint Notamment pour $C$ valant $\bot$ on a prouvé $(\exists
+x.\neg A(x)) \Rightarrow \neg(\forall x. A(x))$ ci-dessus.
+
+\par}
+
+\medskip
+
+\itempoint $(\forall x.A(x)) \Rightarrow (\exists x.\top) \Rightarrow
+(\exists x.A(x))$
+
+{\footnotesize Preuve :} $\lambda(f:\forall x.A(x)).\,
+\lambda(p:\exists x.\top).\, (\texttt{match~}p\texttt{~with~}\langle
+x,u\rangle \mapsto \langle x,fx\rangle)$
+
+\medskip
+
+\itempoint $\forall z.\exists x.\top$ (cf. transp. suivant)
+
+{\footnotesize Preuve :} $\lambda(z:I).\,\langle z,\bullet\rangle$
+
+\end{frame}
+%
+\begin{frame}
+\label{caveat-inhabited-domain}
+\frametitle{Pourquoi des variables d'individus avec les hypothèses ?}
+
+\itempoint L'introduction d'une variable d'individu libre porte en
+elle l'hypothèse que \alert{l'univers des individus est habité}
+($\exists x. \top$).  Ce fait \alert{n'est pas prouvable} sans cette
+hypothèse.  On a $z:I \vdash \exists x.\top$ (ici $z$ variable qcque)
+mais \alert{on n'a pas} $\vdash \exists x.\top$.
+
+\medskip
+
+\itempoint Exiger que de pouvoir former $t:I$ à partir de $\Gamma$
+permet d'écarter la démonstration \alert{incorrecte} suivante :
+\[
+\inferrule*[left={$\exists$Int}]{
+\inferrule*[Left={$\top$Int}]{ }{\vdash\top}
+}{\vdash\exists x.\top}
+\]
+
+\medskip
+
+\itempoint En revanche, celle-ci \alert{est correcte} (en utilisant le
+terme $z$ pour $t$ dans $\exists$Int) :
+\[
+\inferrule*[left={$\forall$Int}]{
+\inferrule*[Left={$\exists$Int}]{
+{\color{gray}\inferrule*[Left={Ax}]{ }{z:I\vdash z:I}}\\
+\inferrule*[Right={$\top$Int}]{ }{z:I\vdash\top}
+}{z:I\vdash\exists x.\top}
+}{\vdash\forall z.\exists x.\top}
+\]
+
+\medskip
+
+\textbf{N.B.} Ces problèmes n'ont rien à voir avec la logique
+intuitionniste, ils sont identiques en logique classique.  On
+\alert{n'a pas} non plus $\forall x.A(x) \Rightarrow \exists x.A(x)$.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Monde des individus et monde logique}
+
+\itempoint En logique du premier ordre, on a
+\alert{deux « mondes » complètement séparés} :
+\begin{itemize}
+\item le monde des individus, avec un seul type ($I$) et des variables
+  sur lesquelles on peut quantifier,
+\item le monde logique, avec propositions et preuves.
+\end{itemize}
+
+\medskip
+
+\itempoint Les propositions ont « moralement » un type (qu'on pourrait
+appeler « $*$ » ou « $\mathit{Prop}$ »), mais on ne l'écrit pas.  Les
+relations $n$-aires ont « moralement » le type $I^n \to
+\mathit{Prop}$, pas non plus écrit.
+
+\medskip
+
+\itempoint Dans le transparent \ref{first-order-logic-rules}, tous les
+séquents concernent le monde logique (= construction des
+démonstrations), sauf ceux marqués en gris.
+
+\medskip
+
+\itempoint Dans la version la plus simple de la logique du premier
+ordre (pas de \emph{fonctions} d'individus, seulement des
+\emph{relations}), la seule règle du monde des individus est :
+\[
+\inferrule{ }{\Gamma,\; x:I\vdash x:I}
+\]
+(on ne peut former un terme d'individu qu'en invoquant une variable du
+contexte).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Curry-Howard pour la logique du premier ordre}
+
+\itempoint Il faut penser Curry-Howard dans le sens
+preuve $\mapsto$ programme.
+
+\smallskip
+
+{\footnotesize (Faute de description précise de règles de typage on ne
+  peut pas espérer mieux ici.)\par}
+
+\medskip
+
+\itempoint Curry-Howard va mélanger le monde logique avec le monde des
+individus.
+
+\medskip
+
+\itempoint On convertit les propositions en types :
+\begin{itemize}
+\item $\Rightarrow,\land,\lor,\top,\bot$ deviennent
+  $\rightarrow,\times,+,1,0$ comme en calcul propositionnel,
+\item $\forall,\exists$ deviennent produits et sommes $\prod,\sum$
+  paramétrés par $v:I$.
+\end{itemize}
+
+\smallskip
+
+\itempoint On convertit preuves en programmes selon l'interprétation
+fonctionnelle des notations données au
+transp. \ref{natural-deduction-rules-with-quantifiers-and-notations}.
+
+\medskip
+
+\itempoint P.ex., la preuve de $(\exists x.\forall
+y.B(x,y))\Rightarrow (\forall y'.\exists x'.B(x',y'))$ donnée
+transp. \ref{example-predicate-proof-as-lambda-term} :
+\[
+\lambda(u:\exists x.\forall y.B(x,y)).\;
+\lambda(y':I).\;
+(\texttt{match~}u\texttt{~with~}\langle x,v\rangle \mapsto
+\langle x,vy'\rangle)
+\]
+devient un programme de type
+\[
+(\sum_{x:I} \prod_{y:I} \, B(x,y)) \rightarrow
+(\prod_{y':I} \sum_{x':I} \, B(x',y'))
+\]
+
+\end{frame}
+%
+\begin{frame}
+\label{first-order-equality}
+\frametitle{L'égalité au premier ordre}
+
+\itempoint En général on veut travailler en logique du premier ordre
+\alert{avec égalité}.  C'est-à-dire qu'on introduit une relation
+binaire « $=$ » (notée de façon infixe) sujette aux \alert{axiomes}
+suivants :
+\begin{itemize}
+\item réflexivité : $\mathsf{refl} : \forall x.(x=x)$
+\item substitution : $\mathsf{subst}^{(\lambda s.P(s))} : \forall
+  x.\forall y.((x=y) \Rightarrow P(x) \Rightarrow P(y))$ pour toute
+  formule $P(s)$ ayant une variable d'individu libre $s$.
+\end{itemize}
+
+\medskip
+
+{\footnotesize \itempoint La logique du premier ordre montre ici ses
+  limites : on n'a pas le droit de quantifier sur $P(s)$ ni même
+  d'introduire $\lambda (s:I). P(s)$.  Il faut donc comprendre qu'on a
+  un « schéma d'axiomes » de substitution, dont chaque
+  $\mathsf{subst}^{(\lambda s.P(s))}$ est une instance (et $\lambda
+  s.P(s)$ une notation \textit{ad hoc}).\par}
+
+\medskip
+
+\itempoint Exemple de preuve : la symétrie $\forall x.\forall y.((x=y)
+\Rightarrow (y=x))$ est prouvée en appliquant la substitution à $P(s)$
+valant « $s=x$ », donc par le $\lambda$-terme
+\[
+\lambda (x:I). \,
+\lambda (y:I). \, \lambda (u:(x=y)). \, \mathsf{subst}^{(\lambda
+  s.s=x)} \, x \, y \, u \, (\mathsf{refl}\,x)
+\]
+
+\medskip
+
+\itempoint Autre exemple : la transitivité $\forall x.\forall
+y.\forall z. ((x=y) \Rightarrow (y=z) \Rightarrow (x=z))$ par
+\[
+\lambda (x:I). \, \lambda (y:I). \, \lambda (z:I). \, \lambda
+(u:(x=y)). \, \lambda (v:(y=z)). \, \mathsf{subst}^{(\lambda s.x=s)}
+\, y \, z \, v \, u
+\]
+
+\end{frame}
+%
+\section{Arithmétique du premier ordre et théorème de Gödel}
+\begin{frame}
+\frametitle{L'arithmétique de Heyting et de Peano}
+
+\itempoint L'\textbf{arithmétique du premier ordre} est une (tentative
+d')axiomatisation des entiers naturels en logique du premier ordre.
+Elle est basée sur les \textbf{axiomes de Peano} (transp. suivant).
+
+\medskip
+
+\itempoint On parle d'\textbf{arithmétique de Heyting} ($\mathsf{HA}$)
+en logique intuitionniste, et \textbf{de Peano} ($\mathsf{PA}$) en
+logique classique (\alert{mêmes axiomes}, seule la logique change).
+
+\medskip
+
+\itempoint Le cadre de base est la logique du premier ordre
+\alert{avec égalité} (cf. transp. \ref{first-order-equality}) et avec
+des opérations de formation de termes d'individus $0$ (nullaire), $S$
+(unaire) et $+$, $\times$, $\vartriangle$ (binaires) :
+\begin{itemize}
+\item $0$ est un terme,
+\quad\itempoint si $m$ est un terme, $(Sm)$ en est un,
+\item si $m$, $n$ sont deux termes, $(m+n)$, $(m\times n)$,
+  $(m\vartriangle n)$ en sont.
+\end{itemize}
+
+\smallskip
+
+Ils sont censés représenter le successeur ($Sn$ désigne $n+1$), la
+somme, le produit et l'exponentiation.  On omet les parenthèses comme
+d'habitude.  On peut abréger $1 = S0$ et $2 = S(S0)$, etc.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Les axiomes de Peano}
+
+On garde les axiomes de l'égalité :
+\begin{itemize}
+\item $\forall n.(n=n)$
+\item $\forall m.\forall n.((m=n) \Rightarrow P(m) \Rightarrow P(n))$
+(schéma de substitution)
+\end{itemize}
+
+\medskip
+
+Les \textbf{axiomes de Peano} du premier ordre s'y ajoutent :
+\begin{itemize}
+\item $\forall n.\neg(Sn=0)$
+\item $\forall m.\forall n.((Sm=Sn) \Rightarrow (m=n))$
+\item $P(0) \Rightarrow (\forall n.(P(n)\Rightarrow P(Sn)))
+\Rightarrow (\forall n.P(n))$ (schéma de \alert{récurrence})
+\item $\forall m.(m+0 = m)$
+\quad\itempoint $\forall m.\forall n.(m+(Sn) = S(m+n))$
+\item $\forall m.(m\times 0 = 0)$
+\quad\itempoint $\forall m.\forall n.(m\times (Sn) = m\times n + m)$
+\item $\forall m.(m\vartriangle 0 = S0)$
+\quad\itempoint $\forall m.\forall n.(m\vartriangle (Sn) = m\vartriangle n \times m)$
+\end{itemize}
+
+\medskip
+
+Ci-dessus, $P(s)$ désigne une formule ayant une variable d'individu
+libre $s$ : la substitution de l'égalité et la récurrence sont des
+\alert{schémas d'axiomes} (un axiome pour chaque $P$ possible) car on
+ne peut pas quantifier sur $P$ au premier ordre.
+
+\end{frame}
+%
+\begin{frame}
+\label{example-proof-in-heyting-arithmetic}
+\frametitle{Exemple de preuve en arithmétique de Heyting}
+
+Montrons que $\forall n. (n=0 \lor \neg n=0)$ (classiquement c'est une
+évidence logique, mais c'est aussi démontrable intuitionistement) :
+
+\medskip
+
+\itempoint On procède par récurrence.  Notons par $P(k)$ la formule
+$k=0 \lor \neg k=0$ :
+\begin{itemize}
+\item $P(0)$ vaut car $0=0$ vaut (réflexivité de l'égalité).
+\item $P(Sn)$ vaut car $\neg(Sn=0)$ (premier axiome de Peano).  En
+  particulier, $P(n) \Rightarrow P(Sn)$.
+\item Donc, par récurrence, $\forall n. P(n)$, ce qu'on voulait
+  prouver.
+\end{itemize}
+
+\medskip
+
+\itempoint Le $\lambda$-terme de cette preuve ressemble à quelque
+chose comme ceci : $\mathsf{recurr}^{(\lambda k.(k=0 \lor \neg
+  k=0))}\penalty0\, (\iota_1^{(0=0, \neg 0=0)}(\mathsf{refl}\,0))
+\penalty0\, (\lambda (n:\mathsf{nat}).\penalty0\,
+\lambda(h:(n=0)\lor\neg(n=0)).\penalty0\, \iota_2^{(Sn=0, \neg
+  Sn=0)}(\mathsf{succnotz}\,n))$.
+
+\smallskip
+
+{\footnotesize Ici, « $\mathsf{nat}$ » a été mis pour le type des
+  individus (entiers naturels), « $\mathsf{succnotz}$ » pour l'axiome
+  de Peano qui affirme $\forall n.\neg(Sn=0)$, et
+  « $\mathsf{recurr}^{(\lambda k.P(k))}$ » pour celui qui affirme
+  $P(0) \Rightarrow \penalty100 (\forall n.(P(n)\Rightarrow P(Sn)))
+  \Rightarrow \penalty100 (\forall n.P(n))$.\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Quelques théorèmes de l'arithmétique du premier ordre}
+
+On peut prouver en arithmétique de Heyting (et notamment, de Peano)
+que :
+\begin{itemize}
+\item l'addition est commutative, associative, a $0$ pour élément
+  neutre...,
+\item la multiplication est commutative, associative, a $1 = S0$ pour
+  élément neutre...,
+\item les identités habituelles sur l'addition, la multiplication,
+  l'exponentiation,
+\item les propriétés basiques de $m\leq n$ défini par $\exists
+  k.(n=m+k)$,
+\item les propriétés basiques du codage de Gödel $\langle m,n\rangle$
+  défini par $m + \frac{1}{2}(m+n)(m+n+1)$,
+\item les propriétés basiques des suites finies codées par $\dbllangle
+  a_0,\ldots,a_{k-1}\dblrangle := \langle a_0, \langle a_1,
+  \langle\cdots,\langle a_{k-1},0\rangle+1\cdots\rangle+1\rangle+1$,
+\item l'existence et l'unicité de la division euclidienne,
+\item des propriétés arithmétique de base : existence d'une infinité
+  de nombres premiers, existence et unicité de la DFP, irrationalité
+  de $\sqrt{2}$ ($\forall p. \forall q. ((p\times p = 2\times q \times
+  q) \Rightarrow q = 0)$), etc.
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Curry-Howard pour l'arithmétique de Heyting}
+
+\itempoint La formule $m=n$ est une relation binaire sur les entiers
+naturels : elle doit devenir un \alert{type} (paramétré par $m$, $n$,
+et habité seulement lorsqu'ils sont égaux) sous l'effet de
+Curry-Howard.
+
+\smallskip
+
+\itempoint Il faut y penser comme le type des \textbf{témoignages
+  d'égalité} de $m$ et $n$.  En pratique, ce sera un type ayant
+seul habitant $\{m\}$ lorsque $m=n$ et aucun sinon.
+
+\medskip
+
+\itempoint Chaque axiome de Peano doit devenir un
+programme {\footnotesize (à penser comme l'API d'une bibliothèque
+  « entiers naturels »)}.  Le seul non trivial est le schéma de
+récurrence $P(0) \Rightarrow (\forall n.(P(n)\Rightarrow P(Sn)))
+\Rightarrow (\forall n.P(n))$ : il faut y penser comme la
+
+\alert{primitive récursion} d'une fonction, qui à $c \in A_0$ et
+$f(n,\emdash)\colon A_n \to A_{n+1}$ associe la suite $u_n \in
+\prod_{n\in\mathbb{N}} A_n$ définie par $u_0 = c$ et $u_{n+1} =
+f(n,u_n)$, ou en OCaml
+
+\smallskip
+
+{\footnotesize\tt
+let recurr = fun c -> fun f -> let rec u = fun n -> if n==0 then c
+else f (n-1) (u (n-1)) in u ;;\newline
+{\color{purple}val recurr : 'a -> (int -> 'a -> 'a) -> int -> 'a = <fun>}
+\par}
+
+\smallskip
+
+…mais avec un type qui permet à chaque $u_n$ d'être dans un $A_n$
+différent : $A_0 \rightarrow (\prod_n\,(A_n\rightarrow A_{n+1}))
+\rightarrow (\prod_n\,A_n)$.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Curry-Howard pour l'arithmétique de Heyting (2)}
+
+\textcolor{brown}{À quoi ressemble le programme associé à une preuve
+  dans l'arithmétique de Heyting ?}
+
+\medskip
+
+On peut souvent s'en faire une idée d'après son type, p.ex. :
+\begin{itemize}
+\item La commutativité de la multiplication $\forall m.\forall
+  n.(m\times n = n\times m)$ prend $m$ et $n$ et un renvoie un
+  témoignage d'égalité de $m\times n$ et $n\times m$ (c'est-à-dire en
+  fait $m\times n$ calculé de deux manières différentes).
+\item La preuve de $\forall n. (n=0 \lor \neg n=0)$ donnée
+  transp. \ref{example-proof-in-heyting-arithmetic} prend en entrée
+  $n$ et renvoie un type somme avec soit un témoignage d'égalité de
+  $n$ à $0$ soit un programme qui donné un tel témoignage renvoie qqch
+  d'impossible.  Donc en pratique, ce programme prend $n$ et teste si
+  $n=0$.
+\item Une preuve de $\forall m.\exists n. Q(m,n)$ va correspondre à un
+  programme qui prend $m$ et renvoie $n$ ainsi qu'un témoignage de
+  $Q(m,n)$.
+\end{itemize}
+
+\medskip
+
+Notamment, \alert{si} $\forall m.\exists n. Q(m,n)$ est prouvable dans
+l'arithmétique de \alert{Heyting}, \alert{alors} on peut en déduire
+$\varphi_e$ générale récursive totale telle que $\forall
+m. Q(m,\varphi_e(m))$ (\textbf{extraction} de programme à partir de la
+preuve).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Propriétés métamathématiques de l'arithmétique de Heyting}
+
+\itempoint L'arithmétique de Heyting a la \textbf{propriété de la
+  disjonction} : si elle prouve $Q_1\lor Q_2$, alors elle prouve $Q_1$
+ou $Q_2$.
+
+\smallskip
+
+\itempoint Et la \textbf{propriété de l'existence} : si elle prouve
+$\exists n. Q(n)$, alors elle prouve $Q(n)$ pour un $n$ explicite.
+
+\smallskip
+
+{\tiny Petits caractères : ces faits, comme l'extraction de programme,
+  dépendent d'un résultat de normalisation sur l'arithmétique de
+  Heyting (donc de $\mathsf{Consis}(\mathsf{HA})$).\par}
+
+\medskip
+
+\centerline{*}
+
+\medskip
+
+\itempoint Soit $P^{\cps}$ la formule obtenue en ajoutant
+« $\neg\neg$ » devant la formule tout entière, devant la conclusion de
+chaque $\Rightarrow$, et après chaque $\forall k$.  Alors Heyting
+prouve $P^{\cps}$ ssi Peano prouve $P$ :
+\[
+\mathsf{PA} \vdash P\text{~\alert{ssi}~}\mathsf{HA} \vdash P^{\cps}
+\]
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Une différence entre Heyting et Peano}
+
+\itempoint On peut formaliser les fonctions générales récursives (ou
+machines de Turing) en arithmétique de Heyting.  Par exemple,
+$\varphi_e(i){\downarrow}$ signifie $\exists n. T(n,e, i)$ où $T$ est
+le prédicat (p.r.) de la forme normale de Kleene, « $n$ code un arbre
+de calcul valable de $\varphi_e$ sur l'entrée $i$ ».
+
+\medskip
+
+%% \itempoint Si l'arithmétique de Heyting $\mathsf{HA}$ prouve $\forall
+%% m. (Q_1(m) \lor Q_2(m))$, alors il existe $\varphi_e \colon \mathbb{N}
+%% \to \{1,2\}$ générale récursive totale telle que $\mathsf{HA}$ prouve
+%% $\forall m. (\varphi_e(m){\downarrow}=1 \land Q_1(m) \; \lor \penalty0\;
+%% \varphi_e(m){\downarrow}=2 \land Q_2(m))$.
+
+%% \smallskip
+
+\itempoint Si $\mathsf{PA}$ prouve $\forall
+m. \varphi_e(m){\downarrow}$, alors $\mathsf{HA}$ le prouve (la
+réciproque est évidente).
+
+\medskip
+
+\itempoint Si $\mathsf{HA}$ prouve $\forall m.\exists n. Q(m,n)$,
+alors il existe $e$ telle que $\mathsf{HA}$ prouve $\forall
+m. \varphi_e(m){\downarrow}$ et $\forall m. Q(m,\varphi_e(m))$.
+
+\bigskip
+
+\itempoint La formule
+\[
+\forall e. \forall i. (\varphi_e(i){\downarrow} \lor \neg \varphi_e(i){\downarrow})
+\]
+
+{\footnotesize (c'est-à-dire $\forall e. \forall i. ((\exists
+  n. T(n,e, i)) \lor \neg (\exists n. T(n,e, i)))$)} est évidemment
+démontrable dans l'arithmétique de Peano (= en logique classique).
+Elle \alert{n'est pas démontrable} en arithmétique de Heyting (= en
+logique intuitioniste), car par Curry-Howard on pourrait extraire de
+la preuve un algorithme résolvant le problème de l'arrêt.
+
+\smallskip
+
+{\tiny Petits caractères : ces faits, comme l'extraction de programme,
+  dépendent d'un résultat de normalisation sur l'arithmétique de
+  Heyting (donc de $\mathsf{Consis}(\mathsf{HA})$).\par}
+
+\end{frame}
+%
+\begin{frame}
+\label{proof-checking-predicate}
+\frametitle{Formalisation de la démontrabilité}
+
+\textcolor{blue}{Idée-clé :} tester \alert{si une preuve est valable}
+est algorithmiquement \alert{décidable} (même primitif récursif).
+
+\smallskip
+
+En revanche, tester si un \alert{énoncé est un théorème} est seulement
+\alert{semi-décidable} (en parcourant toutes les preuves possibles).
+
+\medskip
+
+Plus précisément :
+
+\smallskip
+
+\itempoint On peut construire un codage de Gödel pour les formules
+arithmétiques et les preuves dans l'arithmétique de Heyting (ou de
+Peano), et notamment écrire un prédicat \alert{primitif récursif}
+\[
+\mathsf{Pf}_{\mathsf{HA}}(n,k)
+\quad\text{~resp.~}\quad
+\mathsf{Pf}_{\mathsf{PA}}(n,k)
+\]
+qui signifie « $n$ est le code de Gödel d'une preuve dans
+l'arithmétique de Heyting (resp. Peano) de la formule codée par $k$ ».
+
+\medskip
+
+\itempoint Notamment, $\exists n.\, \mathsf{Pf}(n,k)$ peut se lire
+comme « $k$ code un théorème », et l'ensemble de ces $k$ est (au
+moins) semi-décidable.
+
+\end{frame}
+%
+\begin{frame}
+\label{halting-implies-halting-provability}
+\frametitle{Démontrabilité de l'arrêt}
+
+\textcolor{blue}{Idée-clé :} si une machine de Turing s'arrête, on
+peut démontrer (dans l'arithmétique de Heyting) qu'elle s'arrête en
+donnant une trace d'exécution pas à pas.
+
+\medskip
+
+Plus précisément :
+
+\smallskip
+
+\itempoint Si $T(n,e,i)$, i.e., si $n$ est un arbre de calcul de
+$\varphi_e$ sur l'entrée $i$, alors on peut de façon algorithmique
+(même p.r.) tirer de $n$ une preuve de $T(n,e,i)$ dans l'arithmétique
+de Heyting (i.e., un $n'$ tel que $\mathsf{Pf}_{\mathsf{HA}}(n',k)$ où
+$k$ est le code de Gödel de l'énoncé $\varphi_e(i){\downarrow}$,
+i.e. $\exists n. T(n,e, i)$).
+
+\medskip
+
+\begin{center}
+\alert{Si une machine de Turing s'arrête, alors le fait qu'elle
+  s'arrête est prouvable} (dans l'arithmétique de Heyting, \textit{a
+  fortiori} de Peano).
+\end{center}
+
+\medskip
+
+{\footnotesize\itempoint On notera aussi que si programme fait une
+  boucle infinie \emph{explicite évidente}, alors le fait qu'il ne
+  termine pas est également prouvable.\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Gödel, Rosser et Turing jouent ensemble}
+
+{\footnotesize (Preuve du théorème de Gödel revue et corrigée par
+  Turing et par Rosser.)\par}
+
+\medskip
+
+Soit $g$ le programme suivant :
+\begin{itemize}
+\item $g$ cherche en parallèle une preuve (dans l'arithmétique de
+  Peano, disons) de l'énoncé « le programme $g$ termine »
+  (i.e. $\varphi_g(0){\downarrow}$) et de l'énoncé « le programme $g$
+  ne termine pas »,
+\item c'est-à-dire qu'il énumère les entiers et, pour chacun, teste
+  s'il est le code de Gödel d'une preuve de $\varphi_g(0){\downarrow}$
+  ou de $\neg\varphi_g(0){\downarrow}$,
+\item s'il trouve (en premier) une preuve que $g$ termine, alors il
+  fait une boucle infinie explicite,
+\item s'il trouve (en premier) une preuve que $g$ ne termine pas,
+  alors il termine immédiatement.
+\end{itemize}
+
+\smallskip
+
+Ce programme $g$ a bien un sens, comme d'habitude, par l'« astuce de
+Quine » (théorème de récursion de Kleene) + le fait que la
+vérification des preuves est algorithmique
+(transp. \ref{proof-checking-predicate}).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Le théorème de Gödel}
+
+Admettons provisoirement ce qu'on notera
+« $\mathsf{Consis}(\mathsf{PA})$ » :
+\[
+\text{l'arithmétique de Peano ne prouve pas $\bot$}
+\]
+
+\bigskip
+
+\itempoint Si le programme $g$ trouve une preuve qu'il ne termine pas,
+alors il termine.  Mais ce point donne une preuve qu'il termine
+(transp. \ref{halting-implies-halting-provability}).  Donc on a une
+preuve de $\bot$ dans l'arithmétique de Peano, contredisant le point
+ci-dessus.
+
+\medskip
+
+\itempoint Si $g$ trouve une preuve qu'il termine, il fait une boucle
+infinie.  Mais ce point donne une preuve que $g$ ne termine pas
+(boucle infinie explicite).  Donc on a une preuve de $\bot$ dans
+l'arithmétique de Peano, contredisant le point ci-dessus.
+
+\medskip
+
+Conclusion : $g$ ne trouve ni de preuve qu'il termine ni de preuve
+qu'il ne termine pas.  Donc :
+\begin{itemize}
+\item $g$ ne termine pas,
+\item ce fait-là n'est pas prouvable dans l'arithmétique de Peano,
+\item mais on l'a prouvé à l'aide de $\mathsf{Consis}(\mathsf{PA})$,
+  donc $\mathsf{Consis}(\mathsf{PA})$ lui-même n'est pas prouvable
+  dans Peano (toujours en supposant $\mathsf{Consis}(\mathsf{PA})$).
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Cohérence de Peano}
+
+\itempoint L'énoncé $\mathsf{Consis}(\mathsf{PA})$ peut se lire
+ainsi :
+
+\smallskip
+
+« Le programme $g'$ qui parcourt les entiers et, pour chacun, teste
+s'il est le code de Gödel d'une preuve de $\bot$ dans l'arithmétique
+de Peano et dans ce cas termine, ne termine pas. »
+
+\smallskip
+
+Cet énoncé \alert{a un sens} dans l'arithmétique du premier ordre,
+mais (on vient de le voir) \alert{n'est pas démontrable} s'il est
+vrai.
+
+\medskip
+
+{\footnotesize
+
+\itempoint L'énoncé $\mathsf{Consis}(\mathsf{HA})$ analogue pour
+l'arithmétique de Heyting \alert{est équivalent} à
+$\mathsf{Consis}(\mathsf{PA})$ par la traduction CPS (et cette
+équivalence est prouvable dans $\mathsf{HA}$).
+
+\smallskip
+
+Notamment, Peano ne prouve pas non plus
+$\mathsf{Consis}(\mathsf{HA})$.  Par propriété de la disjonction,
+$\mathsf{HA}$ ne prouve même pas $\mathsf{Consis}(\mathsf{HA}) \lor
+\neg\mathsf{Consis}(\mathsf{HA})$.
+
+\par}
+
+\bigskip
+
+\itempoint En revanche, $\mathsf{ZFC}$ (le cadre usuel pour faire des
+mathématiques) démontre $\mathsf{Consis}(\mathsf{PA})$ : « Les axiomes
+de Peano sont vrais dans $\mathbb{N}$ donc leurs conséquences le sont
+aussi, et notamment $\bot$ ne peut pas en faire partie.  (Et au
+passage, si $\mathsf{PA}$ démontre $\varphi_e(i){\downarrow}$, alors
+$\varphi_e(i){\downarrow}$ est vrai.) »
+
+\smallskip
+
+Donc $\mathsf{ZFC}$ est strictement plus fort que $\mathsf{PA}$ (même
+pour l'arithmétique).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Le théorème de Gödel généralisé}
+
+Pour n'importe quelle sorte de « théorie logique » (classique ou
+intuitioniste, pas limitée au premier ordre) $T$ telle que :
+\begin{itemize}
+\item les énoncés et démonstrations sont codables par des entiers
+  naturels,
+\item on peut algorithmiquement tester si un entier naturel code une
+  démonstration valable dans $T$, et quelle est sa conclusion,
+\item $T$ permet de formaliser « $\varphi_e(i){\downarrow}$ »
+  (calculablement en $e$ et $i$),
+\item si $\varphi_e(i){\downarrow}$ alors on peut tirer d'une trace
+  d'exécution une preuve de ce fait dans $T$, et idem pour une boule
+  infinie explicite,
+\end{itemize}
+on peut construire le programme $g_T$ qui cherche en parallèle dans
+$T$ une preuve de que $g_T$ termine ou ne termine pas, et fait une
+boule infinie explicite dans le premier cas, termine immédiatement
+dans le second.
+
+\medskip
+
+\itempoint Si $T$ ne prouve pas $\bot$ (hypothèse notée
+« $\mathsf{Consis}(T)$ »), alors $g_T$ ne termine pas, mais $T$ ne
+peut pas le prouver.  Notamment, $T$ ne prouve pas
+$\mathsf{Consis}(T)$ (toujours si $\mathsf{Consis}(T)$).
+{\footnotesize Ceci s'applique notamment à Coq, à $\mathsf{ZFC}$,
+  etc.}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{L'ensemble des théorèmes est semi-décidable non décidable}
+
+Avec $T$ comme au transparent précédent (et sous l'hypothèse
+$\mathsf{Consis}(T)$), par exemple $\mathsf{PA}$ supposons par
+l'absurde qu'on puisse décider algorithmiquement si une formule $P$
+est un théorème de $T$.
+
+\medskip
+
+Soit $g''$ le programme qui :
+\begin{itemize}
+\item teste si $\varphi_{g''}(0){\downarrow}=0$ est un théorème de $T$
+  (grâce à l'hypothèse effectuée),
+\item si oui, termine et renvoie $1$,
+\item si non, termine et renvoie $0$.
+\end{itemize}
+
+\medskip
+
+\itempoint Par construction, $g''$ termine forcément et renvoie soit
+$0$ soit $1$.  Si $g''$ termine et renvoie $0$, alors $T$ le prouve,
+donc $g''$ termine et renvoie $1$, contradiction ; si $g''$ termine et
+renvoie $1$, alors $T$ le prouve, donc (par $\mathsf{Consis}(T)$) il
+ne proue pas que $g''$ termine et renvoie $0$, donc $g''$ termine et
+renvoie $0$, contradiction.
+
+\end{frame}
+%
+%% \mode<article>{
+%%     \ifodd\value{page}
+%%         \clearpage\hbox{}\newpage
+%%         \thispagestyle{empty}
+%%     \fi}
+%
+\end{document}

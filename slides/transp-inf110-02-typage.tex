@@ -1,0 +1,5156 @@
+%% This is a LaTeX document.  Hey, Emacs, -*- latex -*- , get it?
+\newif\ifbeamermode
+\beamermodetrue
+\ifbeamermode
+\documentclass[mathserif,a4paper,aspectratio=169]{beamer}
+\else
+\documentclass[a4paper]{article}
+\usepackage{beamerarticle}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\fi
+\usepackage[shorthands=off,french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{2026}{...}
+% Beamer theme:
+\usetheme{Goettingen}
+%\usecolortheme{albatross}
+%\usecolortheme{lily}
+%\setbeamercovered{transparent}
+% A tribute to the worthy AMS:
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+%
+\usepackage{mathrsfs}
+\usepackage{mathpartir}
+\usepackage{flagderiv}
+%
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata,calc}
+\usepackage{hyperref}
+%
+\newcommand{\itempoint}{\strut\hbox{\color{beamerstructure}\donotcoloroutermaths$\blacktriangleright$}\nobreak\hskip.5em plus.5em\relax}
+\renewcommand{\thefootnote}{\textdagger}
+\newcommand{\dbllangle}{\mathopen{\langle\!\langle}}
+\newcommand{\dblrangle}{\mathclose{\rangle\!\rangle}}
+\newcommand{\cps}{\mathrm{CPS}}
+\newcommand{\dottedlimp}{\mathbin{\dot\Rightarrow}}
+\newcommand{\dottedland}{\mathbin{\dot\land}}
+\newcommand{\dottedlor}{\mathbin{\dot\lor}}
+\newcommand{\dottedtop}{\mathord{\dot\top}}
+\newcommand{\dottedbot}{\mathord{\dot\bot}}
+\newcommand{\dottedneg}{\mathop{\dot\neg}}
+\mathchardef\emdash="07C\relax
+\newcommand{\mpdotsabove}[1]{\inferrule*{\vdots}{#1}}
+\setlength{\derivskip}{4pt}
+%
+\mode<article>{
+    \newcommand{\donotcoloroutermaths}{\relax}
+    \renewcommand{\frametitle}[1]{\subsubsection*{#1 {\footnotesize[transp. \insertframenumber]}}}
+    \newcommand{\myitemmark}{\hbox{$\blacktriangleright$}}
+    \renewcommand{\itempoint}{\strut\myitemmark\nobreak\hskip.5em plus.5em\relax}
+    \setlength{\parindent}{0pt}
+    \renewcommand{\thepage}{II–\arabic{page}}
+}
+%
+%
+%
+\title{{\footnotesize Partie II:} Typage simple et calcul propositionnel}
+\subtitle{CSC-3TC34-TP / INF110 (Logique et Fondements de l'Informatique)}
+\author[David Madore]{David A. Madore\\
+{\footnotesize Télécom Paris}\\
+\texttt{david.madore@}(nom de l'école)\texttt{.fr}}
+\date{2023–2026}
+\mode<presentation>{%
+\beamertemplatenavigationsymbolsempty
+\usenavigationsymbolstemplate{\vbox{\hbox{\footnotesize(II) \hyperlinkslideprev{$\leftarrow$}\insertframenumber/\inserttotalframenumber\hyperlinkslidenext{$\rightarrow$}}}}
+}
+\setbeamercolor{myhighlight}{fg=black,bg=white!90!green}
+\colorlet{mydarkgreen}{green!50!black}
+\begin{document}
+\mode<article>{\maketitle\renewcommand{\labelitemi}{\myitemmark}}
+%
+\setlength\abovedisplayskip{2pt plus 2pt minus 2pt}
+\setlength\belowdisplayskip{2pt plus 2pt minus 2pt}
+%
+\begin{frame}
+\titlepage
+{\footnotesize\center{\url{http://perso.enst.fr/madore/inf110/transp-inf110.pdf}}\par}
+{\tiny
+\immediate\write18{sh ./vc > vcline.tex}
+\begin{center}
+Git: \input{vcline.tex}
+\end{center}
+\immediate\write18{echo ' (stale)' >> vcline.tex}
+\par}
+\end{frame}
+%
+\section*{Plan}
+\begin{frame}
+\frametitle{Plan}
+\tableofcontents
+\end{frame}
+%
+\section{Généralités sur le typage}
+\begin{frame}
+\frametitle{Qu'est-ce que le typage ?}
+
+{\footnotesize Philosophie opposée du « codage de Gödel » en
+  calculabilité, lequel représente toute donnée finie par un
+  entier.\par}
+
+\medskip
+
+\itempoint Informellement, un \textbf{système de typage} est une façon
+d'affecter à toute \alert{expression} et/ou \alert{valeur} manipulée
+par un langage informatique un \textbf{type} qui contraint son usage
+{\footnotesize (p.ex., « entier », « fonction », « chaîne de
+  caractères »)}.
+
+\medskip
+
+\textbf{Buts :}
+\begin{itemize}
+\item attraper plus tôt des \textbf{erreurs de programmation}
+  {\footnotesize (« ajouter un entier et une chaîne de caractères »
+    est probablement une erreur, ou demande une conversion
+    explicite)},
+\item éviter des \textbf{plantages ou problèmes de sécurité}
+  {\footnotesize (exécution d'un entier)},
+\item garantir certaines \textbf{propriétés du comportement} des
+  programmes ($\rightarrow$ analyse statique), forcément de façon
+  limitée (cf. théorème de Rice), p.ex., la \alert{terminaison},
+\item aider à l'\textbf{optimisation} {\footnotesize (fonction pure :
+  sans effet de bord)}.
+\end{itemize}
+
+\medskip
+
+{\footnotesize Cf. systèmes d'unités (homogénéité) en physique.\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Variétés de typage}
+
+Il y a autant de systèmes de typage que de langages de programmation !
+
+\medskip
+
+\itempoint Typage \textbf{statique} (à compilation) vs
+\textbf{dynamique} (à exécution) ou mixte.
+
+{\footnotesize Mixte = « graduel ».  On préfère : erreur de
+  compilation $>$ erreur à l'exécution $>$ plantage.\par}
+
+\medskip
+
+\itempoint Typage \textbf{inféré} par le langage ou \textbf{annoté}
+par le programmeur.
+
+{\footnotesize Type = promesse donnée par le langage au
+  programmeur ou par le programmeur au langage ?\par}
+
+\medskip
+
+\itempoint Typage « sûr » ou partiel/contournable (\textit{cast} de
+la valeur, manipulation de la représentation mémoire, suppression ou
+report à l'exécution de vérification).
+
+\medskip
+
+\itempoint Typage superficiel {\footnotesize (« ceci est une liste »)}
+ou complexe {\footnotesize (« ceci est une liste d'entiers »)}.
+
+\medskip
+
+\itempoint Diverses annotations possibles {\footnotesize (« cette
+  fonction est pure », « soulève une exception »)}.
+
+\medskip
+
+\itempoint Liens avec les mécanismes de sécurité (qui peut faire
+quoi ?), de gestion de la mémoire (système de typage linéaire),
+l'évaluation (exceptions), la mutabilité.
+
+\medskip
+
+\itempoint Les types sont-ils citoyens de première classe
+           {\footnotesize (:= manipulables dans le langage)} ?
+
+{\footnotesize Juvénal : « Quis custodiet ipsos custodes? » Quel est
+  le type des types eux-mêmes ?\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Opérations de base sur les types}
+
+En plus de types de base (p.ex. $\texttt{Nat}$ = entiers,
+$\texttt{Bool}$ = booléens), les opérations suivantes sur les types
+sont \emph{souvent} proposées par les systèmes de typage :
+
+\bigskip
+
+\itempoint Types \textbf{produits} (= couples, triplets, $k$-uplets).
+P.ex. $\texttt{Nat} \times \texttt{Bool}$ = type des paires formées
+d'un entier et d'un booléen.
+
+\smallskip
+
+Composantes éventuellement nommées $\rightarrow$ structures
+(= enregistrements).
+
+\smallskip
+
+Produit vide = type trivial, $\texttt{Unit}$ (une seule valeur).
+
+\bigskip
+
+\itempoint Types \textbf{sommes} (= unions).  P.ex. $\texttt{Nat} +
+\texttt{Bool}$ = type pouvant contenir un entier \emph{ou} un booléen,
+avec un \alert{sélecteur} de cas.
+
+\smallskip
+
+Cas particulier : $\texttt{Unit} + \cdots + \texttt{Unit}$ = type
+« énumération » (pur sélecteur).
+
+\smallskip
+
+Somme vide = type inhabité (impossible : aucune valeur).
+
+\bigskip
+
+\itempoint Types \textbf{fonctions} (= exponentielles).
+P.ex. $\texttt{Nat} \rightarrow \texttt{Bool}$ (f\textsuperscript{n}
+de $\texttt{Nat}$ vers $\texttt{Bool}$).
+
+\bigskip
+
+\itempoint Types \textbf{listes}.  P.ex. $\texttt{List}~\texttt{Nat}$
+= type des listes d'entiers.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Quelques fonctionnalités fréquentes}
+
+\itempoint \textbf{Sous-typage} = les valeurs d'un type sont
+automatiquement des valeurs possibles d'un autre.
+
+\bigskip
+
+\itempoint \textbf{Polymorphisme} = utilisation de plusieurs types
+possibles, voire de n'importe quel type (cf. transp. suivant).
+P.ex. la fonction « identité » $(\forall\mathtt{t})\; \mathtt{t}
+\rightarrow \mathtt{t}$.
+
+\bigskip
+
+\itempoint \textbf{Familles de types} = fabriquent un type à
+partir d'un (ou plusieurs) autres.  P.ex. $\texttt{List}$ (fabrique le
+type « liste de $\mathtt{t}$ » à partir de $\mathtt{t}$).
+
+\bigskip
+
+\itempoint \textbf{Types récursifs} = construits par les opérateurs
+(produits, sommes, fonctions, familles…) à partir des types
+définis eux-mêmes.  P.ex. $\texttt{Tree} =
+\texttt{List}~\texttt{Tree}$.
+
+\bigskip
+
+\itempoint \textbf{Types dépendants} = un type à partir d'une valeur.
+P.ex. $k \mapsto \texttt{Nat}^k$.
+
+\bigskip
+
+\itempoint \textbf{Types opaques} (abstraits, privés…) = types dont
+les valeurs sont cachées, l'usage est limité à une interface publique.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Polymorphisme}
+
+On distingue deux (trois ?) sortes de polymorphismes :
+
+\medskip
+
+\itempoint Polymorphisme \textbf{paramétrique} (ou « génériques ») :
+la même fonction \alert{s'applique à l'identique} à une donnée de
+n'importe quel type.
+
+\smallskip
+
+Exemples :
+\begin{itemize}
+\item $\texttt{head} : (\forall\mathtt{t})\; \texttt{List}~\mathtt{t} \to \mathtt{t}$ (renvoie le premier élément d'une liste)
+\item $\lambda xy.\langle x,y\rangle :
+  (\forall\mathtt{u},\mathtt{v})\; \mathtt{u} \to \mathtt{v} \to
+  \mathtt{u}\times \mathtt{v}$ (fabrique un couple)
+\item $\lambda xyz.xz(yz) :
+  (\forall\mathtt{u},\mathtt{v},\mathtt{w})\; (\mathtt{u} \to
+  \mathtt{v} \to \mathtt{w}) \to (\mathtt{u} \to
+  \mathtt{v}) \to \mathtt{u} \to
+  \mathtt{w}$
+\end{itemize}
+
+\smallskip
+
+Pas seulement pour les fonctions !  $\texttt{[]} :
+(\forall\mathtt{t})\; \texttt{List}~\mathtt{t}$ (liste vide)
+
+\smallskip
+
+{\footnotesize Et même : $\texttt{while~true~do~pass~done} :
+  (\forall\mathtt{t})\; \mathtt{t}$ (boule infinie)\par}
+
+\bigskip
+
+\itempoint Polymorphisme \textbf{ad hoc} (ou « surcharge » /
+« \textit{overloading} ») : la fonction \alert{agit différemment} en
+fonction du type de son argument (connu à la compilation !).
+
+\bigskip
+
+{\footnotesize Le sous-typage est parfois considéré comme une forme de
+  polymorphisme, voire la coercion (\textit{cast}).  Les limites de
+  ces notions sont floues.\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Tâches d'un système de typage}
+
+\itempoint \textbf{Vérification} de type : vérifier qu'une expression
+\emph{annotée} a bien le type prétendu par les annotations.
+
+\bigskip
+
+\itempoint \textbf{Inférence} (« reconstruction » / « assignation »)
+de type : calculer le type de l'expression \alert{en l'absence
+  d'annotations} (ou avec annotations partielles).
+
+\medskip
+
+Algorithme important : \textbf{Hindley-Milner} (inférence de type dans
+les langages fonctionnels à polymorphisme paramétrique).  Utilisé
+dans OCaml, Haskell, etc.
+
+\medskip
+
+\textbf{N.B.} Dans un système de typage trop complexe, l'inférence
+(voire la vérification !) \textcolor{orange}{peut devenir indécidable}
+(notamment si types de première classe / dépendant de valeurs
+arbitraires à l'exécution).
+
+\bigskip
+
+{\footnotesize Rarement utile en informatique mais essentiel en
+  logique ($\cong$ recherche de preuves) :\par}
+
+\itempoint \textbf{Habitation} de type : trouver un \alert{terme}
+(=expression) ayant un type donné.
+
+{\footnotesize P.ex. : y a-t-il un terme de type
+  $(\forall\mathtt{p},\mathtt{q})\; ((\mathtt{p} \to \mathtt{q}) \to
+  \mathtt{p}) \to \mathtt{p}$ ?\par}
+
+{\footnotesize \textbf{N.B.} Dans les langages usuels, \alert{tous}
+  les types sont habités par une boucle infinie (« \texttt{while true
+    do pass done} » ou « \texttt{let rec f () = f () in f ()} »),
+  \alert{même} le type vide.\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Utilisations du typage au-delà des valeurs stockées}
+
+\itempoint Annotation des \textbf{exceptions soulevables} (fréquent,
+p.ex. Java).
+
+\bigskip
+
+\itempoint Annotation de la \textbf{mutabilité} par le type.
+P.ex. $\texttt{Nat}$ = type d'un entier (immuable) mais
+$\texttt{Ref~Nat}$ = type d'une \alert{référence} vers un entier
+(mutable).
+
+\bigskip
+
+\itempoint Annotation des \textbf{effets de bord} par le type.  P.ex.,
+en Haskell, $\texttt{Char}$ = caractère = fonction de zéro argument
+renvoyant un caractère (fonction pure : toujours le même retour), mais
+$\texttt{IO~Char}$ = \alert{action} avec effets de bord renvoyant un
+caractère ($\texttt{IO}$ est une famille de type appelé « monade »
+I/O).
+
+\bigskip
+
+\itempoint Typage \textbf{linéaire} (forme de typage
+« sous-structurel ») ou types à unicité : assure qu'une valeur est
+utilisée \alert{une et une seule fois} dans un calcul (ni duplication
+ni perte sauf manœuvre spéciale).
+
+\smallskip
+
+Permet d'optimiser la gestion de la mémoire (Rust) et/ou d'annoter les
+effets de bord (Clean).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Quelques exemples (1)}
+
+Les langages impératifs \emph{tendent} à avoir des systèmes de typage
+moins complexes que les langages fonctionnels.
+
+\medskip
+
+{\footnotesize Éviter les termes de typage « faible » et « fort », qui
+  veulent tout (ou rien) dire.\par}
+
+\medskip
+
+\itempoint Assembleur (langage machine) : aucun typage (tout est
+donnée binaire).
+
+{\footnotesize Idem : machine de Turing, fonctions générales
+  récursives (tout est entier), $\lambda$-calcul non typé (tout est
+  fonction).\par}
+
+\medskip
+
+\itempoint C : annoté, vérifié à la compilation (\emph{aucune}
+vérification à l'exécution), moyennement complexe et contournable
+(pointeurs génériques \texttt{void*}).
+
+\medskip
+
+\itempoint Python, JavaScript, Perl, Scheme, etc. : typage vérifié à
+l'exécution, superficiel.  Suffisant pour éviter les comportements
+indéfinis.
+
+\medskip
+
+\itempoint Java : annoté, mixte compilation/exécution (double
+vérification), initialement superficiel (listes non typées), puis
+introduction de « génériques » ($\rightarrow$ polymorphisme
+paramétrique) avec Java 5, puis diverses sortes d'inférence.
+
+\medskip
+
+\itempoint Rust : interaction avec la gestion de la mémoire
+($\approx$ typage linéaire/affine).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Quelques exemples (2)}
+
+{\footnotesize Qqs exemples de langages, généralement fonctionnels,
+  ayant un système de typage (très) complexe, mélangeant plusieurs
+  fonctionnalités évoquées (interactions parfois délicates !) :\par}
+
+\medskip
+
+\itempoint OCaml : inférence de type à la H-M, types récursifs,
+polymor\textsuperscript{sme} paramétrique.
+
+\smallskip
+
+Système de « modules » (« signatures » $\approx$ interfaces
+abstraites, « foncteurs » entre signatures…), comparable aux
+« classes » des langages orientés objet.
+
+\medskip
+
+\itempoint Haskell : beaucoup de similarité avec OCaml :
+
+\smallskip
+
++ polymorphisme ad hoc : « classes de type », comparable aux
+« modules » de OCaml, aux « classes » des langages orientés objet.
+
+\smallskip
+
++ purement fonctionnel (toutes les fonctions sont « pures ») : les
+effets de bord sont enrobés dans des « monades ».
+
+\medskip
+
+\itempoint Mercury (langage de type fonctionnel+logique, inspiré de
+Haskell+Prolog) : typage comparable à Haskell ; + sous-typage,
+linéarité.
+
+\medskip
+
+\itempoint Idris : langage fonctionnel + assistant de preuve.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Quelques curiosités}
+
+\itempoint En F\#, les unités de mesure sont intégrées au système de
+typage, qui peut donc vérifier l'homogénéité physique.
+
+\bigskip
+
+\itempoint En Rust, le système de typage évite non seulement les
+fuites de mémoire mais aussi certains problèmes de concurrence
+(absence de \textit{race condition} sur les données).
+
+\bigskip
+
+\itempoint Certains langages spécialisés assurent, éventuellement en
+lien avec leur système de typage, des propriétés diverses de leurs
+programmes : terminaison garantie en temps polynomial (Bellantoni \&
+Cook 1992), voire constant (langage Usuba), validation XML (langage
+CDuce), absence de fuite d'information (langage Flow Caml), etc.
+
+\bigskip
+
+\itempoint En Idris, le système de typage est aussi un système de
+preuve (cf. Curry-Howard après) et permet de certifier des invariants
+quelconques d'un programme (p.ex., correction d'un algorithme de tri).
+
+\end{frame}
+%
+\begin{frame}
+\label{typing-and-termination}
+\frametitle{Typage et terminaison}
+
+Un système de typage \alert{peut} garantir que \textbf{tout programme
+  bien typé termine}.
+
+\bigskip
+
+Ce \alert{n'est pas le cas} pour les langages de programmation usuels
+(en OCaml, Haskell, etc., un programme bien typé peut faire une boucle
+infinie).
+
+\bigskip
+
+Si on veut que le système de typage soit décidable, ceci met forcément
+des \alert{limites sur l'expressivité} du langage
+($\leftarrow$ indécidabilité du problème de l'arrêt).
+
+\bigskip
+
+Notamment, le langage ne permettra pas d'écrire son propre
+interpréteur (même argument « diagonal » que pour les fonctions p.r.
+par thm. de réc\textsuperscript{sion} de Kleene).
+
+\bigskip
+
+Notamment aussi : pas de boucle illimitée, pas d'appels récursifs
+\emph{non contraints}, pas de type tel que $\mathtt{t} \,\cong\,
+(\mathtt{t}\rightarrow \mathtt{t})$.  Aucun terme de type vide !
+
+\bigskip
+
+Néanmoins, le langage peut être \alert{beaucoup plus puissant} que les
+fonctions p.r.
+
+\bigskip
+
+Exemple de tel langage : Coq (maintenant appelé Rocq).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{La correspondance de Curry-Howard (avant-goût)}
+
+Idée générale : établir une analogie, voire une correspondance précise
+entre
+\begin{itemize}
+\item \textbf{types} et \textbf{termes} (=programmes) de ces types
+  dans un système de typage,
+\item \textbf{propositions} et \textbf{preuves} de ces propositions
+  dans un système logique.
+\end{itemize}
+
+\smallskip
+
+P.ex., la preuve évidente de l'affirmation $(A \land B) \Rightarrow A$
+(« si $A$ et $B$ sont vraies alors $A$ est vraie ») correspond à la
+« première projection » de type $a \times b \rightarrow a$.
+
+\smallskip
+
+{\footnotesize Ceci « explique » que le type d'un terme tel que
+  $\lambda xy.x$, soit $u \to v \to u$, soit une vérité logique, en
+  l'occurrence $U \Rightarrow V \Rightarrow U$ (« si $U$ est vrai
+  alors, si $V$ est vrai alors $U$ est vrai »).\par}
+
+\bigskip
+
+Beaucoup de variations sur cette correspondance, mais il y a des
+restrictions :
+\begin{itemize}
+\item le langage informatique doit garantir la terminaison (pas
+  d'appels récursifs !), sinon cela reviendrait à permettre les
+  preuves circulaires,
+\item la logique concernée est plutôt « intuitionniste » (sans tiers
+  exclu),
+\item diverses subtilités notamment dans la correspondance entre types
+  sommes paramétriques (types $\Sigma$) et $\exists$ côté logique.
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{La correspondance de Curry-Howard (illustration graphique)}
+
+\begin{center}
+\begin{tabular}{c@{\hskip 30bp}c}
+\includegraphics[height=150bp]{images/sean-connery-in-name-of-the-rose.jpg}
+&\includegraphics[height=150bp]{images/sean-connery-in-zardoz.jpg}
+\\
+Preuves mathématiques&Programmes informatiques
+\\
+{\footnotesize (contemplatives ?)}&{\footnotesize (dynamiques ?)}
+\end{tabular}
+
+\bigskip
+
+On a du mal à le croire, mais c'est la même chose !
+
+{\footnotesize (N.B. : ne pas prendre ce résumé simpliste trop au sérieux.)\par}
+\end{center}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{La correspondance de Curry-Howard (premier aperçu)}
+
+{\footnotesize\textcolor{gray}{Divulgâchis pour la suite !}\par}
+
+\smallskip
+
+La correspondance de Curry-Howard fait notamment correspondre :
+\begin{itemize}
+\item type \textbf{fonction} $A \to B$ avec \textbf{implication}
+  logique $A \Rightarrow B$,
+\item \textbf{application} d'une fonction ($A \to B$ à un argument de
+  type $A$) avec \textbf{\textit{modus ponens}} (si $A \Rightarrow B$
+  et $A$, alors $B$),
+\item \textbf{abstraction} (= création d'une fonction) avec ouverture
+  d'une \textbf{hypothèse} (« supposons $A$ : alors (…) donc $B$ ;
+  ceci prouve $A \Rightarrow B$ »),
+\item type \textbf{produit} (= couples) $A \times B$ avec
+  \textbf{conjonction} (« et ») logique $A \land B$,
+\item type \textbf{somme} $A + B$ avec \textbf{disjonction} (« ou »)
+  logique $A \lor B$,
+\item types \textbf{trivial} ($\texttt{Unit}$) et \textbf{vide} avec
+  \textbf{vrai} $\top$ et \textbf{faux} $\bot$ logiques,
+\item mais pour la \textbf{négation}…  c'est plus délicat.
+\end{itemize}
+
+\bigskip
+
+{\footnotesize Les détails demandent un système de typage et un
+  système logique précisément définis.\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Paradoxe de Curry (interlude distrayant)}
+
+{\footnotesize Variante plus sophistiquée de « cette phrase est
+  fausse ».  C'est un exemple de preuve circulaire
+  ($\leftrightarrow$ combinateur $\mathsf{Y}$ de Curry par la
+  correspondance de C-H), invalide en logique.\par}
+
+\medskip
+
+Je tiens l'affirmation : « \textcolor{teal}{si j'ai raison, alors je
+  suis un grand génie} ».
+
+\begin{itemize}
+\item clairement, si j'ai raison, je suis un grand génie ;
+\item mais c'était justement mon affirmation : donc j'ai raison ;
+\item donc je suis un grand génie. \qedsymbol
+\end{itemize}
+
+{\footnotesize Remplacer « j'ai raison » par « cette phrase est
+  vraie » (voire utiliser l'astuce de Quine pour éviter « cette
+  phrase ») et « je suis un grand génie » par absolument n'importe
+  quoi.\par}
+
+\bigskip
+
+\itempoint Ce qui est correct : \alert{si on peut construire} un
+énoncé $A$ tel que $A \Leftrightarrow (A \Rightarrow B)$ (ici $A$ est
+l'affirmation tenue et $B$ est la conclusion voulue) alors $B$ vaut :
+\[
+(A \Leftrightarrow (A \Rightarrow B)) \, \Rightarrow \, B
+\]
+
+{\footnotesize (Preuve correcte : supposons $A$ : par hypothèse, ceci
+  signifie $A \Rightarrow B$ ; on a donc $B$ ; tout ceci prouve $A
+  \Rightarrow B$.  Bref on a $A \Rightarrow B$.  Mais par hypothèse
+  c'est $A$.  Donc $A$ vaut.  Donc $B$ aussi.)\par}
+
+\medskip
+
+\itempoint Ce qui est \textcolor{orange}{fallacieux} : la supposition
+tacite qu'on peut construire un tel $A$.
+
+{\footnotesize L'astuce de Quine permet de faire une auto-référence
+  sur la syntaxe, pas sur la vérité.\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Théories des types pour la logique (très bref aperçu)}
+
+\itempoint Langages spécialisés pour servir à la fois à l'écriture de
+programmes informatiques et de preuves mathématiques ; ils peuvent
+être soit sous forme de systèmes abstraits, soit sous forme
+d'implémentation informatique (« assistants de preuve » : Coq/Rocq, Agda,
+Lean…).
+
+\bigskip
+
+\itempoint Dans tous les cas il s'agit de langages assurant la
+terminaison des programmes (cf. transp. \ref{typing-and-termination}),
+ou, puisqu'il s'agit de variantes du $\lambda$-calcul, la
+\emph{normalisation forte}.  Le type vide doit être inhabité !
+
+\bigskip
+
+Quelques grandes familles (chacune avec énormément de variantes) :
+\begin{itemize}
+\item théories des types à la Martin-Löf (« MLTT ») : suit jusqu'au
+  bout la correspondance de Curry-Howard (\emph{aucune} distinction
+  entre types et propositions ; {\footnotesize pas de $\exists$ mais
+    plutôt un $\Sigma$}), $\rightarrow$ Agda ;
+\item variantes du « calcul des constructions » (« CoC »),
+  $\rightarrow$ Coq ;
+\item théorie homotopique des types (« HoTT ») : « égalité = isomorphisme ».
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Le $\lambda$-cube de Barendregt (très bref aperçu)}
+
+Il s'agit d'un ensemble de $8 = 2^3$ théories des types pour la
+logique : la plus faible est le « $\lambda$-calcul simplement typé »
+($\lambda_\rightarrow$, décrit plus loin), la plus forte le « calcul
+des constructions » (« CoC »).
+
+\medskip
+
+Chaque théorie du cube est caractérisée par l'absence ou la présence
+de chacune des $3$ fonctionnalités suivantes ($\lambda_\rightarrow$
+n'a aucune des trois, CoC a les trois) :
+
+\begin{itemize}
+\item \textcolor{blue}{termes pouvant dépendre de types}, ou
+  polymorphisme paramétrique « explicitement quantifié » (p.ex. $\prod
+  t.\; (t \rightarrow t)$) ;
+\item \textcolor{blue}{types pouvant dépendre de types}, ou
+  familles de types ;
+\item \textcolor{blue}{types pouvant dépendre de termes}, ou « types
+  dépendants », correspondant côté logique à la quantification sur les
+  individus.
+\end{itemize}
+
+\medskip
+
+{\footnotesize On peut ensuite encore ajouter des fonctionnalités :
+  par exemple, Coq/Rocq est basé sur le « calcul des constructions
+  inductives » qui ajoute au calcul des constructions des mécanismes
+  systématiques pour former des types (positivement !) récursifs.\par}
+
+\end{frame}
+%
+\section{Le \texorpdfstring{$\lambda$}{lambda}-calcul simplement typé}
+\begin{frame}
+\frametitle{Le $\lambda$-calcul simplement typé : description sommaire}
+
+\itempoint Le $\lambda$-calcul simplement typé (=: $\lambda$CST ou
+$\lambda_\rightarrow$) est une \alert{variante typée} du
+$\lambda$-calcul, assurant la propriété de terminaison (normalisation
+forte).
+
+\medskip
+
+\itempoint Il a une seule opération sur les types, le type
+\textbf{fonction} : donnés deux types $\sigma,\tau$, on a un type
+$\sigma\to\tau$ pour les fonctions de l'un vers l'autre.
+
+\medskip
+
+\itempoint L'application et l'abstraction doivent respecter le
+typage :
+\begin{itemize}
+\item si $P$ a pour type $\sigma\to\tau$ et $Q$ a type $\sigma$ alors $PQ$
+  a pour type $\tau$,
+\item si $E$ a pour type $\tau$ en faisant intervenir une variable $v$
+  libre de type $\sigma$ alors $\lambda(v:\sigma).E$ {\footnotesize
+    (« fonction prenant $v$ de type $\sigma$ et renvoyant $E$ »)} a
+  pour type $\sigma\to\tau$.
+\end{itemize}
+
+\medskip
+
+\itempoint Typage \textbf{annoté} (=« à la Church ») : on écrit
+$\lambda(v:\sigma).E$ pas juste $\lambda v.E$.
+
+\medskip
+
+\itempoint On notera « $x_1:\sigma_1,\ldots,x_k:\sigma_k \vdash
+E:\tau$ » pour dire « $E$ est bien typé avec pour type $\tau$ lorsque
+$x_1,\ldots,x_k$ sont des variables libres de types
+$\sigma_1,\ldots,\sigma_k$ :
+\begin{itemize}
+\item $x_1:\sigma_1,\ldots,x_k:\sigma_k$ s'appelle un
+  \textbf{contexte} de typage (souvent $\Gamma$),
+\item $\Gamma \vdash E:\tau$ s'appelle un \textbf{jugement} de typage.
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Exemples de termes et de typages}
+
+{\footnotesize On donnera les règles précises plus tard, commençons
+  par quelques exemples.\par}
+
+\begin{itemize}
+\item $f:\alpha\to\beta,\; x:\alpha \;\vdash\; fx:\beta$\newline Lire : « dans le
+  contexte où $f$ est une variable de type $\alpha\to\beta$ et $x$ une
+  variable de type $\alpha$, alors $fx$ est de type $\beta$ ».
+\item $f:\beta\to\alpha\to\gamma,\; x:\alpha,\; y:\beta \;\vdash\; fyx
+  : \gamma$\newline {\footnotesize (Parenthéser $\beta\to\alpha\to\gamma$
+  comme $\beta\to(\alpha\to\gamma)$ et $fyx$ comme $(fy)x$.)}
+\item $f:\beta\to\alpha\to\gamma,\; x:\alpha \;\vdash\;
+  \lambda(y:\beta).fyx \;:\; \beta\to\gamma$\newline {\footnotesize
+    Comprendre $\lambda(y:\beta).fyx$ comme « fonction prenant $y$ de
+    type $\beta$ et renvoyant $fyx$ ».}
+\item $x:\alpha \;\vdash\;
+  \lambda(f:\alpha\to\beta).fx\;:\;(\alpha\to\beta)\to\beta$\newline « Si
+  $x$ est de type $\alpha$ alors le terme
+  $\lambda(f:\alpha\to\beta).fx$ est de type
+  $(\alpha\to\beta)\to\beta$. »
+\item $\vdash\; \lambda(x:\alpha).
+  \lambda(f:\alpha\to\beta).fx\;:\;\alpha\to(\alpha\to\beta)\to\beta$\newline « Le
+  terme $\lambda(x:\alpha).\lambda(f:\alpha\to\beta).fx$ a type
+  $\alpha\to(\alpha\to\beta)\to\beta$ dans le contexte
+  vide. »\newline {\footnotesize (Parenthéser
+    $\alpha\to(\alpha\to\beta)\to\beta$ comme
+    $\alpha\to((\alpha\to\beta)\to\beta)$.)}
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Types et prétermes}
+
+\itempoint Un \textbf{type} du $\lambda$CST est (inductivement) :
+\begin{itemize}
+\item une \textbf{variable de type} ($\alpha$, $\beta$, $\gamma$... en nombre illimité),
+\item un \textbf{type fonction} $(\sigma\to\tau)$ où $\sigma$ et $\tau$
+  sont deux types.
+\end{itemize}
+
+\bigskip
+
+\itempoint Un \textbf{préterme} du $\lambda$CST est (inductivement) :
+\begin{itemize}
+\item une \textbf{variable de terme} ($a$, $b$, $c$... en nombre illimité),
+\item une \textbf{application} $(PQ)$ où $P$ et $Q$ sont deux prétermes,
+\item une \textbf{abstraction} $\lambda(v:\sigma).E$ avec $v$
+  variable, $\sigma$ type et $E$ préterme.
+\end{itemize}
+
+\medskip
+
+\itempoint Conventions d'écriture :
+\begin{itemize}
+\item « $\rho\to\sigma\to\tau$ » signifie
+  « $(\rho\to(\sigma\to\tau))$ » ; « $xyz$ » signifie
+  « $((xy)z)$ » ;
+\item {\footnotesize on note « $\lambda (x:\sigma,t:\tau).E$ » ou
+  « $\lambda (x:\sigma)(t:\tau).E$ » pour « $\lambda
+  (x:\sigma). \lambda (t:\tau). E$ » ;}
+\item l'abstraction est moins prioritaire que l'application ;
+\item on considère les termes à renommage près des variables liées
+  {\footnotesize ($\alpha$-conversion)}.
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Règles de typage}
+
+\itempoint Un \textbf{typage} est la donnée d'un préterme $M$ et d'un
+type $\sigma$.  On note « $M:\sigma$ ».
+
+\medskip
+
+\itempoint Un \textbf{contexte} est un ensemble fini $\Gamma$ de
+typages $x_i:\sigma_i$ où $x_1,\ldots,x_k$ sont des \alert{variables}
+de terme \alert{distinctes}.  On le note
+« $x_1:\sigma_1,\ldots,x_k:\sigma_k$ ».
+
+\medskip
+
+\itempoint Un \textbf{jugement} de typage est la donnée d'un contexte
+$\Gamma$ et d'un typage $E:\tau$, sujet aux règles ci-dessous.  On
+note $\Gamma \vdash E:\tau$ (ou juste $\vdash E:\tau$ si $\Gamma =
+\varnothing$), et on dit que $E$ est un « \textbf{terme} (= bien typé)
+de type $\tau$ dans le contexte $\Gamma$ ».
+
+\medskip
+
+\textbf{Règles} de typage du $\lambda$CST : {\footnotesize (quels que
+  soient $\Gamma,x,\sigma,\ldots$,)}
+\begin{itemize}
+\item \textcolor{olive}{(« variable »)} si $(x:\sigma) \in \Gamma$
+  alors $\Gamma \vdash x:\sigma$ ;
+\item \textcolor{olive}{(« application »)} si $\Gamma \vdash
+  P:\sigma\to\tau$ et $\Gamma \vdash Q:\sigma$ alors $\Gamma \vdash
+  PQ:\tau$ ;
+\item \textcolor{olive}{(« abstraction »)} si $\Gamma, v:\sigma \vdash
+  E:\tau$ alors $\Gamma \vdash \lambda(v:\sigma).E : \sigma\to\tau$.
+\end{itemize}
+
+\smallskip
+
+{\footnotesize (Comprendre : l'ensemble des jugements de typage est
+  l'ensemble engendré par les règles ci-dessus, i.e., le plus petit
+  ensemble qui les respecte.)\par}
+
+\medskip
+
+\itempoint Une \textbf{dérivation} d'un jugement est un arbre
+(d'instances de) règles qui aboutit au jugement considéré.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Représentation des règles de typage}
+
+Les trois règles de typage du $\lambda$CST :
+
+\[
+\inferrule*[Left={Var}]{ }{\Gamma,x:\sigma \vdash x:\sigma}
+\]
+
+\[
+\inferrule*[Left={App},sep=4em]{\Gamma \vdash P:\sigma\to\tau\\ \Gamma
+  \vdash Q:\sigma}{\Gamma \vdash PQ:\tau}
+\]
+
+\[
+\inferrule*[Left={Abs}]{\Gamma, v:\sigma \vdash E:\tau}{\Gamma
+  \vdash \lambda(v:\sigma).E : \sigma\to\tau}
+\]
+
+\bigskip
+
+\itempoint Chaque « fraction » indique que le jugement écrit
+\alert{en-dessous} découle par la règle inscrite \alert{à côté} à
+partir des hypothèses portées \alert{au-dessus}.
+
+\end{frame}
+%
+\begin{frame}
+\label{example-typing-derivation}
+\frametitle{Exemple de dérivation}
+
+Montrons le jugement selon lequel
+$\lambda(f:\beta\to\alpha\to\gamma). \lambda(x:\alpha). \lambda(y:\beta). fyx$
+est un terme de type $(\beta\to\alpha\to\gamma) \to
+(\alpha\to\beta\to\gamma)$ dans le contexte vide :
+
+\vskip-2ex
+
+{\footnotesize
+\[
+\inferrule*[Left={Abs}]{
+\inferrule*[Left={Abs}]{
+\inferrule*[Left={Abs}]{
+\inferrule*[Left={App}]{
+\inferrule*[Left={App}]{
+\inferrule*[Left={Var}]{ }{\mbox{$\begin{array}{cc}\scriptscriptstyle f:\beta\to\alpha\to\gamma,\\ \scriptscriptstyle x:\alpha,y:\beta\\ \end{array}$} \vdash f : \beta\to\alpha\to\gamma}
+\\
+\inferrule*[Right={Var}]{ }{\mbox{$\begin{array}{cc}\scriptscriptstyle f:\beta\to\alpha\to\gamma,\\ \scriptscriptstyle x:\alpha,y:\beta\\ \end{array}$} \vdash y : \beta}
+}{\mbox{$\begin{array}{cc}\scriptscriptstyle f:\beta\to\alpha\to\gamma,\\ \scriptscriptstyle x:\alpha,y:\beta\\ \end{array}$} \vdash fy : \alpha\to\gamma}
+\\
+\inferrule*[Right={Var}]{ }{\mbox{$\begin{array}{cc}\scriptscriptstyle f:\beta\to\alpha\to\gamma,\\ \scriptscriptstyle x:\alpha,y:\beta\\ \end{array}$} \vdash x : \alpha}
+}{f:\beta\to\alpha\to\gamma, x:\alpha, y:\beta \vdash fyx : \gamma}
+}{f:\beta\to\alpha\to\gamma, x:\alpha \vdash \lambda(y:\beta). fyx : \beta\to\gamma}
+}{f:\beta\to\alpha\to\gamma \vdash \lambda(x:\alpha). \lambda(y:\beta). fyx : \alpha\to\beta\to\gamma}
+}{\vdash \lambda(f:\beta\to\alpha\to\gamma). \lambda(x:\alpha). \lambda(y:\beta). fyx : (\beta\to\alpha\to\gamma) \to (\alpha\to\beta\to\gamma)}
+\]
+\par}
+
+Chaque barre horizontale justifie le jugement écrit \alert{en-dessous}
+par la règle inscrite \alert{à côté} à partir des hypothèses portées
+\alert{au-dessus}.
+
+\medskip
+
+Ceci est typographiquement abominable et hautement redondant, ce qui
+explique qu'on écrive rarement de tels arbres complètement.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Propriétés du typage}
+
+Les propriétés suivantes sont faciles mais utiles :
+
+\medskip
+
+\itempoint \textbf{Affaiblissement :} si $\Gamma \subseteq \Gamma'$
+sont deux contextes et $\Gamma \vdash M:\sigma$ alors $\Gamma' \vdash
+M:\sigma$ aussi.
+
+\smallskip
+
+{\footnotesize On pouvait présenter les règles en limitant la règle
+  « variable » à « $x:\sigma \vdash x:\sigma$ » et en prenant
+  l'affaiblissement comme règle.  C'est peut-être préférable.\par}
+
+\medskip
+
+\itempoint \textbf{Duplication :} si $\Gamma, x:\rho, x':\rho \vdash
+M:\sigma$ alors $\Gamma, x:\rho \vdash M[x'\backslash x]:\sigma$ aussi
+(où $M[x'\backslash x]$ désigne la substitution correcte de $x'$
+par $x$).
+
+\smallskip
+
+{\footnotesize \emph{Remarque :} Le typage linéaire supprime notamment
+  l'affaiblissement et la duplication.\par}
+
+\medskip
+
+\itempoint \textbf{Variables libres :} si
+$x_1:\sigma_1,\ldots,x_k:\sigma_k \vdash E:\tau$ alors toute variable
+libre de $E$ est une des $x_1,\ldots,x_k$.
+
+\medskip
+
+\itempoint \textbf{Variables inutiles :} si $\Gamma \vdash E:\tau$
+alors $\Gamma|_{\operatorname{free}(E)} \vdash E:\tau$ où
+$\Gamma|_{\operatorname{free}(E)}$ est la partie de $\Gamma$
+concernant les variables libres de $E$.
+
+\medskip
+
+\itempoint \textbf{Renommage :} si $\Gamma \vdash E:\tau$ alors ceci
+vaut encore après tout renommage des variables libres.
+
+\end{frame}
+%
+\begin{frame}
+\label{constructing-the-typing-derivation}
+\frametitle{Construction de la dérivation}
+
+La dérivation du jugement de typage $\Gamma \vdash M : \sigma$ d'un
+(pré)terme $M$ du $\lambda$CST se construit systématiquement et
+évidemment à partir de $M$ (\alert{aucun choix} à faire !) :
+\begin{itemize}
+\item si $M = x$ est une variable, alors un $x:\sigma$ doit être dans
+  le contexte $\Gamma$ (sinon : échouer), et la dérivation consiste en
+  la règle « variable » ;
+\item si $M = PQ$ est une application, construire des dérivations de
+  jugements $\Gamma \vdash P : \rho$ et $\Gamma \vdash Q : \sigma$, on
+  doit avoir $\rho = (\sigma\to\tau)$ (sinon : échouer), et la
+  dérivation finit par la règle « application » et donne $\Gamma
+  \vdash M : \tau$ ;
+\item si $M = \lambda(v:\sigma).E$ est une abstraction, construire une
+  dérivation de jugement $\Gamma' \vdash E : \tau$ dans $\Gamma' :=
+  \Gamma \cup \{v:\sigma\}$ {\footnotesize (quitte à renommer $v$)},
+  et la dérivation finit par la règle « abstraction » et donne $\Gamma
+  \vdash M : \sigma\to\tau$.
+\end{itemize}
+
+\bigskip
+
+\itempoint \textbf{Donc :} aussi bien la vérification de type
+(vérifier $\Gamma \vdash M : \sigma$) que l'assignation de type
+(trouver $\sigma$ à partir de $\Gamma,M$) sont (très facilement)
+\alert{décidables} dans le $\lambda$CST.  De plus, $\sigma$ est
+\alert{unique} (donnés $\Gamma$ et $M$).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Problèmes faciles et moins faciles}
+
+\itempoint Facile (transp. précédent) : donné un (pré)terme $M$,
+trouver son (seul possible) type $\sigma$ est facile (notamment :
+vérifier que $M$ est un terme = bien typé, ou vérifier un jugement de
+type).
+
+\smallskip
+
+\textcolor{blue}{Le terme donne directement l'arbre de dérivation.}
+
+\bigskip
+
+\itempoint Facile aussi : réciproquement, donné un arbre de dérivation
+où on a effacé les termes pour ne garder que les types, retrouver un
+terme (transp. suivant).
+
+\smallskip
+
+\textcolor{blue}{L'arbre de dérivation redonne directement le terme.}
+
+\bigskip
+
+\itempoint Moins facile : donné un terme « désannoté », i.e., un terme
+du $\lambda$-calcul non typé, p.ex. $\lambda xyz.xz(yz)$, savoir s'il
+correspond à un terme (typable) du $\lambda$CST.
+
+\smallskip
+
+\textcolor{brown}{$\rightarrow$ Algorithme de Hindley-Milner
+  (\emph{inférence} de type).}
+
+\bigskip
+
+\itempoint Moins facile : donné un type, savoir s'il existe un terme
+ayant ce type.
+
+\smallskip
+
+\textcolor{brown}{$\rightarrow$ Décidabilité du calcul propositionnel
+  intuitionniste.}
+
+\end{frame}
+%
+\begin{frame}
+\label{reconstructing-typed-term}
+\frametitle{Reconstruction du terme typé}
+
+Peut-on retrouver les termes manquants dans un arbre de dérivation
+dont on n'a donné que les types et les règles appliquées ?
+
+{\footnotesize
+\[
+\inferrule*[Left={Abs}]{
+\inferrule*[Left={Abs}]{
+\inferrule*[Left={Abs}]{
+\inferrule*[Left={App}]{
+\inferrule*[Left={App}]{
+\inferrule*[Left={Var}]{ }{\mbox{$\begin{array}{cc}\scriptscriptstyle \textbf{?}:\beta\to\alpha\to\gamma,\\ \scriptscriptstyle \textbf{?}:\alpha,\textbf{?}:\beta\\ \end{array}$} \vdash \textbf{?} : \beta\to\alpha\to\gamma}
+\\
+\inferrule*[Right={Var}]{ }{\mbox{$\begin{array}{cc}\scriptscriptstyle \textbf{?}:\beta\to\alpha\to\gamma,\\ \scriptscriptstyle \textbf{?}:\alpha,\textbf{?}:\beta\\ \end{array}$} \vdash \textbf{?} : \beta}
+}{\mbox{$\begin{array}{cc}\scriptscriptstyle \textbf{?}:\beta\to\alpha\to\gamma,\\ \scriptscriptstyle \textbf{?}:\alpha,\textbf{?}:\beta\\ \end{array}$} \vdash \textbf{?} : \alpha\to\gamma}
+\\
+\inferrule*[Right={Var}]{ }{\mbox{$\begin{array}{cc}\scriptscriptstyle \textbf{?}:\beta\to\alpha\to\gamma,\\ \scriptscriptstyle \textbf{?}:\alpha,\textbf{?}:\beta\\ \end{array}$} \vdash \textbf{?} : \alpha}
+}{\textbf{?}:\beta\to\alpha\to\gamma, \textbf{?}:\alpha, \textbf{?}:\beta \vdash \textbf{?} : \gamma}
+}{\textbf{?}:\beta\to\alpha\to\gamma, \textbf{?}:\alpha \vdash \textbf{?} : \beta\to\gamma}
+}{\textbf{?}:\beta\to\alpha\to\gamma \vdash \textbf{?} : \alpha\to\beta\to\gamma}
+}{\vdash \textbf{?} : (\beta\to\alpha\to\gamma) \to (\alpha\to\beta\to\gamma)}
+\]
+\par}
+
+\textbf{Oui} (aux noms des variables près) à condition, en cas de
+types identiques dans le contexte, d'identifier l'élément utilisé pour
+chaque règle « variable ».
+
+\bigskip
+
+\itempoint\textcolor{blue}{Le terme typé représente exactement l'arbre
+  de dérivation} du jugement le concernant.
+
+\end{frame}
+%
+\begin{frame}
+\label{substitution-lemma}
+\frametitle{Lemme de substitution}
+
+\itempoint\textbf{Lemme :} Si $\Gamma, v:\sigma \vdash E : \tau$ et
+$\Gamma \vdash T : \sigma$ alors $\Gamma \vdash E[v\backslash T] :
+\tau$, où $E[v\backslash T]$ désigne le terme obtenu par substitution
+correcte de $v$ par $T$ dans $E$.
+
+\bigskip
+
+\underline{Esquisse de preuve :} reprendre l'arbre de dérivation de
+$\Gamma, v:\sigma \vdash E : \tau$ en supprimant $v:\sigma$ du
+contexte et en substituant $v$ par $T$ partout à droite du ‘$\vdash$’.
+Les règles s'appliquent à l'identique, sauf la règle « variable »
+introduisant $v:\sigma$, qui est remplacée par l'arbre de dérivation
+de $\Gamma \vdash T : \sigma$.\qed
+
+\medskip
+
+\centerline{*}
+
+\medskip
+
+Remarquer la similarité entre
+\[
+\inferrule*[left=App]{
+\inferrule*[left=Abs]{\Gamma, v:\sigma \vdash E : \tau}{
+\Gamma \vdash \lambda(v:\sigma).E : \sigma\to\tau}
+\\
+\Gamma \vdash T : \sigma
+}{\Gamma \vdash (\lambda(v:\sigma).E)T : \tau}
+\]
+et
+\[
+\inferrule*[left=Subs]{\Gamma, v:\sigma \vdash E : \tau
+\\
+\Gamma \vdash T : \sigma
+}{\Gamma \vdash E[v\backslash T] : \tau}
+\]
+
+\end{frame}
+%
+\begin{frame}
+\label{typing-vs-beta-reduction}
+\frametitle{Typage et $\beta$-réduction}
+
+On rappelle que la « $\beta$-réduction » désigne le remplacement en
+sous-expression d'un « redex » $(\lambda (v:\sigma). E)T$ par son
+« réduit » $E[v\backslash T]$.
+
+\medskip
+
+On note $X \rightarrow_\beta X'$ pour une $\beta$-réduction, et $X
+\twoheadrightarrow_\beta X'$ pour une suite de $\beta$-réductions.
+
+\bigskip
+
+\itempoint D'après le lemme de substitution, si $\Gamma \vdash
+(\lambda (v:\sigma). E)T : \tau$ alors on a aussi $\Gamma \vdash
+E[v\backslash T] : \tau$.
+
+\bigskip
+
+\itempoint Toujours d'après ce lemme, si $X \twoheadrightarrow_\beta
+X'$ et $\Gamma \vdash X:\tau$ alors $\Gamma \vdash X':\tau$.
+
+\bigskip
+
+\textcolor{blue}{\textbf{Moralité :}} le typage est compatible avec
+l'évaluation du $\lambda$-calcul (un terme bien typé reste bien typé
+quand on effectue la $\beta$-réduction et le type ne change pas).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Normalisation forte}
+
+\itempoint\textbf{Théorème} (Turing, Tait, Girard) : le
+$\lambda$-calcul simplement typé est \textbf{fortement normalisant},
+c'est-à-dire que toute suite de $\beta$-réductions sur un terme
+(bien typé !) termine.
+
+\bigskip
+
+{\footnotesize
+
+\textcolor{blue}{Idée cruciale de la preuve :} une induction directe
+échoue ($P,Q$ fortement normalisables $\not\Rightarrow$ $PQ$ fortement
+normalisable).  À la place, on introduit une notion \emph{plus forte}
+permettant l'induction :
+
+\smallskip
+
+\itempoint\textbf{Définition} technique : un terme $P$ de type $\rho$
+est dit « fortement calculable » lorsque :
+\begin{itemize}
+\item si $\rho = \alpha$ est une variable de type (type
+  « atomique ») : $P$ est fortement normalisable,
+\item si $\rho = (\sigma\to\tau)$ est un type fonction : pour
+  \alert{tout} $Q$ de type $\sigma$ fortement calculable, $PQ$ est
+  fortement calculable.
+\end{itemize}
+
+\smallskip
+
+On prouve alors successivement :
+\begin{itemize}
+\item tout terme fortement calculable est fortement normalisable
+  (induction facile sur le type),
+\item si $x_1:\sigma_1,\ldots,x_k:\sigma_k \vdash E:\tau$ et si
+  $P_1,\ldots,P_k$ sont de types $\sigma_1,\ldots,\sigma_k$, fortement
+  calculables et n'impliquant pas $x_1,\ldots,x_k$, alors la
+  substitution de $P_i$ pour $x_i$ dans $E$ est fortement calculable
+  (preuve par induction sur la dérivation du jugement, i.e., induction
+  sur $E$ : le cas délicat est l'abstraction).
+\end{itemize}
+
+\par}
+
+\end{frame}
+%
+\section{Le calcul propositionnel intuitionniste}
+\begin{frame}
+\frametitle{Le calcul propositionnel : présentation sommaire}
+
+\itempoint Le \textbf{calcul propositionnel} est une forme de logique
+qui ne parle que de « propositions » (énoncés logiques) : pas de
+variables d'individus (p.ex. entiers naturels, ensembles…), \alert{pas
+  de quantification} (pas de $\forall,\exists$).
+
+\medskip
+
+\itempoint Les \textbf{connecteurs logiques} sont : $\Rightarrow$
+(implication), $\land$ (conjonction logique : « et »), $\lor$
+(disjonction : « ou »), $\top$ (« vrai ») et $\bot$ (« faux » ou
+« absurde »).
+
+{\footnotesize Tous sont binaires sauf $\top$, $\bot$ (nullaires).\par}
+
+\smallskip
+
+On peut y ajouter $\neg$ (négation logique) unaire : $\neg P$ est une
+abréviation de $P \Rightarrow \bot$ (soit : « $P$ est absurde »).
+
+\medskip
+
+On distingue {\footnotesize (les règles précises seront décrites plus
+  loin)} :
+\begin{itemize}
+\item la logique \textbf{classique} ou \textbf{booléenne} qui admet la
+  règle du \alert{tiers exclu} (« tertium non datur ») sous une forme
+  ou une autre : logique usuelle des maths ; on peut la modéliser par
+  $2$ valeurs de vérité (« vrai » et « faux ») ;
+\item la logique \textbf{intuitionniste}, plus \emph{faible}, qui
+  n'admet pas cette règle : il n'y a pas vraiment de « valeur de
+  vérité ».
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Le calcul propositionnel : syntaxe}
+
+\itempoint Une \textbf{formule} du calcul propositionnel est
+(inductivement) :
+\begin{itemize}
+\item une \textbf{variable propositionnelle} ($A$, $B$, $C$...),
+\item l'application d'un connecteur : $(P\Rightarrow Q)$, $(P\land
+  Q)$, $(P\lor Q)$ où $P,Q$ sont deux formules, ou encore $\top$,
+  $\bot$.
+\end{itemize}
+
+\medskip
+
+\itempoint Conventions d'écriture :
+\begin{itemize}
+\item $\neg P$ abrège « $(P \Rightarrow \bot)$ » ;
+\item on omet certaines parenthèses : $\neg$ est prioritaire sur
+  $\land$ qui est prioritaire sur $\lor$ qui est prioritaire sur
+  $\Rightarrow$ {\footnotesize (\textcolor{purple}{ne pas abuser de
+    l'omission des parenthèses, merci})} ;
+\item $\land$ et $\lor$ associent à gauche disons (ça n'aura pas
+  d'importance) ; mais $\Rightarrow$ associe à droite : $P \Rightarrow
+  Q\Rightarrow R$ signifie $(P\Rightarrow(Q\Rightarrow R))$ ;
+\item parfois : $P \Leftrightarrow Q$ pour $(P\Rightarrow Q) \land
+  (Q\Rightarrow P)$ {\footnotesize (priorité encore plus basse ?)}.
+\end{itemize}
+
+\medskip
+
+\itempoint Si $P_1,\ldots,P_r, Q$ sont des formules, $P_1,\ldots,P_r
+\vdash Q$ s'appelle un \textbf{séquent}, à comprendre comme « sous les
+hypothèses $P_1,\ldots,P_r$, on a $Q$ ».
+
+\medskip
+
+{\footnotesize \itempoint Notation historique : « $\supset$ » pour
+  notre « $\Rightarrow$ », et « $\Rightarrow$ » pour notre
+  « $\vdash$ ».\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Le calcul propositionnel intuitionniste : connecteurs}
+
+\itempoint Chaque connecteur logique a des règles
+d'\textbf{introduction} permettant de \alert{démontrer} ce connecteur,
+et des règles d'\textbf{élimination} permettant de l'\alert{utiliser}.
+
+\bigskip
+
+En français, et un peu informellement :
+\begin{itemize}
+\item pour introduire $\Rightarrow$ : on démontre $Q$ \alert{sous
+  l'hypothèse} $P$, ce qui donne $P\Rightarrow Q$ (sans hypothèse :
+  « hypothèse déchargée ») ;
+\item pour éliminer $\Rightarrow$ : si on a $P\Rightarrow Q$ et $P$,
+  on a $Q$ (\textit{modus ponens}) ;
+\item pour introduire $\land$ : on démontre $Q_1$ et $Q_2$, ce qui
+  donne $Q_1\land Q_2$ ; pour l'éliminer : si on a $Q_1 \land Q_2$ on
+  en tire $Q_1$ resp. $Q_2$ ;
+\item pour introduire $\lor$ : on démontre $Q_1$ ou $Q_2$, ce qui
+  donne $Q_1\lor Q_2$ ;
+\item pour éliminer $\lor$ : si on a $P_1 \lor P_2$, on démontre $Q$
+  successivement sous les hypothèses $P_1$ et $P_2$, ce qui donne $Q$
+  (hypothèses déchargées) ;
+\item pour introduire $\top$, c'est trivial, et on ne peut pas
+  l'éliminer ;
+\item pour éliminer $\bot$, on tire la conclusion qu'on veut
+  (\textit{ex falso quodlibet}), et on ne peut pas l'introduire.
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\label{natural-deduction-rules}
+\frametitle{Le calcul propositionnel intuitionniste : règles}
+
+Axiomes : si $Q \in \{P_1,\ldots,P_r\}$ alors $P_1,\ldots,P_r \vdash Q$.
+
+\medskip
+
+Introduction et élimination des connecteurs en style « déduction naturelle » :
+
+\smallskip
+
+\begin{tabular}{c|c|c}
+&Intro&Élim\\\hline
+$\Rightarrow$
+&$\inferrule{\Gamma,{\color{mydarkgreen}P}\vdash Q}{\Gamma\vdash P\Rightarrow Q}$
+&$\inferrule{\Gamma\vdash P\Rightarrow Q\\\Gamma\vdash P}{\Gamma\vdash Q}$
+\\\hline
+$\land$
+&$\inferrule{\Gamma\vdash Q_1\\\Gamma\vdash Q_2}{\Gamma\vdash Q_1\land Q_2}$
+&$\inferrule{\Gamma\vdash Q_1\land Q_2}{\Gamma\vdash Q_1}$
+\quad$\inferrule{\Gamma\vdash Q_1\land Q_2}{\Gamma\vdash Q_2}$
+\\\hline
+$\lor$
+&$\inferrule{\Gamma\vdash Q_1}{\Gamma\vdash Q_1\lor Q_2}$
+\quad$\inferrule{\Gamma\vdash Q_2}{\Gamma\vdash Q_1\lor Q_2}$
+&$\inferrule{\Gamma\vdash P_1\lor P_2\\\Gamma,{\color{mydarkgreen}P_1}\vdash Q\\\Gamma,{\color{mydarkgreen}P_2}\vdash Q}{\Gamma\vdash Q}$
+\\\hline
+$\top$
+&$\inferrule{\strut}{\Gamma\vdash \top}$
+&(néant)
+\\\hline
+$\bot$
+&(néant)
+&$\inferrule{\Gamma\vdash \bot}{\Gamma\vdash Q}$
+\\
+\end{tabular}
+
+{\footnotesize Dans tout ça, $\Gamma$ désigne un jeu (\alert{non
+    ordonné}, mais avec multiplicités) d'hypothèses.\par}
+
+{\footnotesize Les hypothèses en \textcolor{mydarkgreen}{vert} sont
+  « déchargées », c'est-à-dire qu'elles disparaissent.\par}
+
+\end{frame}
+%
+\begin{frame}
+\label{example-propositional-proofs}
+\frametitle{Exemples de démonstrations}
+
+Indiquant à côté de chaque barre une abréviation de la règle utilisée
+(« $\Rightarrow$Int » pour introduction de $\Rightarrow$,
+« $\land$Élim$_2$ » pour la 2\textsuperscript{e} règle d'élimination
+de $\land$, etc.) :
+
+\bigskip
+
+{\footnotesize
+\[
+\inferrule*[left={$\Rightarrow$Int},right=\hphantom{Int}]{
+\inferrule*[Left={$\land$Int}]{
+\inferrule*[Left={$\land$Élim$_2$}]{
+\inferrule*[Left={Ax}]{ }{A\land B \vdash A\land B}
+}{A\land B \vdash B}
+\\
+\inferrule*[Right={$\land$Élim$_1$}]{
+\inferrule*[Right={Ax}]{ }{A\land B \vdash A\land B}
+}{A\land B \vdash A}
+}{A\land B \vdash B\land A}
+}{\vdash A\land B \Rightarrow B\land A}
+\]
+\par}
+
+\bigskip
+
+{\footnotesize
+\[
+\inferrule*[left={$\Rightarrow$Int},right=\hphantom{Int}]{
+\inferrule*[Left={$\lor$Élim}]{
+\inferrule*[Left={Ax}]{ }{A\lor B \vdash A\lor B}
+\\
+\inferrule*[right={$\lor$Int$_2$}]{
+\inferrule*[Right={Ax}]{ }{A\lor B,A \vdash A}
+}{A\lor B,A \vdash B\lor A}
+\\
+\inferrule*[Right={$\lor$Int$_1$}]{
+\inferrule*[Right={Ax}]{ }{A\lor B,B \vdash B}
+}{A\lor B,B \vdash B\lor A}
+}{A\lor B \vdash B\lor A}
+}{\vdash A\lor B \Rightarrow B\lor A}
+\]
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Présentation différente}
+
+On peut aussi n'écrire que les conclusions (partie droite du
+signe « $\vdash$ »), à condition d'indiquer pour chaque hypothèse
+déchargée à quel endroit elle l'a été (ceci sacrifie de la lisibilité
+pour un gain de place) :
+
+\medskip
+
+{\footnotesize
+\[
+\inferrule*[left={$\Rightarrow$Int(\textcolor{mydarkgreen}{$u$})},right=\hphantom{Int}]{
+\inferrule*[Left={$\land$Int}]{
+\inferrule*[Left={$\land$Élim$_2$}]{
+\inferrule*[Left={\textcolor{mydarkgreen}{$u$}}]{ }{A\land B}
+}{B}
+\\
+\inferrule*[Right={$\land$Élim$_1$}]{
+\inferrule*[Right={\textcolor{mydarkgreen}{$u$}}]{ }{A\land B}
+}{A}
+}{B\land A}
+}{A\land B \Rightarrow B\land A}
+\]
+\par}
+
+\medskip
+
+{\footnotesize
+\[
+\inferrule*[left={$\Rightarrow$Int(\textcolor{mydarkgreen}{$u$})},right=\hphantom{Int}]{
+\inferrule*[Left={$\lor$Élim(\textcolor{mydarkgreen}{$v$},\textcolor{mydarkgreen}{$v'$})}]{
+\inferrule*[Left={\textcolor{mydarkgreen}{$u$}}]{ }{A\lor B}
+\\
+\inferrule*[right={$\lor$Int$_2$}]{
+\inferrule*[Right={\textcolor{mydarkgreen}{$v$}}]{ }{A}
+}{B\lor A}
+\\
+\inferrule*[Right={$\lor$Int$_1$}]{
+\inferrule*[Right={\textcolor{mydarkgreen}{$v'$}}]{ }{B}
+}{B\lor A}
+}{B\lor A}
+}{A\lor B \Rightarrow B\lor A}
+\]
+\par}
+
+\medskip
+
+{\footnotesize\textbf{N.B.} : une même hypothèse \emph{peut} être
+  déchargée sur plusieurs endroits ($u$ dans le 1\textsuperscript{er}
+  exemple).\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Encore une présentation différente}
+
+Présentation « drapeau », plus proche de l'écriture naturelle, commode
+à vérifier :
+
+\begin{footnotesize}
+\begin{flagderiv}[example-proof1]
+\assume{conj}{A\land B}{}
+\step{partb}{B}{$\land$Élim$_2$ sur \ref{conj}}
+\step{parta}{A}{$\land$Élim$_1$ sur \ref{conj}}
+\step{newconj}{B\land A}{$\land$Int sur \ref{partb}, \ref{parta}}
+\conclude{}{A\land B \Rightarrow B\land A}{$\Rightarrow$Int de \ref{conj} dans \ref{newconj}}
+\end{flagderiv}
+\end{footnotesize}
+
+\vskip-2ex
+
+\begin{footnotesize}
+\begin{flagderiv}[example-proof2]
+\assume{disj}{A\lor B}{}
+\assume{parta}{A}{}
+\step{fromparta}{B\lor A}{$\lor$Int$_2$ sur \ref{parta}}
+\done
+\assume{partb}{B}{}
+\step{frompartb}{B\lor A}{$\lor$Int$_1$ sur \ref{partb}}
+\done
+\step{newdisj}{B\lor A}{$\lor$Élim sur \ref{disj} de \ref{parta} dans \ref{fromparta} et de \ref{partb} dans \ref{frompartb}}
+\conclude{}{A\lor B \Rightarrow B\lor A}{$\Rightarrow$Int de \ref{disj} dans \ref{newdisj}}
+\end{flagderiv}
+\end{footnotesize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Quelques théorèmes du calcul propositionnel intuitionniste}
+
+\itempoint Lorsque $\vdash P$ (sans hypothèse), on dit que $P$ est
+\textbf{valable} dans le calcul propositionnel intuitionniste, ou est
+un \textbf{théorème} / une \textbf{tautologie}.
+
+\medskip
+
+{\footnotesize
+
+Quelques théorèmes importants (« $P\Leftrightarrow Q$ » abrège
+« $P \Rightarrow Q$ et $Q \Rightarrow P$ ») :
+
+\begin{tabular}{|c|c|}
+\hline
+$A\Rightarrow A$\quad\quad\quad $A\Rightarrow B\Rightarrow A$&$(A\Rightarrow B\Rightarrow C)
+\Rightarrow (A\Rightarrow B)\Rightarrow A\Rightarrow C$\\
+\hline
+$(A\Rightarrow B\Rightarrow C) \Leftrightarrow (A\land B \Rightarrow C)$
+&$A\land A \mathrel{\color{olive}\Leftrightarrow} A$\quad\quad\quad$A\lor A \mathrel{\color{olive}\Leftrightarrow} A$\\
+\hline
+$A\land B \Rightarrow A$\quad\quad\quad$A\land B \Rightarrow B$&$A\Rightarrow A\lor B$\quad\quad\quad$B \Rightarrow A\lor B$\\
+\hline
+$A\Rightarrow B\Rightarrow A\land B$&$(A\Rightarrow C)\Rightarrow(B\Rightarrow C)\Rightarrow A\lor B\Rightarrow C$\\
+\hline
+$A\land B \Leftrightarrow B\land A$&$A\lor B \Leftrightarrow B\lor A$\\
+\hline
+$(A\land B)\land C \Leftrightarrow A\land(B\land C)$&$(A\lor B)\lor C \Leftrightarrow A\lor(B\lor C)$\\
+\hline
+$(A\Rightarrow B)\land (A\Rightarrow C) \Leftrightarrow (A\Rightarrow B\land C)$
+&$(A\Rightarrow C)\land (B\Rightarrow C) \Leftrightarrow (A\lor B \Rightarrow C)$\\
+\hline
+$(A\Rightarrow B)\lor (A\Rightarrow C) \mathrel{\color{red}\Rightarrow} (A\Rightarrow B\lor C)$
+&$(A\Rightarrow C)\lor (B\Rightarrow C) \mathrel{\color{red}\Rightarrow} (A\land B \Rightarrow C)$\\
+\hline
+$A\land(B\lor C) \Leftrightarrow (A\land B)\lor (A\land C)$
+&$A\lor(B\land C) \mathrel{\color{olive}\Leftrightarrow} (A\lor B)\land (A\lor C)$\\
+\hline
+$\top$&$\bot \Rightarrow C$\\
+\hline
+$\top\land A \Leftrightarrow A$\quad\quad\quad$\bot \land A \Leftrightarrow \bot$
+&$\top\lor A \mathrel{\color{olive}\Leftrightarrow} \top$\quad\quad\quad$\bot \lor A \Leftrightarrow A$\\
+\hline
+$\neg A \land \neg B \Leftrightarrow \neg(A\lor B)$&$\neg A \lor \neg B \mathrel{\color{red}\Rightarrow} \neg(A\land B)$\\
+\hline
+$A \mathrel{\color{red}\Rightarrow} \neg\neg A$&$(\neg\neg A\Rightarrow \neg\neg B) \Leftrightarrow \neg\neg (A\Rightarrow B)$\\
+\hline
+$(\neg\neg A\land \neg\neg B) \Leftrightarrow \neg\neg (A\land B)$
+&$(\neg\neg A\lor \neg\neg B) \mathrel{\color{red}\Rightarrow} \neg\neg (A\lor B)$\\
+\hline
+$(A\Rightarrow B) \mathrel{\color{red}\Rightarrow} (\neg B\Rightarrow \neg A)$
+&$\neg A \Leftrightarrow \neg\neg\neg A$\\
+\hline
+$\neg(A\land\neg A)$&$\neg\neg(A\lor\neg A)$\\
+\hline
+\end{tabular}
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Quelques non-théorèmes}
+
+{\footnotesize Rappelons qu'\textcolor{blue}{on ne permet pas de
+    raisonnement par l'absurde} dans notre logique.\par}
+
+\bigskip
+
+Les énoncés suivants \alert{ne sont pas} des théorèmes du calcul
+propositionnel intuitionniste (même s'ils \emph{sont} valables en
+calcul propositionnel \emph{classique}) :
+\begin{itemize}
+\item $((A\Rightarrow B)\Rightarrow A)\Rightarrow A$ (« loi de Peirce »)
+\item $A \lor \neg A$ (« tiers exclu »)
+\item $\neg\neg A \Rightarrow A$ (« élimination de la double
+  négation »)
+\item $\neg(A\land B) \Rightarrow \neg A\lor\neg B$ (une des « lois de
+  De Morgan »)
+\item $(A\Rightarrow B) \Rightarrow \neg A\lor B$ {\footnotesize (la
+  réciproque est bien valable intuitionnistement)}
+\item $(\neg B\Rightarrow \neg A) \Rightarrow (A\Rightarrow B)$
+  {\footnotesize (même remarque)}
+\item $(A\Rightarrow B) \lor (B\Rightarrow A)$ (« loi de Dummett »)
+\item $\neg A \lor \neg\neg A$ (« tiers exclu faible »)
+\item $(\neg\neg A \Rightarrow A) \Rightarrow (A \lor \neg A)$ {\tiny
+  (même si $(\neg\neg A \Rightarrow A)$ pour \emph{tout} $A$ donne $A
+  \lor \neg A$ pour tout $A$)}
+\end{itemize}
+
+\bigskip
+
+{\footnotesize\textcolor{brown}{Mais comment sait-on que quelque chose
+    \emph{n'est pas} un théorème, au juste ?}\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Preuve de la négation vs raisonnement par l'absurde}
+
+\itempoint Rappel : la négation $\neg A$ abrège $A \Rightarrow \bot$
+{\footnotesize(« si $A$ est vrai alors \textsc{absurdité} »)}.
+
+\bigskip
+
+Bien distinguer :
+
+\medskip
+
+\itempoint d'une part la \textbf{preuve de la négation} de $A$ :
+
+\smallskip
+
+\textcolor{teal}{« Supposons $A$ [vrai].  Alors (...), ce qui est
+  absurde.  Donc $A$ est faux [i.e., $\neg A$]. »}
+
+\smallskip
+
+qui \alert{est valable} intuitionnistement : c'est prouver $A
+\Rightarrow \bot$ par la règle $\Rightarrow$Intro,
+
+\medskip
+
+\itempoint et la \textbf{preuve par l'absurde} de $A$ d'autre part :
+
+\smallskip
+
+\textcolor{teal}{« Supposons $A$ faux [i.e., $\neg A$].  Alors (...),
+  ce qui est absurde.  Donc $A$ est vrai. »}
+
+\smallskip
+
+qui \alert{n'est pas valable} intuitionnistement : tout ce qu'on peut
+en tirer est $\neg\neg A$.
+
+\bigskip
+
+\itempoint On peut lire $\neg A$ comme « $A$ est faux » et $\neg\neg
+A$ comme « $A$ n'est pas faux ».
+
+\smallskip
+
+{\footnotesize
+
+\itempoint Noter que $\neg\neg\neg A$ équivaut à $\neg A$ (donc
+$\neg\neg\neg\neg A$ à $\neg\neg A$, etc.).
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Logique classique}
+
+La logique \textbf{classique} ou \textbf{booléenne} modifie la règle
+\[
+\inferrule*[left={$\bot$Élim}]{\Gamma\vdash \bot}{\Gamma\vdash Q}
+\quad\quad\quad
+\text{~en~}
+\quad\quad\quad
+\inferrule*[left={Absurde}]{\Gamma,{\color{mydarkgreen}\neg Q}\vdash \bot}{\Gamma\vdash Q}
+\]
+
+\bigskip
+
+Elle est donc \alert{plus forte} (= a plus de théorèmes) que la
+logique intuitionniste.
+
+\bigskip
+
+\itempoint\textbf{Théorème} {\footnotesize (« complétude de la
+  sémantique booléenne du calcul propositionnel classique »)} : $P$
+est un théorème de la logique classique \alert{ssi} pour toute
+substitution de $\bot$ ou $\top$ à chacune des variables
+propositionnelles de $P$ a la valeur de vérité $\top$.  (Voir
+transp. \ref{truth-table-semantics} plus loin pour précisions.)
+
+\bigskip
+
+Tableaux de vérité :
+
+\smallskip
+
+\begin{tabular}{c@{\hskip 30bp}c@{\hskip 30bp}c}
+$
+\begin{array}{c|cc}
+\land&\bot&\top\\\hline
+\bot&\bot&\bot\\
+\top&\bot&\top\\
+\end{array}
+$
+&
+$
+\begin{array}{c|cc}
+\lor&\bot&\top\\\hline
+\bot&\bot&\top\\
+\top&\top&\top\\
+\end{array}
+$
+&
+$
+\begin{array}{c|cc}
+A \Rightarrow B&B=\bot&B=\top\\\hline
+A=\bot&\top&\top\\
+A=\top&\bot&\top\\
+\end{array}
+$
+\end{tabular}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Un peu d'histoire des maths : Brouwer et l'intuitionnisme}
+
+\itempoint L'\textbf{intuitionnisme} est à l'origine une philosophie
+des mathématiques développée (à partir de 1912) par L. E. J. Brouwer
+(1881–1966) en réaction/opposition au \textbf{formalisme} promu par
+D. Hilbert (1862–1943).
+
+\medskip
+
+Quelques principes de l'intuitionnisme \emph{à l'origine} :
+
+\begin{itemize}
+\item rejet de la loi du tiers exclu (« principe d'omniscience ») pour
+  demander des preuves \alert{constructives} (pour Brouwer, montrer
+  que $x$ ne peut pas ne pas exister n'est pas la même chose que
+  montrer que $x$ existe),
+\item refus de la logique formelle (pour Brouwer, les maths sont
+  « créatives »),
+\item principes de continuité (notamment : toute fonction $\mathbb{R}
+  \to \mathbb{R}$ est continue).
+\end{itemize}
+
+\medskip
+
+\itempoint Idées rejetées par Hilbert (et la plupart des
+mathématiciens).
+
+$\rightarrow$ « controverse Hilbert-Brouwer » {\footnotesize
+  (rapidement devenue querelle personnelle)}
+
+\medskip
+
+Hilbert : « Retirer au mathématicien le principe du tiers exclu
+serait comme empêcher à un boxeur d'utiliser ses poings. »
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Les maths constructives après Brouwer}
+
+\itempoint L'intuitionnisme a été ensuite reformulé et modifié par les
+élèves de Brouwer et leurs propres élèves (notamment A. Heyting,
+A. Troelstra) et d'autres écoles (analyse constructive d'E. Bishop,
+constructivisme russe de A. Markov fils) :
+
+\begin{itemize}
+\item dans le cadre de la logique formelle (ou compatible avec elle),
+\item sans impliquer de principe \emph{contredisant} les maths
+  classiques,
+\item mais toujours \alert{sans la loi du tiers exclu}.
+\end{itemize}
+
+\bigskip
+
+\itempoint Les termes de « \textbf{mathématiques constructives} » et
+« intuitionnisme » sont devenus plus ou moins interchangeables pour
+« maths sans le tiers exclu ».
+
+\bigskip
+
+\itempoint Dans \emph{certains} tels systèmes, prouver $P\lor Q$
+resp. $\exists x.P(x)$ passe forcément par la preuve de $P$ ou de $Q$,
+resp. par la construction d'un $x$ vérifiant $P(x)$.
+
+\bigskip
+
+\itempoint Les maths « normales » se font en logique classique, mais
+certains bouts (explicit\textsuperscript{t} signalés comme tels) de la
+littérature sont en logique intuitionniste.  On peut y faire de
+l'algèbre, de l'analyse, etc., constructives.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Pourquoi vouloir « boxer sans ses poings » ?}
+
+{\footnotesize Évidence : l'\alert{écrasante majorité des maths}
+  se fait en logique classique (loi du tiers exclu admise) !\par}
+
+\medskip
+
+Une preuve « constructive » (sans tiers exclu) est plus restrictive
+qu'une preuve classique, donc \alert{apporte plus} :
+
+\begin{itemize}
+\item principe de parcimonie ; \quad \itempoint curiosité purement théorique ;
+\item intérêt philosophique (pas de « principe d'omniscience ») ;
+\item validité dans un cadre mathématique plus large
+  ($\rightarrow$ « topos ») ;
+\item lien avec les systèmes de typage (via Curry-Howard) ;
+\item extraction d'algorithme (p.ex., d'une preuve de $\forall
+  m. \exists n. P(m,n)$ dans certains systèmes on peut extraire un
+  algo qui \alert{calcule} $n$ à partir de $m$) ;
+\item compatibilité avec des axiomes qui contredisent les maths
+  classiques (p.ex. « toute fonction $\mathbb{R}\to\mathbb{R}$ est
+  continue », « toute fonction $\mathbb{N}\to\mathbb{N}$ est
+  calculable » [$\leftarrow$ « calculabilité synthétique »]) qu'on
+  peut vouloir étudier.
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Preuves classiques pas toujours satisfaisantes}
+
+Que penser de la preuve suivante ?
+
+\medskip
+
+\textbf{Affirmation :} Il existe un algo qui donné $k \in
+\mathbb{N}$ \alert{termine en temps fini} et renvoie
+\begin{itemize}
+\item soit le rang de la première occurrence de $k$ chiffres $7$
+  consécutifs dans l'écriture décimale de $\pi$,
+\item soit « $\infty$ » si une telle occurrence n'existe pas.
+\end{itemize}
+
+\medskip
+
+{\footnotesize
+
+\underline{Preuve} (classique !) : soit $f\colon \mathbb{N} \to
+\mathbb{N} \cup \{\infty\}$ la fonction qui à $k$ associe le rang
+recherché.
+
+\alert{De deux choses l'une :}
+\begin{itemize}
+\item soit il existe $k_0$ tel que $f(k) = \infty$ pour $k\geq k_0$ :
+  alors $f$ est calculable car $f$ est déterminée par $k_0$ et un
+  nombre \emph{fini} de valeurs $(f(0),\ldots,f(k_0-1))$ ;
+\item soit $f(k)$ est fini pour tout $k \in \mathbb{N}$ : alors $f$
+  est calculable par l'algorithme qui, donné $k$, calcule indéfiniment
+  des décimales de $\pi$ jusqu'à en trouver $k$ consécutives
+  valant $7$, et renvoie le rang (cet algorithme termine toujours par
+  hypothèse).
+\end{itemize}
+
+Dans tous les cas $f$ est calculable.\qed
+\par}
+
+\medskip
+
+\textcolor{blue}{Objection :} cette preuve (correcte en maths
+classiques) ne nous donne pas du tout d'algorithme !  Elle montre
+juste qu'il « existe » classiquement.
+
+\end{frame}
+%
+\begin{frame}
+\label{bhk-interpretation}
+\frametitle{L'interprétation de Brouwer-Heyting-Kolmogorov}
+
+Interprétation \alert{informelle/intuitive} des connecteurs de la
+logique intuitionniste, due à A. Kolmogorov, A. Heyting, G. Kreisel,
+A. Troelstra et d'autres :
+
+\begin{itemize}
+\item un témoignage de $P\land Q$, est un témoignage de $P$ et un de $Q$,
+\item un témoignage de $P\lor Q$, est un témoignage de $P$ ou un de
+  $Q$, et la donnée duquel des deux on a choisi,
+\item un témoignage de $P\Rightarrow Q$ est un moyen de transformer
+  un témoignage de $P$ en un témoignage de $Q$,
+\item un témoignage de $\top$ est trivial, \quad \itempoint un
+  témoignage de $\bot$ n'existe pas,
+\item {\color{darkgray} un témoignage de $\forall x.P(x)$ est un moyen
+  de transformer un $x$ quelconque en un témoignage de $P(x)$,}
+\item {\color{darkgray} un témoignage de $\exists x.P(x)$ est la
+  donnée d'un certain $x_0$ et d'un témoignage de $P(x_0)$.}
+\end{itemize}
+
+\medskip
+
+{\footnotesize J'écris « témoignage », mais Kolmogorov parlait de
+  « solution » d'un problème, Heyting de « preuve », etc.\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Correspondance de Curry-Howard : implication seule}
+
+\begin{tabular}{c|c}
+Typage du $\lambda$-calcul simplement typé
+&Calcul propositionnel intuitionniste\\[1ex]\hline\\
+$\inferrule*[left={Var}]{ }{\Gamma,x:\sigma \vdash x:\sigma}$
+&
+$\inferrule*[left={Ax}]{ }{\Gamma,P \vdash P}$
+\\[2ex]
+$\inferrule*[left={App},sep=3em]{\Gamma \vdash f:\sigma\to\tau\\ \Gamma
+  \vdash x:\sigma}{\Gamma \vdash fx:\tau}$
+&
+$\inferrule*[left={$\Rightarrow$Élim},sep=3em]{\Gamma \vdash P\Rightarrow Q\\ \Gamma
+  \vdash P}{\Gamma \vdash Q}$
+\\[2ex]
+$\inferrule*[left={Abs}]{\Gamma, v:\sigma \vdash t:\tau}{\Gamma
+  \vdash \lambda(v:\sigma).t : \sigma\to\tau}$
+&
+$\inferrule*[left={$\Rightarrow$Int}]{\Gamma, P \vdash Q}{\Gamma
+  \vdash P\Rightarrow Q}$
+\end{tabular}
+
+\bigskip
+
+\itempoint Ce sont \alert{exactement les mêmes règles}, aux
+notations/nommage près…
+
+\smallskip
+
+\itempoint …sauf que la colonne de droite n'a pas le terme typé, mais
+on sait qu'on peut le reconstruire
+(transp. \ref{reconstructing-typed-term}), à partir de l'arbre de
+dérivation.
+
+\smallskip
+
+\itempoint On peut donc \alert{identifier} termes du $\lambda$CST et
+arbres de preuve en déduction naturelle du calcul propositionnel
+intuitionniste restreint au seul connecteur $\Rightarrow$.
+
+\end{frame}
+%
+\begin{frame}
+\label{example-proposition-proof-with-implication}
+\frametitle{Correspondance de Curry-Howard : exemple avec implication}
+
+\itempoint Transformons en démonstration le terme
+\[\lambda(f:\beta\to\alpha\to\gamma). \lambda(x:\alpha). \lambda(y:\beta). fyx\]
+qu'on a typé (transp. \ref{example-typing-derivation}) comme
+$(\beta\to\alpha\to\gamma) \to (\alpha\to\beta\to\gamma)$ :
+
+{\footnotesize
+\[
+\inferrule*[Left={$\Rightarrow$Int}]{
+\inferrule*[Left={$\Rightarrow$Int}]{
+\inferrule*[Left={$\Rightarrow$Int}]{
+\inferrule*[Left={$\Rightarrow$Élim}]{
+\inferrule*[Left={$\Rightarrow$Élim}]{
+\inferrule*[Left={Ax}]{ }{\mbox{$\begin{array}{cc}\scriptscriptstyle B \Rightarrow A \Rightarrow C ,\\ \scriptscriptstyle A ,B \\ \end{array}$} \vdash B \Rightarrow A \Rightarrow C }
+\\
+\inferrule*[Right={Ax}]{ }{\mbox{$\begin{array}{cc}\scriptscriptstyle B \Rightarrow A \Rightarrow C ,\\ \scriptscriptstyle A ,B \\ \end{array}$} \vdash B }
+}{\mbox{$\begin{array}{cc}\scriptscriptstyle B \Rightarrow A \Rightarrow C ,\\ \scriptscriptstyle A ,B \\ \end{array}$} \vdash A \Rightarrow C }
+\\
+\inferrule*[Right={Ax}]{ }{\mbox{$\begin{array}{cc}\scriptscriptstyle B \Rightarrow A \Rightarrow C ,\\ \scriptscriptstyle A ,B \\ \end{array}$} \vdash A }
+}{B \Rightarrow A \Rightarrow C , A , B  \vdash C }
+}{B \Rightarrow A \Rightarrow C , A  \vdash B \Rightarrow C }
+}{B \Rightarrow A \Rightarrow C  \vdash A \Rightarrow B \Rightarrow C }
+}{\vdash (B \Rightarrow A \Rightarrow C ) \Rightarrow  (A \Rightarrow B \Rightarrow C )}
+\]
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Correspondance de Curry-Howard : conjonction}
+
+On veut \alert{étendre} le $\lambda$CST avec un \textbf{type produit}
+pour refléter les règles de la conjonction logique :
+
+\medskip
+
+\begin{tabular}{c|c}
+Typage du $\lambda$-calcul
+&Calcul propositionnel intuitionniste\\[1ex]\hline\\
+$\inferrule*[left=Proj$_1$]{\Gamma \vdash t:\tau_1\times\tau_2}{\Gamma \vdash \pi_1 t:\tau_1}$
+&$\inferrule*[left={$\land$Élim$_1$}]{\Gamma\vdash Q_1\land Q_2}{\Gamma\vdash Q_1}$
+\\[2ex]
+$\inferrule*[left=Proj$_2$]{\Gamma \vdash t:\tau_1\times\tau_2}{\Gamma \vdash \pi_2 t:\tau_2}$
+&$\inferrule*[left={$\land$Élim$_2$}]{\Gamma\vdash Q_1\land Q_2}{\Gamma\vdash Q_2}$
+\\[2ex]
+$\inferrule*[left=Pair]{\Gamma \vdash t_1:\tau_1\\\Gamma \vdash t_2:\tau_2}{\Gamma \vdash \langle t_1,t_2\rangle : \tau_1\times\tau_2}$
+&$\inferrule*[left={$\land$Int}]{\Gamma\vdash Q_1\\\Gamma\vdash Q_2}{\Gamma\vdash Q_1\land Q_2}$
+\end{tabular}
+
+\medskip
+
+\itempoint Ici, $\langle\emdash,\emdash\rangle$ sert à construire des
+couples, et $\pi_1,\pi_2$ à les déconstruire.
+
+\smallskip
+
+{\footnotesize
+
+\itempoint Nouvelle règle de réduction : $\pi_i\langle t_1,t_2\rangle$
+se réduit en $t_i$ (pour $i\in\{1,2\}$).
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\label{curry-howard-example-with-conjunction}
+\frametitle{Correspondance de Curry-Howard : exemple avec conjonction}
+
+\itempoint Transformons en programme la démonstration qu'on a donnée
+de $A\land B \Rightarrow B\land A$
+(transp. \ref{example-propositional-proofs} et suivants) :
+
+{\footnotesize
+\[
+\inferrule*[left={Abs},right=\hphantom{Abs}]{
+\inferrule*[Left={Pair}]{
+\inferrule*[Left={Proj$_2$}]{
+\inferrule*[Left={Var}]{ }{u:\alpha\times \beta \vdash u:\alpha\times \beta}
+}{u:\alpha\times \beta \vdash \pi_2 u:\beta}
+\\
+\inferrule*[Right={Proj$_1$}]{
+\inferrule*[Right={Var}]{ }{u:\alpha\times \beta \vdash u:\alpha\times \beta}
+}{u:\alpha\times \beta \vdash \pi_1 u:\alpha}
+}{u:\alpha\times \beta \vdash \langle \pi_2 u, \pi_1 u\rangle:\beta\times \alpha}
+}{\vdash \lambda(u:\alpha\times\beta).\,\langle \pi_2 u, \pi_1 u\rangle : \alpha\times \beta \rightarrow \beta\times \alpha}
+\]
+\par}
+
+\bigskip
+
+\itempoint Il s'agit de la fonction
+$\lambda(u:\alpha\times\beta).\,\langle \pi_2 u, \pi_1 u\rangle$
+(polymorphe de type $\alpha\times\beta \to \beta\times\alpha$) qui
+échange les deux termes d'un couple.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Correspondance de Curry-Howard : disjonction}
+
+On veut étendre le $\lambda$CST avec un \textbf{type somme}
+pour refléter les règles de la disjonction logique :
+
+\medskip
+
+\begin{tabular}{c|c}
+Typage du $\lambda$-calcul
+&Calcul propositionnel intuitionniste\\[1ex]\hline\\
+$\inferrule*[left={Inj$_1$}]{\Gamma\vdash t:\tau_1}{\Gamma\vdash \iota_1^{(\tau_1,\tau_2)} t: \tau_1 + \tau_2}$
+&$\inferrule*[left={$\lor$Int$_1$}]{\Gamma\vdash Q_1}{\Gamma\vdash Q_1\lor Q_2}$
+\\[2ex]
+$\inferrule*[left={Inj$_2$}]{\Gamma\vdash t:\tau_2}{\Gamma\vdash \iota_2^{(\tau_1,\tau_2)} t: \tau_1 + \tau_2}$
+&$\inferrule*[left={$\lor$Int$_2$}]{\Gamma\vdash Q_2}{\Gamma\vdash Q_1\lor Q_2}$
+\\[2ex]
+\textcolor{gray}{ci-dessous $\downarrow$}
+&{\footnotesize $\inferrule*[left={$\lor$Élim}]{\Gamma\vdash P_1\lor P_2\\\Gamma,P_1\vdash Q\\\Gamma,P_2\vdash Q}{\Gamma\vdash Q}$}
+\end{tabular}
+
+\[
+\inferrule*[left={Match}]{\Gamma\vdash r:\sigma_1+ \sigma_2\\\Gamma,v_1:\sigma_1\vdash t_1:\tau\\\Gamma,v_2:\sigma_2\vdash t_2:\tau}{\Gamma\vdash
+(\texttt{match~}r\texttt{~with~}\iota_1 v_1 \mapsto t_1,\; \iota_2 v_2 \mapsto t_2) : \tau}
+\]
+
+{\footnotesize\textbf{N.B.} : $v_1,v_2$ sont des
+  \alert{variables} qui sont \alert{liées} par le \texttt{match} ; et
+  $r,t_1,t_2$ sont des \alert{termes}.\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Remarques sur types produits et sommes}
+
+\itempoint $\iota_1,\iota_2$ sont des \emph{constructeurs} dans la
+terminologie OCaml.
+
+\medskip
+
+\itempoint À côté de la $\beta$-réduction usuelle du $\lambda$-calcul,
+$(\lambda (v:\sigma). e)t \rightsquigarrow e[v\backslash t]$, on
+introduit des nouvelles règles de réduction pour la conjonction et la
+disjonction :
+\begin{itemize}
+\item $\pi_i\langle t_1,t_2\rangle \;\rightsquigarrow\; t_i$ (pour
+  $i\in\{1,2\}$)
+\item $(\texttt{match~}\iota_i^{(\tau_1,\tau_2)}s\texttt{~with~}\iota_1
+  v_1 \mapsto t_1,\; \iota_2 v_2 \mapsto t_2) \;\rightsquigarrow\;
+  t_i[v_i\backslash s]$ (pour $i\in\{1,2\}$)
+\end{itemize}
+
+\medskip
+
+\itempoint Côté démonstrations : cette réduction court-circuite une
+règle \textsc{Intro} immédiatement suivie par sa règle \textsc{Élim}
+(ce qu'on appelle un « détour »).
+
+\medskip
+
+\itempoint Le $\lambda$-calcul simplement typé \alert{reste fortement
+  normalisant} avec ces extensions par types produits et sommes et les
+réductions ci-dessus {\footnotesize (et types $1$ et $0$ après)}.
+
+\medskip
+
+\itempoint Les injections $\iota_i : \tau_i \to \tau_1+\tau_2$ portent
+l'exposant $(\tau_1,\tau_2)$ pour que les annotations de type soient
+complètes (mais il est inutile dans le matching).
+
+\medskip
+
+\itempoint Aucune des notations
+$\pi_i,\ \langle,\rangle,\ \iota_i,\ \texttt{match}...\texttt{with}$
+n'est standardisée (bcp de variations existent), mais il n'y a aucun
+doute sur la correspondance elle-même.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Correspondance de Curry-Howard : exemple avec disjonction}
+
+\itempoint Transformons en programme la démonstration qu'on a donnée
+de $A\lor B \Rightarrow B\lor A$
+(transp. \ref{example-propositional-proofs} et suivants) :
+
+{\footnotesize
+\[
+\inferrule*[left={Abs},right=\hphantom{Int}]{
+\inferrule*[Left={Match}]{
+\inferrule*[Left={Var}]{ }{u:\alpha+\beta \vdash u:\alpha+\beta}
+\\
+\inferrule*[right={Inj$_2$}]{
+\inferrule*[Right={Var}]{ }{\ldots,v:\alpha \vdash v:\alpha}
+}{{\scriptstyle\cdots} \vdash \iota_2^{(\beta,\alpha)} v : \beta+\alpha}
+\\
+\inferrule*[Right={Inj$_1$}]{
+\inferrule*[Right={Var}]{ }{\ldots,v':\beta \vdash v':\beta}
+}{{\scriptstyle\cdots} \vdash \iota_1^{(\beta,\alpha)} v' : \beta+\alpha}
+}{u:\alpha+\beta \vdash (\texttt{match~} u\texttt{~with~}\iota_1
+  v \mapsto \iota^{(\beta,\alpha)}_2 v,\; \iota_2 v' \mapsto \iota_1^{(\beta,\alpha)} v') : \beta+\alpha}
+}{\vdash \lambda (u:\alpha+\beta) .
+(\texttt{match~} u\texttt{~with~}\iota_1
+  v \mapsto \iota^{(\beta,\alpha)}_2 v,\; \iota_2 v' \mapsto \iota_1^{(\beta,\alpha)} v') : \alpha+\beta \to \beta+\alpha}
+\]
+\par}
+
+\bigskip
+
+\itempoint Il s'agit de la fonction
+\[
+\lambda (u:\alpha+\beta) .
+(\texttt{match~} u\texttt{~with~}\iota_1
+  v \mapsto \iota^{(\beta,\alpha)}_2 v,\; \iota_2 v' \mapsto \iota_1^{(\beta,\alpha)} v')
+\]
+(polymorphe de type $\alpha+\beta \to \beta+\alpha$) qui échange les
+deux cas d'une somme.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Correspondance de Curry-Howard : vrai et faux}
+
+On veut étendre le $\lambda$CST avec un \textbf{type unité} et un
+\textbf{type vide} pour refléter les règles du vrai et du faux :
+
+\medskip
+
+\begin{tabular}{c|c}
+Typage du $\lambda$-calcul
+&Calcul propositionnel intuitionniste\\[1ex]\hline\\
+$\inferrule*[left={Unit}]{ }{\Gamma\vdash \bullet:1}$
+&$\inferrule*[left={$\top$Int}]{ }{\Gamma\vdash \top}$
+\\[2ex]
+$\inferrule*[left={Void}]{\Gamma\vdash r:0}{\Gamma\vdash
+\texttt{exfalso}^{(\tau)} r : \tau}$
+&$\inferrule*[left={$\bot$Élim}]{\Gamma\vdash \bot}{\Gamma\vdash Q}$
+\end{tabular}
+
+\medskip
+
+\itempoint Ici, $\bullet$ désigne la valeur triviale de type unité
+(\texttt{()} en OCaml), et $\texttt{exfalso}$ est un matching vide.
+{\footnotesize (Notations pas standardisées du tout.)}
+
+\smallskip
+
+\itempoint Pas de nouvelle règle de réduction à ajouter.
+
+\medskip
+
+{\footnotesize
+
+En OCaml :
+
+{\tt
+type void = | ;;
+let exfalso = fun (r:void) -> match r with \_ -> . ;;
+\par}
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Correspondance de Curry-Howard : exemples divers}
+
+\itempoint L'implication $(A\Rightarrow B\Rightarrow C) \Rightarrow
+(A\Rightarrow B)\Rightarrow A\Rightarrow C$ est démontrée par le terme
+(« combinateur $\mathsf{S}$ ») :
+\[
+\lambda (x:\alpha\to\beta\to\gamma).\,
+\lambda (y:\alpha\to\beta).\,
+\lambda (z:\alpha).\,
+xz(yz)
+\]
+
+\medskip
+
+\itempoint L'équivalence $(A\land B \Rightarrow C) \Leftrightarrow
+(A\Rightarrow B\Rightarrow C)$ est démontrée par les fonctions de
+« curryfication »
+\[
+\lambda (f:\alpha\times\beta\to\gamma).\,
+\lambda (x:\alpha).\, \lambda(y:\beta).\,
+f\langle x,y\rangle
+\]
+et « décurryfication »
+\[
+\lambda (f:\alpha\to\beta\to\gamma).\,
+\lambda (z:\alpha\times\beta).\,
+f(\pi_1 z)(\pi_2 z)
+\]
+
+\medskip
+
+\itempoint L'équivalence $A\lor(B\land C) \Leftrightarrow (A\lor
+B)\land (A\lor C)$ est démontrée par les termes
+{\footnotesize
+\[
+\lambda (u:\alpha+(\beta\times\gamma)).\,
+(\texttt{match~}u\texttt{~with~}\iota_1 v \mapsto \langle \iota^{(\alpha,\beta)}_1 v, \iota^{(\alpha,\gamma)}_1 v\rangle,\;
+\iota_2 w \mapsto \langle \iota^{(\alpha,\beta)}_2 (\pi_1 w), \iota^{(\alpha,\gamma)}_2 (\pi_2 w)\rangle)
+\]
+\vskip-1ex et\vskip-5ex
+\[
+\begin{aligned}
+\lambda (u:(\alpha+\beta)\times(\alpha+\gamma)).\,
+&(\texttt{match~}\pi_1 u\texttt{~with~}\iota_1 v \mapsto \iota_1^{(\alpha,\beta\times\gamma)} v,\\
+\iota_2 v' \mapsto
+&(\texttt{match~}\pi_2 u\texttt{~with~}\iota_1 w \mapsto \iota_1^{(\alpha,\beta\times\gamma)} w,\;
+\iota_2 w' \mapsto \iota_2^{(\alpha,\beta\times\gamma)}\langle v',w'\rangle ))
+\end{aligned}
+\]
+}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Correspondance de Curry-Howard : exemple en OCaml}
+
+Reprise de l'équivalence $A\lor(B\land C) \Leftrightarrow (A\lor
+B)\land (A\lor C)$ typée par OCaml :
+
+\bigskip
+
+{\footnotesize\tt
+let pi1 = fun (x,y) -> x ;; (* $\pi_1$ *)\newline
+{\color{purple}val pi1 : 'a * 'b -> 'a = <fun>}\newline
+let pi2 = fun (x,y) -> y ;; (* $\pi_2$ *)\newline
+{\color{purple}val pi2 : 'a * 'b -> 'b = <fun>}\newline
+type ('a, 'b) sum = Inj1 of 'a | Inj2 of 'b ;; (* $\alpha+\beta$ *)\newline
+{\color{purple}type ('a, 'b) sum = Inj1 of 'a | Inj2 of 'b}\newline
+fun u -> match u with Inj1 v -> (Inj1 v, Inj1 v)\newline
+\ \ | Inj2 w -> (Inj2 (pi1 w), Inj2 (pi2 w)) ;;\newline
+{\color{purple}- : ('a, 'b * 'c) sum -> ('a, 'b) sum * ('a, 'c) sum = <fun>}\newline
+fun u -> (match (pi1 u) with Inj1 v -> Inj1 v\newline
+\ \ | Inj2 v\_ -> (match (pi2 u) with Inj1 w -> Inj1 w\newline
+\ \ \ \ | Inj2 w\_ -> Inj2 (v\_,w\_))) ;;\newline
+{\color{purple}- : ('a, 'b) sum * ('a, 'c) sum -> ('a, 'b * 'c) sum = <fun>}
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Les preuves ne sont pas uniques}
+
+{\footnotesize La question de l'égalité est compliquée, on ne
+  l'abordera guère.\par}
+
+\itempoint Une même proposition peut avoir des preuves
+(fonctionnellement) \alert{différentes}.
+
+\medskip
+
+Par exemple, les entiers de Church typés :
+\begin{itemize}
+\item $\overline{0}_{\alpha} :=
+  \lambda(f:\alpha\to\alpha).\lambda(x:\alpha).x$
+\item $\overline{1}_{\alpha} :=
+  \lambda(f:\alpha\to\alpha).\lambda(x:\alpha).fx$
+\item $\overline{2}_{\alpha} :=
+  \lambda(f:\alpha\to\alpha).\lambda(x:\alpha).f(fx)$ etc.
+\end{itemize}
+tous de type $(\alpha\to\alpha)\to(\alpha\to\alpha)$ prouvent tous
+$(A\Rightarrow A)\Rightarrow(A\Rightarrow A)$.
+
+\medskip
+
+{\footnotesize
+
+($\overline{0}$) : « [\textbf{(1)} Supposons $A\Rightarrow A$.
+    [\textbf{(2)} Supposons $A$.]  \textbf{(3)} On a $A\Rightarrow A$
+    par $\Rightarrow$Int de (2) dans (2).]  \textbf{(4)} On a
+  $(A\Rightarrow A)\Rightarrow(A\Rightarrow A)$ par $\Rightarrow$Int
+  de (1) dans (3). »
+
+\medskip
+
+($\overline{1}$) : « [\textbf{(1)} Supposons $A\Rightarrow A$.
+  [\textbf{(2)} Supposons $A$.  \textbf{(3)} On a $A$ par
+    $\Rightarrow$Élim sur (1) et (2).]  \textbf{(4)} On a
+  $A\Rightarrow A$ par $\Rightarrow$Int de (2) dans (3).]
+\textbf{(5)} On a $(A\Rightarrow A)\Rightarrow(A\Rightarrow A)$ par
+$\Rightarrow$Int de (1) dans (4). »
+
+\medskip
+
+($\overline{2}$) : « [\textbf{(1)} Supposons $A\Rightarrow A$.
+  [\textbf{(2)} Supposons $A$.  \textbf{(3)} On a $A$ par
+    $\Rightarrow$Élim sur (1) et (2).  \textbf{(4)} On a $A$ par
+    $\Rightarrow$Élim sur (1) et (3).]  \textbf{(5)} On a
+  $A\Rightarrow A$ par $\Rightarrow$Int de (2) dans (4).]
+\textbf{(6)} On a $(A\Rightarrow A)\Rightarrow(A\Rightarrow A)$ par
+$\Rightarrow$Int de (1) dans (5). »
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Curry-Howard : récapitulation}
+
+\itempoint La correspondance de Curry-Howard permet
+d'\alert{identifier}
+\begin{itemize}
+\item\textcolor{blue}{types} du $\lambda$-calcul simplement typé,
+  éventuellement enrichi de constructions de types produit ($\times$),
+  somme ($+$), trivial ($1$) et vide ($0$), et
+\item\textcolor{blue}{propositions} (=formules logiques) du calcul
+  propositionnel intuitionniste avec pour connecteurs
+  l'implication ($\Rightarrow$) et éventuellement la
+  conjonction ($\land$), disjonction ($\lor$), vrai ($\top$) et
+  faux ($\bot$) respectivement,
+\end{itemize}
+en identifant aussi
+\begin{itemize}
+\item\textcolor{blue}{termes} ayant les types en question,
+\item\textcolor{blue}{preuves} des propositions en question, dans le
+  style « déduction naturelle », en calcul propositionnel
+  intutionniste.
+\end{itemize}
+
+\medskip
+
+\itempoint Noter aussi : abstraction$\leftrightarrow$ouverture
+d'hypothèse ; application$\leftrightarrow$\textit{modus ponens} ;
+variables$\leftrightarrow$hypothèses ; variables
+liées$\leftrightarrow$hypothèses déchargées.
+
+\bigskip
+
+{\footnotesize
+
+\itempoint On se permettra maintenant parfois des abus de notation
+justifiés par Curry-Howard, p.ex., traiter $\rightarrow$ et
+$\Rightarrow$ comme interchangeables.
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{La négation et la double négation}
+
+\textcolor{orange}{Qu'est-ce qui correspond à la proposition $\neg P$
+  par Curry-Howard ?}
+
+\medskip
+
+C'est le type $\sigma \rightarrow 0$ des fonctions prenant un argument
+de type $\sigma$ et renvoyant une valeur impossible, i.e., ne peuvent
+jamais renvoyer.
+
+\medskip
+
+Mais on parle d'un langage ($\lambda$CST enrichi) où \alert{tous les
+  programmes terminent} (« normalisation forte ») !  Donc une telle
+fonction prouve que $\sigma$ est lui-même vide ; et la fonction est
+triviale : c'est une « pure preuve » de vacuité de $\sigma$ :
+
+\smallskip
+
+\begin{itemize}
+\item le type $\sigma \rightarrow 0$ (ou « $\neg\sigma$ ») est le type
+  des « témoignages de vacuité » de $\sigma$ \textcolor{teal}{(si on
+    me fournit un truc de type $\sigma$, je soulève une exception
+    parce que c'est impossible)},
+\item le type $(\sigma \rightarrow 0) \rightarrow 0$ (ou
+  « $\neg\neg\sigma$ ») est une sorte de type des témoignages de
+  \alert{non-vacuité} de $\sigma$,
+\item mais ce dernier ne permet pas « magiquement » d'en tirer une
+  valeur :
+\item pas de terme de type $((\alpha \rightarrow 0) \rightarrow 0) \to
+  \alpha$ ou bien $\alpha + (\alpha\rightarrow 0)$ dans le
+  $\lambda$CST : on est bien en \alert{logique intuitionniste}.
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\label{variables-are-effectively-polymorphic}
+\frametitle{Un embryon de polymorphisme}
+
+\itempoint Les types du $\lambda$CST sont écrits avec des
+\alert{variables de types} $\alpha,\beta,\gamma$…  En principe ce sont
+des \alert{types opaques}.  En pratique, une fonction comme
+$\lambda(x:\alpha).\lambda(y:\beta).x$ de type
+$\alpha\to\beta\to\alpha$ se comporte \alert{comme polymorphe} : on
+peut imaginer un $\forall\alpha,\beta$ (\alert{implicite}) devant :
+
+\medskip
+
+\itempoint En effet, substituer n'importe quel type $\sigma$ à une
+variable de type $\alpha$ dans un terme du $\lambda$CST (enrichi)
+donne encore un terme correct (la dérivation de typage est la même,
+après substitution).
+
+\medskip
+
+\itempoint Conséquence côté logique : substituer des propositions
+quelconques aux \alert{variables propositionnelles} d'un théorème
+donne encore un théorème.
+
+\medskip
+
+P.ex. : $(A\land B\Rightarrow C) \Rightarrow (A\Rightarrow
+B\Rightarrow C)$ est un théorème, donc
+\[
+((D\Rightarrow E)\land (E\Rightarrow D) \Rightarrow D) \Rightarrow ((D\Rightarrow E)\Rightarrow (E\Rightarrow D)\Rightarrow D)
+\]
+en est (par subst\textsuperscript{ion} de $D\Rightarrow E$ pour $A$,
+de $E\Rightarrow D$ pour $B$, et de $D$ pour $C$).
+
+\medskip
+
+{\footnotesize
+
+\itempoint Attention, ce polymorphisme s'applique aux
+\alert{conclusions, pas aux hypothèses} (l'hypothèse $A$ ne permet pas
+de tout déduire !).
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{« Fonctorialité » des connecteurs logiques}
+
+\begin{itemize}
+\item Donnés $t_1 : \tau_1 \to \tau_1'$ et $t_2 : \tau_2 \to \tau_2'$,
+  le terme $\lambda (u : \tau_1\times\tau_2).\langle t_1(\pi_1 u),
+  t_2(\pi_2 u)\rangle$ est de type $\tau_1\times\tau_2 \to
+  \tau_1'\times\tau_2'$.
+\item Donnés $t_1 : \tau_1 \to \tau_1'$ et $t_2 : \tau_2 \to \tau_2'$,
+  le terme $\lambda (u :
+  \tau_1+\tau_2). (\texttt{match~}u\texttt{~with~}\iota_1 v_1 \mapsto
+  \iota_1^{(\tau_1',\tau_2')} (t_1v_1),\; \iota_2 v_2 \mapsto
+  \iota_2^{(\tau_1',\tau_2')} (t_2v_2))$\\ est de type $\tau_1+\tau_2 \to
+  \tau_1'+\tau_2'$.
+\item Donnés $s : \sigma' \to \sigma$ (\textcolor{olive}{attention au
+  sens !}) et $t : \tau \to \tau'$, le terme $\lambda (u :
+  \sigma\to\tau). \lambda (x:\sigma'). t(u(sx))$ est de type
+  $(\sigma\to\tau) \to (\sigma'\to\tau')$.
+\end{itemize}
+
+\bigskip
+
+Donc, par Curry-Howard :
+
+\begin{itemize}
+\item Si $Q_1\Rightarrow Q_1'$ et $Q_2\Rightarrow Q_2'$ alors
+  $(Q_1\land Q_2)\Rightarrow (Q_1'\land Q_2')$.
+\item Si $Q_1\Rightarrow Q_1'$ et $Q_2\Rightarrow Q_2'$ alors
+  $(Q_1\lor Q_2)\Rightarrow (Q_1'\lor Q_2')$.
+\item Si $P'\Rightarrow P$ (\textcolor{olive}{attention au sens !}) et
+  $Q\Rightarrow Q'$ alors $(P\Rightarrow Q)\Rightarrow (P'\Rightarrow
+  Q')$.
+\end{itemize}
+
+\bigskip
+
+{\footnotesize
+
+\itempoint On dit que $\land$ et $\lor$ sont
+\textcolor{purple}{\textbf{croissants}} (ou
+\textcolor{purple}{covariants}) en leurs deux arguments, et que
+$\Rightarrow$ l'est dans son argument de droite, mais qu'il est
+\textcolor{olive}{\textbf{décroissant}} (ou
+\textcolor{olive}{contravariant}) dans son argument de gauche.
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Sous-formules positives et négatives}
+
+Dans une formule propositionnelle, on définit les sous-formules
+\textcolor{purple}{\textbf{positives}} (voire \textbf{strictement
+  positives}) et \textcolor{olive}{\textbf{négatives}} par induction :
+\begin{itemize}
+\item les sous-formules \textcolor{purple}{positives} de $Q_1\land Q_2$ et $Q_1\lor Q_2$
+  sont la formule tout entière, et les sous-formules \textcolor{purple}{positives} de
+  $Q_1$ et celles de $Q_2$,
+\item les sous-formules \textcolor{olive}{négatives} de $Q_1\land Q_2$ et $Q_1\lor Q_2$
+  sont les sous-formules \textcolor{olive}{négatives} de $Q_1$ et celles de $Q_2$,
+\item les sous-formules \textcolor{purple}{positives} de $P \Rightarrow Q$ sont la formule
+  tout entière, les sous-formules \textcolor{purple}{positives} de $Q$ et les
+  \emph{\textcolor{olive}{négatives}} de $P$,
+\item les sous-formules \textcolor{olive}{négatives} de $P \Rightarrow
+  Q$ sont les sous-formules \textcolor{olive}{négatives} de $Q$ et les
+  \emph{\textcolor{purple}{positives}} de $P$.
+\end{itemize}
+
+\smallskip
+
+{\footnotesize
+
+\itempoint Les sous-formules strict\textsuperscript{t} positives de
+$Q_1\land Q_2$ et $Q_1\lor Q_2$, resp. $P\Rightarrow Q$ sont la
+formule tout entière et les sous-formules strict\textsuperscript{t}
+positives de $Q_1$ et de $Q_2$ (resp. $Q$).
+
+\par}
+
+\medskip
+
+{\footnotesize
+
+P.ex. dans\vskip-5ex
+\[
+({\color{olive}A}\Rightarrow ({\color{olive}B}\Rightarrow {\color{purple}C})) \land (({\color{purple}D}\Rightarrow {\color{olive}E})\Rightarrow {\color{purple}F})
+\]
+les occurrences
+${\color{purple}C},{\color{purple}D},{\color{purple}F}$ sont positives
+($C$ et $F$ strictement), tandis que
+${\color{olive}A},{\color{olive}B},{\color{olive}E}$ sont négatives.
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{« Fonctorialité » des formules}
+
+Conséquence de la fonctorialité des connecteurs logiques :
+
+\smallskip
+
+\itempoint Si $S$ est une formule propositionnelle et $S'$ obtenue en
+remplaçant une sous-formule positive $Q$ par $Q'$ telle que $Q
+\Rightarrow Q'$, alors $S \Rightarrow S'$.
+
+\smallskip
+
+\itempoint Si $S$ est une formule propositionnelle et $S'$ obtenue en
+remplaçant une sous-formule négative $P$ par $P'$ telle que $P'
+\Rightarrow P$, alors $S \Rightarrow S'$.
+
+\bigskip
+
+Comme toute sous-formule est soit positive soit négative, on en
+déduit :
+
+\smallskip
+
+\itempoint Corollaire : Si $S$ est une formule propositionnelle et
+$S'$ obtenue en remplaçant une sous-formule quelcone $R$ par $R'$
+telle que $R \Leftrightarrow R'$, alors $S \Leftrightarrow S'$.
+
+\medskip
+
+P.ex., on peut remplacer $Q_1\land Q_2$ par $Q_2\land Q_1$ ou
+$(Q_1\land Q_2)\land Q_3$ par $Q_1\land (Q_2\land Q_3)$ n'importe où
+dans une formule et on obtient ainsi une formule équivalente.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Calcul des séquents}
+
+\itempoint Le \textbf{calcul des séquents} est une autre présentation
+de la (même) logique propositionnelle intuitionniste (mêmes
+théorèmes, mêmes séquents).
+
+\medskip
+
+\itempoint Cette présentation est peut-être moins « naturelle », mais
+elle est plus symétrique, et a divers intérêts théoriques.
+
+\medskip
+
+\itempoint La différence principale porte sur les \alert{règles
+  d'élimination} (transp. suivant) : au lieu d'une règle
+d'introduction et d'une règle d'élimination, on a une \textbf{règle
+  droite} (= introduction) et une \textbf{règle gauche}
+($\leftrightarrow$ élimination), qui introduisent le connecteur à
+droite \alert{ou à gauche} du symbole « $\vdash$ ».
+
+\medskip
+
+\itempoint On garde la règle $\inferrule*[left=Ax]{ }{\Gamma,Q \vdash
+  Q}$ ; on va reparler des règles de « contraction » et « coupure » :
+
+\begin{center}
+\begin{tabular}{c|c}
+$\inferrule*[left=Contr]{\Gamma,P,P \vdash Q}{\Gamma,P\vdash Q}$
+&$\inferrule*[left=Cut]{\Gamma \vdash P\\\Gamma,P\vdash Q}{\Gamma\vdash Q}$
+\end{tabular}
+\end{center}
+
+\end{frame}
+%
+\begin{frame}
+\label{sequent-calculus-connector-rules}
+\frametitle{Calcul des séquents : règles (intuitionnistes) des connecteurs}
+
+{\footnotesize
+
+La colonne de droite est la même que la colonne de gauche (intro) du
+transp. \ref{natural-deduction-rules}.  C'est la colonne de gauche qui
+est « nouvelle » :
+
+\par}
+
+\bigskip
+
+\begin{tabular}{c|c|c}
+&Gauche&Droite\\\hline
+$\Rightarrow$
+&$\inferrule{\Gamma\vdash M\\\Gamma,P\vdash R}{\Gamma,M\Rightarrow P\vdash R}$
+&$\inferrule{\Gamma,P\vdash Q}{\Gamma\vdash P\Rightarrow Q}$
+\\\hline
+$\land$
+&$\inferrule{\Gamma,P_1\vdash R}{\Gamma,P_1\land P_2\vdash R}$
+\quad$\inferrule{\Gamma,P_2\vdash R}{\Gamma,P_1\land P_2\vdash R}$
+&$\inferrule{\Gamma\vdash Q_1\\\Gamma\vdash Q_2}{\Gamma\vdash Q_1\land Q_2}$
+\\\hline
+$\lor$
+&$\inferrule{\Gamma,P_1\vdash R\\\Gamma,P_2\vdash R}{\Gamma,P_1\lor P_2\vdash R}$
+&$\inferrule{\Gamma\vdash Q_1}{\Gamma\vdash Q_1\lor Q_2}$
+\quad$\inferrule{\Gamma\vdash Q_2}{\Gamma\vdash Q_1\lor Q_2}$
+\\\hline
+$\top$
+&(néant)
+&$\inferrule{\strut}{\Gamma\vdash \top}$
+\\\hline
+$\bot$
+&$\inferrule{\strut}{\Gamma,\bot\vdash R}$
+&(néant)
+\\
+\end{tabular}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Exemples de démonstrations en calcul des séquents}
+
+On reprend les mêmes exemples que dans le
+transp. \ref{example-propositional-proofs} :
+\vskip-2ex\leavevmode
+\begin{center}
+\begin{tabular}{c|c}
+%
+{\footnotesize
+$
+\inferrule*[left={$\Rightarrow$R},right=\hphantom{Int}]{
+\inferrule*[Left={$\land$R}]{
+\inferrule*[Left={$\land$L$_2$}]{
+\inferrule*[Left={Ax}]{ }{B \vdash B}
+}{A\land B \vdash B}
+\\
+\inferrule*[Right={$\land$L$_1$}]{
+\inferrule*[Right={Ax}]{ }{A \vdash A}
+}{A\land B \vdash A}
+}{A\land B \vdash B\land A}
+}{\vdash A\land B \Rightarrow B\land A}
+$
+}
+&
+{\footnotesize
+$
+\inferrule*[left={$\Rightarrow$R},right=\hphantom{Int}]{
+\inferrule*[Left={$\lor$L}]{
+\inferrule*[Left={$\lor$R$_2$}]{
+\inferrule*[Left={Ax}]{ }{A \vdash A}
+}{A \vdash B\lor A}
+\\
+\inferrule*[Right={$\lor$R$_1$}]{
+\inferrule*[Right={Ax}]{ }{B \vdash B}
+}{B \vdash B\lor A}
+}{A\lor B \vdash B\lor A}
+}{\vdash A\lor B \Rightarrow B\lor A}
+$
+}
+\end{tabular}
+\end{center}
+
+\medskip
+
+Et que dans le transp. \ref{example-proposition-proof-with-implication} :
+
+\vskip-2ex
+{\footnotesize
+\[
+\inferrule*[Left={$\Rightarrow$R}]{
+\inferrule*[Left={$\Rightarrow$R}]{
+\inferrule*[Left={$\Rightarrow$R}]{
+\inferrule*[Left={$\Rightarrow$L}]{
+\inferrule*[Left={Ax}]{ }{A, B \vdash B }
+\\
+\inferrule*[Right={$\Rightarrow$L}]{
+\inferrule*[Left={Ax}]{ }{A , B  \vdash A }
+\\
+\inferrule*[Right={Ax}]{ }{C , A , B  \vdash C  }
+}{A \Rightarrow C , A , B  \vdash C }
+}{B \Rightarrow A \Rightarrow C , A , B  \vdash C }
+}{B \Rightarrow A \Rightarrow C , A  \vdash B \Rightarrow C }
+}{B \Rightarrow A \Rightarrow C  \vdash A \Rightarrow B \Rightarrow C }
+}{\vdash (B \Rightarrow A \Rightarrow C ) \Rightarrow  (A \Rightarrow B \Rightarrow C )}
+\]
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\label{sequent-calculus-structural-rules}
+\frametitle{Calcul des séquents : règles « structurales »}
+
+\itempoint On peut choisir de séparer la règle $\inferrule*[left=Ax]{
+}{\Gamma,Q \vdash Q}$ en deux, une règle d'axiome strict et une règle
+d'« affaiblissement » :
+
+\begin{center}
+\begin{tabular}{c|c}
+$\inferrule*[left=Ax]{ }{Q \vdash Q}$
+&$\inferrule*[left=Weak]{\Gamma \vdash Q}{\Gamma,P\vdash Q}$
+\end{tabular}
+\end{center}
+
+\medskip
+
+\itempoint Comme en déduction naturelle, les hypothèses n'ont pas
+d'ordre.
+
+\medskip
+
+\itempoint Si elles ont des multiplicités, la règle de contraction est
+nécessaire (sans elle, on ne peut pas prouver $(A\Rightarrow B) \land A
+\vdash B$) :
+\[
+\inferrule*[left=Contr]{\Gamma,P,P \vdash Q}{\Gamma,P\vdash Q}
+\]
+On peut s'en dispenser en décidant que les hypothèses n'ont pas de
+multiplicité (forment un ensemble, pas un multi-ensemble), ou en
+modifiant les règles $\Rightarrow$L et $\land$L pour ne pas perdre
+d'hypothèse en remontant.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Calcul des séquents : équivalence avec la déduction naturelle}
+
+L'équivalence générale entre déduction naturelle et calcul des
+séquents n'est pas difficile si on utilise librement la règle de
+coupure.
+
+\medskip
+
+Montrons l'exemple de la conversion entre $\Rightarrow$Élim et
+$\Rightarrow$Left :
+
+\medskip
+
+\itempoint Dans le sens déduction naturelle $\to$ calcul des
+séquents :
+\vskip-3ex\leavevmode
+\begin{center}
+\scalebox{0.8}{%
+\begin{tabular}{c|c}
+Déduction naturelle&Calcul des séquents\\\hline
+$\inferrule*[left=$\Rightarrow$Élim]{\Gamma\vdash P\Rightarrow Q\\\Gamma\vdash P}{\Gamma\vdash Q}$
+&
+$\inferrule*[left=Cut]{\Gamma\vdash P\Rightarrow Q
+\\
+\inferrule*[left=$\Rightarrow$L]{\Gamma\vdash P\\
+\inferrule*[left=Ax]{ }{\Gamma,Q\vdash Q}
+}{\Gamma,P\Rightarrow Q\vdash Q}
+}{\Gamma\vdash Q}$
+\end{tabular}
+}
+\end{center}
+
+\itempoint Dans le sens calcul des séquents $\to$ déduction
+naturelle :
+\vskip-6ex\leavevmode
+\begin{center}
+\scalebox{0.8}{%
+\begin{tabular}{c|c}
+Calcul des séquents&Déduction naturelle\\\hline
+$\inferrule*[left=$\Rightarrow$L]{\Gamma\vdash M\\\Gamma,P\vdash R}{\Gamma,M\Rightarrow P\vdash R}$
+&
+$\inferrule*[left=$\Rightarrow$Élim]{
+\inferrule*[Left={$\Rightarrow$Intro}]{\Gamma,P\vdash R}{\Gamma\vdash P\Rightarrow R}
+\\
+\inferrule*[left=$\Rightarrow$Élim]{
+\inferrule*[Left={Ax}]{ }{\Gamma,M\Rightarrow P\vdash M\Rightarrow P}
+\\\Gamma\vdash M}{\Gamma,M\Rightarrow P\vdash P}
+}{\Gamma,M\Rightarrow P\vdash R}$
+\end{tabular}
+}
+\end{center}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Calcul des séquents : élimination des coupures}
+
+La règle de coupure exprime une forme de transitivité des démonstrations :
+\[
+\inferrule*[left=Cut]{\Gamma \vdash P\\\Gamma,P\vdash Q}{\Gamma\vdash Q}
+\]
+
+\smallskip
+
+(On dira que $P$ est la « formule coupée ».)
+
+\medskip
+
+\itempoint \textbf{Théorème} (Gentzen) : la règle de « coupure » n'est
+pas nécessaire en calcul des séquents : tout séquent prouvable avec
+elle est encore prouvable sans elle.
+
+\smallskip
+
+La preuve est même constructive et se fait par des transformations
+« locales ».
+
+\medskip
+
+\itempoint En déduction naturelle, l'élimination des coupures est
+facile : pour éliminer une coupure il suffit de reprendre la
+démonstration de $\Gamma,P\vdash Q$ avec l'hypothèse $P$ en moins, et
+d'utiliser celle de $\Gamma\vdash P$ partout où $P$ est invoquée
+(cf. transp. \ref{substitution-lemma}).  {\footnotesize (La difficulté
+  est plutôt l'élimination de « détours » Intro+Élim $\approx$
+  normal\textsuperscript{ion}.)}
+
+\medskip
+
+\itempoint En calcul des séquents, la difficulté supplémentaire est
+que $P$ peut faire intervenir un connecteur qui est introduit à droite
+dans $\Gamma\vdash P$ et à gauche dans $\Gamma,P\vdash Q$
+(cf. transp. \ref{cut-elimination-interesting-cases}).
+
+\end{frame}
+%
+\begin{frame}
+\label{cut-elimination-boring-cases}
+\frametitle{Exemples d'étape d'élimination des coupures (1)}
+
+\itempoint Cas « déplaçants » : la dernière règle d'une des branches
+de la coupure n'opère pas sur la formule coupée : on fait
+\alert{remonter} la coupure sur cette branche (quitte à choisir).
+
+\begin{center}
+\scalebox{0.65}{%
+$\inferrule*[left={\color{purple}Cut}]{
+\inferrule*[Left={$\land$R}]{\mpdotsabove{\Gamma \vdash P_1}\\\mpdotsabove{\Gamma \vdash P_2}}{\Gamma \vdash P_1\land P_2}
+\\
+\inferrule*[Right={?}]{\mpdotsabove{\Gamma',P_1\land P_2\vdash Q'}}{\Gamma,P_1\land P_2\vdash Q}
+}{\Gamma\vdash Q}$
+}
+~devient~
+\scalebox{0.65}{%
+$\inferrule*[Right={?}]{
+\inferrule*[Left={\color{purple}Cut}]{
+\inferrule*[Left={$\land$R}]{\mpdotsabove{\Gamma \vdash P_1}\\\mpdotsabove{\Gamma \vdash P_2}}{\Gamma \vdash P_1\land P_2}
+\\
+\mpdotsabove{\Gamma',P_1\land P_2\vdash Q'}
+}{\Gamma,\Gamma'\vdash Q'}
+}{\Gamma\vdash Q}$
+}
+\end{center}
+
+{\footnotesize (On n'a pas montré ici les règles structurales
+  (contraction+affaiblissement) permettant d'avoir $\Gamma$ et/ou
+  $\Gamma'$ comme hypothèses.)\par}
+
+\bigskip
+
+\itempoint Cas final : une des branches de la coupure est la règle
+« axiome » sur la formule coupée : la coupure disparaît :
+
+\begin{center}
+\scalebox{0.8}{%
+$\inferrule*[left={\color{purple}Cut}]{\inferrule*[left=Ax]{ }{\Gamma \vdash P}\\\mpdotsabove{\Gamma,P\vdash Q}}{\Gamma\vdash Q}$
+}
+~devient~
+\scalebox{0.8}{%
+$\mpdotsabove{\Gamma\vdash Q}$
+}
+\end{center}
+
+\end{frame}
+%
+\begin{frame}
+\label{cut-elimination-interesting-cases}
+\frametitle{Exemples d'étape d'élimination des coupures (2)}
+
+\itempoint Cas « principaux » : la dernière règle de chaque branche de
+la coupure concerne le connecteur logique de la formule coupée : la
+coupure ne remonte pas et peut même se multiplier, mais le « degré »
+de complexité de la formule coupée diminue :
+
+\begin{center}
+\scalebox{0.8}{%
+$\inferrule*[left={\color{purple}Cut}]{
+\inferrule*[Left={$\land$R}]{\mpdotsabove{\Gamma \vdash P_1}\\\mpdotsabove{\Gamma \vdash P_2}}{\Gamma \vdash P_1\land P_2}
+\\
+\inferrule*[Right={$\land$L$_1$}]{\mpdotsabove{\Gamma,P_1\vdash Q}}{\Gamma,P_1\land P_2\vdash Q}
+}{\Gamma\vdash Q}$
+}
+~devient~
+\scalebox{0.8}{%
+$\inferrule*[left={\color{purple}Cut}]{
+\mpdotsabove{\Gamma \vdash P_1}
+\\
+\mpdotsabove{\Gamma,P_1\vdash Q}
+}{\Gamma\vdash Q}$
+}
+\end{center}
+
+\begin{center}
+\scalebox{0.7}{%
+$\inferrule*[left={\color{purple}Cut}]{
+\inferrule*[Left={$\Rightarrow$R}]{\mpdotsabove{\Gamma, M\vdash P}}{\Gamma \vdash M\Rightarrow P}
+\\
+\inferrule*[Right={$\Rightarrow$L}]{\mpdotsabove{\Gamma \vdash M}\\\mpdotsabove{\Gamma,P\vdash Q}}{\Gamma,M\Rightarrow P\vdash Q}
+}{\Gamma\vdash Q}$
+}
+~devient~
+\scalebox{0.7}{%
+$\inferrule*[left={\color{purple}Cut}]{
+\mpdotsabove{\Gamma \vdash M}
+\\
+\inferrule*[Right={{\color{purple}Cut}}]{\mpdotsabove{\Gamma,M \vdash P}\\\mpdotsabove{\Gamma,P\vdash Q}}{\Gamma,M\vdash Q}
+}{\Gamma\vdash Q}$
+}
+\end{center}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Élimination des coupures : récurrence}
+
+\itempoint Le \textbf{degré} $\deg P$ d'une formule propositionnelle
+est : $0$ pour une variable propositionnelle ou $\top$, $\bot$, et
+$\max(\deg P_1, \deg P_2) + 1$ si $P = P_1 \circ P_2$ pour un
+connecteur $\circ \in \{\Rightarrow, \land, \lor\}$.  C'est donc la
+profondeur de l'arbre de cette formule.
+
+\smallskip
+
+{\footnotesize P.ex., $\deg(((A\Rightarrow B)\Rightarrow A)\Rightarrow
+  A) = 3$.\par}
+
+\medskip
+
+\itempoint Le degré d'une coupure est le degré de la formule coupée.
+Le \textbf{degré de coupure} d'une démonstration en calcul des
+séquents est le plus grand degré d'une coupure (ou $-1$ s'il n'y en a
+pas).  Une \textbf{coupure critique} est une coupure de degré
+maximal.
+
+\medskip
+
+\itempoint La preuve de l'élimination des coupures se fait par une
+\alert{double récurrence} :
+\begin{itemize}
+\item récurrence principale sur le degré de coupure de la
+  démonstration,
+\item récurrence secondaire, à degré donné, sur la somme des hauteurs
+  des deux branches de la coupure à éliminer.
+\end{itemize}
+
+\medskip
+
+\itempoint La démonstration est constructive (algorithmique) ;
+l'algorithme esquissé est p.r. (même « élémentaire »).  Il n'est pas
+déterministe {\footnotesize (ni même confluent)}.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Élimination des coupures : conséquences}
+
+{\footnotesize\textcolor{blue}{Quel intérêt de pouvoir éliminer les
+    coupures ?}  Les preuves sans coupure ne peuvent pas faire
+  apparaître de formule inattendue.\par}
+
+\medskip
+
+\itempoint\textbf{Propriété de la disjonction :} si $\vdash Q_1\lor
+Q_2$ (\alert{sans hypothèse !}) alors $\vdash Q_1$ ou bien $\vdash
+Q_2$.  {\footnotesize (\underline{Preuve :} une démonstration sans
+  coupure de $\vdash Q_1\lor Q_2$ doit finir par la règle $\lor$R$_1$
+  ou $\lor$R$_2$. \qedsymbol)}
+
+\medskip
+
+\itempoint\textbf{Corollaire :} $\vdash A\lor\neg A$ n'est pas
+prouvable en logique intuitionniste.
+
+\medskip
+
+\itempoint\textbf{Propriété de la sous-formule :} si $P_1,\ldots,P_r
+\vdash Q$ alors une preuve sans coupure ne fait intervenir que des
+formules qui sont des \alert{sous-formules} de $P_1,\ldots,P_r$ ou
+$Q$.  {\footnotesize (\underline{Preuve :} c'est clair sur chacune des
+  règles. \qedsymbol)}
+
+\medskip
+
+\itempoint\textbf{Corollaire :} on peut \alert{décider
+  algorithmiquement} si $P_1,\ldots,P_r \vdash Q$.
+
+\smallskip
+
+{\footnotesize\underline{Algorithme :} construire l'ensemble $\Phi$ de
+  toutes les sous-formules d'une de $P_1,\ldots,P_r$ ou $Q$, et
+  l'ensemble de tous les séquents possibles $\Gamma\vdash R$ avec
+  $\Gamma\subseteq\Phi$ et $R\in\Phi$.  Marquer comme « valables »
+  ceux qui découlent de séquents déjà marqués comme valables par
+  application d'une des règles du calcul des séquents (autre que la
+  coupure), et répéter jusqu'à ce que le séquent recherché ait été
+  marqué ou que plus aucun séquent ne soit marqué.\qed\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Calcul des séquents et Curry-Howard}
+
+\itempoint On a vu que les preuves en déduction naturelle
+correspondent aux termes du $\lambda$-calcul simplement typé
+(+extensions).
+
+\smallskip
+
+On peut trouver un correspondant aux preuves en calcul des séquents
+{\footnotesize (avec de petites modifications)} : le
+$\overline{\lambda}$-calcul de Herbelin.
+
+\smallskip
+
+{\footnotesize Le $\overline{\lambda}$-calcul a deux sortes d'objets :
+  les \emph{termes} $t$ et les \emph{listes d'arguments} (notées
+  $[t_1;\ldots;t_r]$).\par}
+
+\medskip
+
+\itempoint En travaillant un peu, on peut déduire l'élimination des
+coupures de la conversion en $\overline{\lambda}$-calcul de termes
+normaux du $\lambda$-calcul (donc de sa normal\textsuperscript{ion}).
+
+\begin{center}
+\scalebox{0.56}{
+$\inferrule*{
+\inferrule*{
+\inferrule*{ }{y : C\vdash y : C}
+\\
+\inferrule*{ }{x_1:A_1\vdash x_1 : A_1}
+}{y:C, x_1:A_1\vdash yx_1 : A_2\to B}
+\\
+\inferrule*{ }{x_2:A_2\vdash x_2 : A_2}
+}{y:C, x_1:A_1, x_2:A_2\vdash yx_1 x_2 : B}$
+}
+$\rightsquigarrow$
+\scalebox{0.56}{
+$\inferrule*{
+\inferrule*{
+\inferrule*{ }{x_1:A_1\vdash x_1:A_1}
+\\
+\inferrule*{
+\inferrule*{ }{x_2:A_2\vdash x_2:A_2}
+\\
+\inferrule*{ }{\_:B \vdash \_ [] : B}
+}{x_2:A_2;\_:A_2\to B \vdash \_ [x_2] : B}
+}{x_1:A_1, x_2:A_2;\_:C \vdash \_ [x_1; x_2] : B}
+}{y:C, x_1:A_1, x_2:A_2\vdash y [x_1; x_2] : B}$
+}
+
+\footnotesize
+
+(où $C := A_1\to A_2 \to B$)
+
+(à gauche le $\lambda$-calcul, à droite le
+$\overline{\lambda}$-calcul ; remarquez l'inversion des arguments)
+
+($y$ est une \emph{variable} ici, pas une application ni une abstraction)
+\end{center}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Combinateurs $\mathsf{S},\mathsf{K},\mathsf{I}$}
+
+\itempoint\textbf{Axiomes de Hilbert :} le calcul
+prop\textsuperscript{nel} intuitionniste peut être défini par la
+\alert{seule} règle du modus ponens (« si $P\Rightarrow Q$ et $P$
+alors $Q$ ») à partir des schémas d'axiomes suivants, où
+$A,B,C,\ldots$ sont \alert{remplacés par des formules qcqes} :
+{\footnotesize
+\begin{itemize}
+\item $(\mathsf{I}): A\Rightarrow A$
+\quad\itempoint $(\mathsf{K}): A\Rightarrow B\Rightarrow A$
+\quad\itempoint $(\mathsf{S}): (A\Rightarrow B\Rightarrow C) \Rightarrow
+  (A\Rightarrow B) \Rightarrow (A \Rightarrow C)$
+\item $A\land B \Rightarrow A$
+\quad\itempoint $A\land B \Rightarrow B$
+\quad\itempoint $A\Rightarrow B \Rightarrow A\land B$
+\quad\itempoint $\top$ \quad\itempoint $\bot \Rightarrow C$
+\item $A \Rightarrow A \lor B$
+\quad\itempoint $B \Rightarrow A \lor B$
+\quad\itempoint $(A\Rightarrow C)\Rightarrow(B\Rightarrow C)\Rightarrow (A\lor B\Rightarrow C)$
+\end{itemize}
+\par}
+
+\medskip
+
+\itempoint Via Curry-Howard, ceci correspond au fait qu'on peut
+définir un $\lambda$-terme quelconque (à $\beta$-réduction près) par
+application des trois combinateurs $\mathsf{I} := \lambda x.x$,
+$\mathsf{K} := \lambda x.\lambda y.x$ et $\mathsf{S} := \lambda
+x. \lambda y. \lambda z. xz(yz)$.  Ceci vaut pour le $\lambda$-calcul
+non typé comme simplement typé.  {\footnotesize (On n'a même pas besoin de
+  $\mathsf{I}$ qui peut s'écrire $\mathsf{SKK}$.)}
+
+\medskip
+
+\itempoint Idée de la conversion : remplacer $\lambda x.x$ par
+$\mathsf{I}$, $\lambda x.y$ par $\mathsf{K}y$ (si $x$ n'apparaît pas
+dans $y$) et $\lambda x.uv$ par $\mathsf{S}(\lambda x.u)(\lambda
+x.v)$.  {\footnotesize (On peut aussi « $\eta$-convertir » $\lambda
+  x.fx$ en $f$.)}
+
+{\footnotesize P.ex. : $\lambda f.\lambda x.f(fx)$ se réécrit $\lambda
+  f. \mathsf{S}(\mathsf{K}f)f$ donc
+  $\mathsf{S}(\mathsf{S}(\mathsf{K}\mathsf{S})\mathsf{K})\mathsf{I}$.\par}
+
+\smallskip
+
+{\footnotesize\itempoint On peut donc en théorie imaginer un langage
+  de programmation fonctionnel Turing-complet sans variables, basé sur
+  les seules fonctions $\mathsf{S}$, $\mathsf{K}$, $\mathsf{I}$.
+  {\tiny(Mais personne ne serait assez fou pour faire ça.)}\par}
+
+\end{frame}
+%
+\section{Le call/cc et la logique classique}
+\begin{frame}
+\frametitle{Qu'est-ce qu'une continuation ?}
+
+\itempoint Dans un langage de programmation, la \textbf{continuation}
+de l'appel d'une fonction $f$ est « l'état de la machine qui attend
+que $f$ renvoie une valeur ».
+
+\medskip
+
+On peut y penser comme (une copie de) la \alert{pile d'appels} jusqu'à
+l'appel de $f$.
+
+\medskip
+
+\itempoint Certains langages donnent la \alert{citoyenneté de première
+  classe} aux continuations, i.e., permettent de les passer, stocker
+et invoquer explicitement :
+\begin{itemize}
+\item\alert{capturer} la contin\textsuperscript{ion} de $f$ revient à
+  garder une copie de la pile d'appels de $f$,
+\item\alert{invoquer} la contin\textsuperscript{ion} avec une valeur
+  $v$ a pour effet de faire retourner à $f$ la valeur $v$ (même si
+  elle avait \alert{déjà} terminé),
+\item c'est une sorte de \texttt{goto} jusqu'au point à $f$ termine,
+  avec restauration de la pile (en C : \texttt{getcontext} pour
+  capturer, \texttt{setcontext} pour restaurer).
+\end{itemize}
+
+\medskip
+
+{\footnotesize
+
+\itempoint Variante : capturer la continuation revient à créer un fil
+d'exécution (\textit{thread}) mis en attente au moment du retour de
+$f$, l'invoquer revient à terminer le fil actuel et réactiver le fil
+en attente, avec en lui transmettant $v$ : il va de nouveau créer un
+fil en attente, puis considérer $v$ comme valeur de retour de $f$.
+
+\medskip
+
+\itempoint Fondement théorique : le $\lambda\mu$-calcul de Parigot
+(exten\textsuperscript{ion} du $\lambda$-calcul avec
+continuations).
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Applications des continuations}
+
+\textcolor{blue}{À quoi sert} d'avoir des continuations réifiées (= de
+première classe) ?
+\begin{itemize}
+\item elles peuvent prendre la place d'un mécanisme
+  d'\alert{exceptions} ou de sortie de boucles (au lieu de soulever
+  une exception, on invoque la continuation « exceptionnelle » pour
+  abandonner le calcul normal),
+\item mais les continuations, contrairement aux exceptions, peuvent
+  \alert{reprendre} un calcul interrompu (si sa continuation a été
+  capturée),
+\item elles permettent donc d'implémenter notamment : des générateurs
+  ou du multitâche coopératif.
+\end{itemize}
+
+\bigskip
+
+\textcolor{blue}{Le coût d'implémentation} réside essentiellement dans
+la gestion de la pile :
+\begin{itemize}
+\item soit on recopie toute la pile à chaque
+  capture/invocation de continuation,
+\item soit le séquencement d'appels cesse d'être une pile et doit être
+  géré par le \textit{garbage-collector} (= ramasse-miettes), c'est ce
+  qui se passera avec CPS (cf. plus loin).
+\end{itemize}
+
+\medskip
+
+Informellement, les \emph{continuations} sont aux appels de fonctions
+ce que les \emph{clôtures} sont aux données locales.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{La fonction call/cc}
+
+\itempoint « call/cc » = « call-with-current-continuation »
+
+\medskip
+
+\itempoint La fonction call/cc existe dans plusieurs langages de
+programmation (notam\textsuperscript{t} : Scheme, SML/NJ, Ruby) : elle
+prend en argument une fonction $g$ et
+\begin{itemize}
+\item\alert{capture} sa propre continuation (= celle du retour du
+  call/cc),
+\item\alert{passe} celle-ci en argument de la fonction $g$, et renvoie
+  soit la valeur de retour de $g$ soit celle passée à la continuation.
+\end{itemize}
+
+\medskip
+
+\itempoint En Scheme, la continuation se présente comme une fonction,
+qu'on peut appeler avec un argument $v$ :
+\begin{itemize}
+\item la continuation elle-même ne termine jamais (puisque c'est,
+  justement, une continuation : elle \alert{remplace} la pile d'appels
+  par celle qui a été capturée),
+\item elle a pour effet de faire retourner $v$ au call/cc qui l'a
+  créée.
+\end{itemize}
+
+\medskip
+
+{\footnotesize
+
+\itempoint En SML/NJ, la fonction s'appelle
+\texttt{SMLofNJ.Cont.callcc} et les continuations doivent être
+invoquées avec la fonction \texttt{throw} ; mais on peut facilement
+créer une fonction analogue à celle du Scheme :
+
+{\tt
+val callcc = fn g => SMLofNJ.Cont.callcc (fn k => g (fn v => SMLofNJ.Cont.throw k v))
+}
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Exemples en Scheme}
+
+{\tt
+(define call/cc call-with-current-continuation)\hfill ;; Shorthand\newline
+(call/cc (lambda (k) 42))\hfill ;; Return normally\newline
+$\rightarrow$ 42\newline
+(call/cc (lambda (k) (k 42)))\hfill ;; Return by invoking continuation\newline
+$\rightarrow$ 42\newline
+(call/cc (lambda (k) (+ (k 42) 1)))\hfill ;; (+ \_ 1) never reached\newline
+$\rightarrow$ 42\newline
+(* (call/cc (lambda (k) (k 42))) 2)\hfill ;; Nothing weird here\newline
+$\rightarrow$ 84\newline
+((call/cc (lambda (k) k))\newline
+\ (call/cc (lambda (k) k)))\hfill ;; Endless loop: why?
+\par}
+
+\bigskip
+
+{\footnotesize
+
+Très difficile à comprendre :
+
+{\tt
+((lambda (yin)\newline
+\ \ \ ((lambda (yang) (yin yang))\newline
+\ \ \ \ ((lambda (kk) (display \#\textbackslash *) kk) (call/cc (lambda (k) k)))))\newline
+\ ((lambda (kk) (newline) kk) (call/cc (lambda (k) k))))
+\par}
+
+}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Quel est le type de call/cc ?}
+
+\itempoint\alert{Une continuation ne retourne jamais}.  On peut donc
+la typer comme $\alpha \to \bot$ ou bien $\alpha \to \beta$ avec
+$\beta$ un type arbitraire.
+
+\medskip
+
+\itempoint La fonction $g$ passée au call/cc doit renvoyer le même
+type $\alpha$ qu'accepte la continuation qu'on lui a passée : donc
+$(\alpha\to\beta)\to\alpha$.
+
+\medskip
+
+\itempoint La fonction call/cc elle-même renvoie ce même type
+$\alpha$ : donc elle a pour type
+$((\alpha\to\beta)\to\alpha)\to\alpha$.
+
+\medskip
+
+\itempoint C'est le type correspondant à la \textbf{loi de Peirce}
+$((A\Rightarrow B)\Rightarrow A)\Rightarrow A$, une des formulations
+de la \alert{logique classique}.
+
+\medskip
+
+\textcolor{blue}{\textbf{Moralité :}} la présence du call/cc
+transforme la logique du typage de logique intuitionniste en logique
+classique.
+
+\medskip
+
+{\footnotesize Ceci est dit de façon informelle, mais on peut
+  introduire une variante du $\lambda$-calcul, le $\lambda\mu$-calcul,
+  qui rend précise cette idée.  Le $\lambda\mu$-calcul simplement typé
+  garantit encore la terminaison des programmes : on ne peut pas faire
+  de boucles avec le seul call/cc \emph{bien typé}.\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Oui mais il y a de la triche !}
+
+{\footnotesize Le tiers exclu $A \lor \neg A$ dit moralement « soit je
+  te donne une valeur de type $\alpha$ soit je te donne une promesse
+  qu'il n'en existe pas (type $\alpha\to 0$) ».  En $\lambda$CST on ne
+  peut pas faire ça !}
+
+\bigskip
+
+Regardons comment le call/cc permet d'implémenter le tiers exclu $A
+\lor \neg A$ :
+\[
+\texttt{callcc}\;
+\bigg(\lambda (k:(\alpha+(\alpha\to 0))\to 0).\;\iota^{(\alpha,\alpha\to 0)}_2\Big(\lambda (v:\alpha).\,k(\iota^{(\alpha,\alpha\to 0)}_1 v)\Big)\bigg)
+\]
+\[
+\text{a pour type~:~}\quad
+\alpha + (\alpha\to 0)
+\]
+
+{\footnotesize La fonction en argument du call/cc est a pour type
+  $((\alpha + (\alpha\to 0)) \to 0) \to (\alpha + (\alpha\to 0))$,
+  c'est-à-dire qu'elle correspond à une preuve de $(\neg (A\lor\neg
+  A)) \Rightarrow (A\lor\neg A)$ (intuitionist\textsuperscript{t}
+  valable).\par}
+
+\bigskip
+
+Que fait ce code ?
+\begin{itemize}
+\item il renvoie \alert{provisoirement} $\iota_2^{(\alpha,\alpha\to
+  0)}(\cdots)$, où $(\cdots)$ définit une promesse qu'il n'y a pas de
+  valeur de type $\alpha$,
+\item si on invoque cette promesse (avec une valeur $v$ de type
+  $\alpha$, donc !), il utilise la continuation $k$ pour « revenir
+  dans le temps » et changer d'avis et renvoie finalement
+  $\iota_1^{(\alpha,\alpha\to 0)}(v)$.
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Oui mais il y a de la triche : quelle est la morale ?}
+
+{\footnotesize
+
+En SML/NJ :
+
+{\tt
+val callcc = fn g => SMLofNJ.Cont.callcc (fn k => g (fn v => SMLofNJ.Cont.throw k v))\newline
+datatype ('a,'b) sum = Inj1 of 'a | Inj2 of 'b\newline
+val exclmiddle = callcc (fn k => Inj2 (fn v => k (Inj1 v)))
+;;
+}
+
+\par}
+
+\medskip
+
+\centerline{*}
+
+\textcolor{blue}{\textbf{Moralité :}}
+
+\medskip
+
+\itempoint Il est facile de tenir ses promesses quand on peut voyager
+dans le temps avec l'aide de call/cc.
+
+\medskip
+
+\itempoint Le call/cc change la logique du typage en logique
+classique, mais l'intérêt des types somme est grandement diminué : les
+valeurs ne sont pas stables.
+
+\medskip
+
+\itempoint La logique classique n'a pas la propriété de la
+disjonction : on a $\vdash A\lor \neg A$ en logique classique, mais ni
+$\vdash A$ ni $\vdash \neg A$ (pour $A$ opaque).  Elle n'est pas
+constructive.  On peut lui appliquer Curry-Howard, mais c'est moins
+intéressant.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Continuation Passing Style}
+
+\textcolor{brown}{Et si le langage n'a pas de call/cc ?}
+
+\medskip
+
+\itempoint Tous les langages n'ont pas de continuations de première
+classe (« réifiées »), mais dans un langage fonctionnel, on peut
+réécrire le code en « Continuation Passing Style » :
+\begin{itemize}
+\item au lieu d'écrire des fonctions qui \alert{renvoient une valeur}
+  $v$, on les fait \alert{prendre en argument} une autre fonction $k$,
+  qui est une continuation-de-fait, et appellent cette fonction sur la
+  valeur $v$ ;
+\item donc aucune fonction ne renvoie jamais rien : elle termine en
+  invoquant son argument continuation-de-fait ou, plus souvent, en
+  invoquant une autre fonction en lui passant une continuation-de-fait
+  construite exprès pour continuer le calcul {\footnotesize (ceci rend
+    le style excessivement lourd et pénible)} ;
+\item ceci ne fonctionne bien que dans un langage supportant la
+  récursion terminale propre (car \alert{tous} les appels deviennent
+  terminaux).
+\end{itemize}
+
+\smallskip
+
+{\footnotesize \itempoint C'est plus ou moins le concept des
+  « promesses » de JavaScript, par exemple.\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Continuation Passing Style : exemple en OCaml}
+
+{\footnotesize\tt
+let sum\_cps = fun x -> fun y -> fun k -> k(x+y) ;;\newline
+{\color{purple}val sum\_cps : int -> int -> (int -> 'a) -> 'a = <fun>}\newline
+let minus\_cps = fun x -> fun y -> fun k -> k(x-y) ;;\newline
+{\color{purple}val minus\_cps : int -> int -> (int -> 'a) -> 'a = <fun>}\newline
+let rec fibonacci\_cps = fun n -> fun k -> if n <= 1 then k n\newline
+\ \ else minus\_cps n 1 (fun n1 -> minus\_cps n 2 (fun n2 ->\newline
+\ \ \ \ fibonacci\_cps n1 (fun v1 -> fibonacci\_cps n2 (fun v2 ->\newline
+\ \ \ \ \ \ sum\_cps v1 v2 k)))) ;;\newline
+{\color{purple}val fibonacci\_cps : int -> (int -> 'a) -> 'a = <fun>}\newline
+fibonacci\_cps 8 (fun x -> x) ;;\newline
+{\color{purple}- : int = 21}\newline
+let callcc\_cps = fun g -> fun k -> g (fun v -> fun k0 -> k v) k ;;\newline
+(* translation of: callcc (fun kf -> ((kf 42) + 1)) *)\newline
+callcc\_cps (fun kf -> fun k -> kf 42 (fun v -> sum\_cps v 1 k)) (fun x -> x) ;;\newline
+{\color{purple}- : int = 42}
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Continuation Passing Style : systématisation}
+
+\textcolor{blue}{Définissons la transformation CPS de façon
+  systématique.}
+
+\medskip
+
+{\footnotesize Prenons ici les notations logiques pour les types :
+  notamment, $\Rightarrow$ désigne le type fonction.\par}
+
+\medskip
+
+\itempoint Fixons un type $Z$ de « retour ultime ».  On pose
+\alert{$\mathop{\sim}P := (P\Rightarrow Z)$} pour le type d'« une
+continuation qui attend une valeur de type $P$ » et
+$\mathop{\sim}\mathop{\sim}P$ pour « une valeur $P$ passée par
+continuation ».
+
+\medskip
+
+\itempoint Noter que $x:P \;\vdash\; \lambda(k:\mathop{\sim}P).kx :
+\mathop{\sim}\mathop{\sim}P$ (transformation d'une valeur « directe »
+en valeur passée par continuation).
+
+\medskip
+
+{\footnotesize On si on préfère voir ça comme une fonction :
+  $\lambda(x:P).\,\lambda(k:\mathop{\sim}P).\,kx$ a pour type $P
+  \Rightarrow \mathop{\sim}\mathop{\sim}P$.\par}
+
+\medskip
+
+\itempoint On va passer \alert{toutes} les valeurs par continuation :
+tous les types transformés prendront la forme
+$\mathop{\sim}\mathop{\sim}T$.
+
+\smallskip
+
+Mais en plus de ça, les fonctions renvoient leur valeur par
+continuation : une fonction de type $P \Rightarrow Q$ va devenir $P
+\Rightarrow \mathop{\sim}Q \Rightarrow Z$, c'est-à-dire $P \Rightarrow
+\mathop{\sim}\mathop{\sim}Q$, et sera elle-même passée par
+continuation, donc $\mathop{\sim}\mathop{\sim}(P \Rightarrow
+\mathop{\sim}\mathop{\sim}Q)$ {\footnotesize (sans compter que $P$ et
+  $Q$ peuvent eux-mêmes changer)}.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Continuation Passing Style : l'essence de la transformation}
+
+\itempoint Définissons la transformation CPS d'abord dans le
+$\lambda$-calcul \alert{non typé} : par induction sur la complexité du
+terme :
+\begin{itemize}
+\item $v^{\cps} = \lambda k.kv$ si $v$ est une variable (c'est la
+  transformation de $P$ en $\mathop{\sim}\mathop{\sim}P$ définie
+  ci-dessus).
+\item $(\lambda v.t)^{\cps} = \lambda k.\, k(\lambda v.\, t^{\cps})$
+  (idem pour une fonction, dont le corps est CPS-ifié).
+\item pour l'application : \[(fx)^{\cps} = \lambda
+  k.\,f^{\cps}(\lambda f_0.\, x^{\cps}(\lambda x_0.\, f_0 x_0 k))\] ce
+  code se comprend ainsi : on invoque $f^{\cps}$ pour recevoir sa
+  valeur « directe » $f_0$ (qui est quand même une fonction dans le
+  style CPS), puis $x^{\cps}$ pour recevoir sa valeur « directe »
+  $x_0$, puis on appelle la fonction $f_0$ avec la valeur $x_0$ et la
+  continuation $k$ de l'ensemble de l'expression,
+\item $\texttt{callcc}^{\cps} = \lambda \ell.\, \ell(\lambda g.\,
+  \lambda k.\, g(\lambda v.\, \lambda k_0.\, kv)\,k)$
+\end{itemize}
+
+\medskip
+
+\itempoint Ce code \alert{porte les graines d'un interpréteur}
+(eval/apply) du $\lambda$-calcul dans le $\lambda$-calcul : il impose
+d'ailleurs l'évaluation en appel-par-valeurs.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Continuation Passing Style : transformation des types}
+
+{\footnotesize Il reste à typer tout ça !\par}
+
+\smallskip
+
+\itempoint Rappelons qu'on a fixé $Z$ et posé $\mathop{\sim}P :=
+(P\Rightarrow Z)$.  On définit une transformation $P \mapsto
+P^\diamond$ des types (=propositions) par (inductivement) :
+\begin{itemize}
+\item $A^\diamond = A$ si $A$ est une variable de type,
+\item $(P\Rightarrow Q)^\diamond = (P^\diamond \Rightarrow \mathop{\sim}\mathop{\sim}Q^\diamond)$,
+\item $(P\land Q)^\diamond = P^\diamond \land Q^\diamond$,
+\quad\itempoint $(P\lor Q)^\diamond = P^\diamond \lor Q^\diamond$,
+\item $\top^\diamond = \top$,
+\quad\itempoint $\bot^\diamond = \bot$.
+\end{itemize}
+
+\smallskip
+
+\itempoint On pose enfin $P^{\cps} :=
+\mathop{\sim}\mathop{\sim}P^\diamond$ {\footnotesize (comprendre :
+  $\mathop{\sim}\mathop{\sim}(P^\diamond)$)}.
+
+\smallskip
+
+En gros :
+\begin{itemize}
+\item $P^\diamond$ est le type $P$ dans lequel toutes les fonctions
+  ont été réécrites en style CPS (= renvoient leurs valeurs par
+  continuation),
+\item $P^{\cps} := \mathop{\sim}\mathop{\sim}P^\diamond$ est le type
+  en question lui-même passé par continuation.
+\end{itemize}
+
+\smallskip
+
+{\footnotesize \itempoint Noter : $(P\Rightarrow Q)^{\cps} =
+  \mathop{\sim}\mathop{\sim}(P^\diamond \Rightarrow
+  \mathop{\sim}\mathop{\sim}Q^\diamond) =
+  \mathop{\sim}\mathop{\sim}(P^\diamond \Rightarrow Q^{\cps})$.}
+
+%% {\footnotesize
+%% 
+%% \itempoint On vérifie : $\mathop{\sim} P \Leftrightarrow
+%% \mathop{\sim}\mathop{\sim}\mathop{\sim} P$, donc $P^{\cps}
+%% \Leftrightarrow \mathop{\sim}\mathop{\sim} P^{\cps}$ ; remarquer
+%% aussi : $\bot^{\cps} \Leftrightarrow Z$ et $(\neg P)^{\cps}
+%% \Leftrightarrow \mathop{\sim} P^{\cps}$.
+%% 
+%% \par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Continuation Passing Style : transformation des termes}
+
+{\footnotesize
+
+\itempoint On définit maintenant la transformation $t \mapsto
+t^{\cps}$ sur les termes du $\lambda$CST de manière à ce que si
+$\vdash t:P$ alors $\vdash t^{\cps}:P^{\cps}$ (rappel :
+$\mathop{\sim}P := (P\Rightarrow Z)$ et $P^{\cps} :=
+\mathop{\sim}\mathop{\sim}P^\diamond$) :
+\begin{itemize}
+\item $v^{\cps} = \lambda(k:\mathop{\sim}P^\diamond).\,kv$ lorsque $v$
+  est une variable de type $P$,
+\item $(fx)^{\cps} = \lambda (k:\mathop{\sim}Q^\diamond).\,
+  f^{\cps}(\lambda (f_0:P^\diamond\Rightarrow Q^{\cps}).\,
+  x^{\cps}(\lambda (x_0:P^\diamond).\, f_0 x_0 k))$ lorsque $f :
+  P\Rightarrow Q$ et $x : Q$ (rappel : $(P\Rightarrow Q)^{\cps} =
+  \mathop{\sim}\mathop{\sim}(P^\diamond \Rightarrow Q^{\cps})$),
+\item $(\lambda (v:P).t)^{\cps} = \lambda k.\, k(\lambda
+  (v:P^\diamond).\, t^{\cps})$ lorsque $\Gamma, v:P \vdash t:Q$,
+\item $\langle x,y\rangle^{\cps} = \lambda
+  (k:\mathop{\sim}(Q_1^\diamond \land Q_2^\diamond)).\,
+  x^{\cps}(\lambda (x_0:Q_1^\diamond).\, y^{\cps} (\lambda
+  (y_0:Q_2^\diamond).\, k\langle x_0,y_0\rangle))$,
+\item $(\pi_i z)^{\cps} = \lambda (k:\mathop{\sim} Q_i^\diamond).\,
+  z^{\cps}(\lambda (z_0:Q_1^\diamond\land Q_2^\diamond).\, k(\pi_i
+  z_0))$ (pour $i\in\{1,2\}$),
+\item $(\iota^{(Q_1,Q_2)}_i z)^{\cps} = \lambda
+  (k:\mathop{\sim}(Q_1^\diamond\lor Q_2^\diamond)).\, z^{\cps}(\lambda
+  (z_0:Q_i^\diamond).\, k(\iota^{(Q_1^\diamond,Q_2^\diamond)}_i z_0))$
+  (pour $i\in\{1,2\}$),
+\item $(\texttt{match~}r\texttt{~with~}\iota_1 v_1 \mapsto t_1,\;
+  \iota_2 v_2 \mapsto t_2)^{\cps} = \lambda
+  (k:\mathop{\sim}Q^\diamond).\, r^{\cps}(\lambda
+  (r_0:P_1^\diamond\lor P_2^\diamond).\penalty0\,
+  (\texttt{match}\penalty500\ r_0\ \texttt{with}\ \iota_1 v_1 \mapsto
+  t_1^{\cps} k,\; \iota_2 v_2 \mapsto t_2^{\cps} k))$
+\item $\bullet^{\cps} = \lambda (k:\mathop{\sim}\top).k{\bullet}$
+\item $(\texttt{exfalso}^{(Q)} r)^{\cps} = \lambda
+  (k:\mathop{\sim}Q^\diamond).\, r^{\cps}(\lambda (r_0:\bot).\,
+  (\texttt{exfalso}^{(Q^\diamond)} r_0))$
+\end{itemize}
+
+\itempoint $\texttt{callcc}^{\cps} = \lambda (\ell:\cdots).\,
+\ell(\lambda (g : (P^\diamond \Rightarrow Q^{\cps}) \Rightarrow
+P^{\cps}).\, \lambda(k:\mathop{\sim}P^\diamond).\,
+g(\lambda(v:P^\diamond).\, \lambda(k_0:\mathop{\sim}Q^\diamond).\,
+kv)\,k)$, de type $(((P\Rightarrow Q)\Rightarrow P)\Rightarrow
+P)^{\cps}$.
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Continuation Passing Style : remarques informatiques}
+
+\itempoint Programmer en CPS fait disparaître l'utilisation de la
+pile : \alert{tous} les appels de fonctions deviennent terminaux, donc
+seront remplacés par des sauts dans un langage supportant la récursion
+terminale propre.
+
+\medskip
+
+\itempoint La conversion vers CPS fixe l'ordre d'évaluation des
+valeurs.  Par exemple, on a défini $\langle x,y\rangle^{\cps} =
+\lambda k.\, x^{\cps}(\lambda x_0.\, y^{\cps} (\lambda y_0.\, k\langle
+x_0,y_0\rangle))$ qui évalue $x$ avant $y$, mais on pouvait aussi
+$\lambda k.\, y^{\cps} (\lambda y_0.\, x^{\cps}(\lambda x_0.\,
+k\langle x_0,y_0\rangle))$ pour inverser l'ordre.
+
+\medskip
+
+{\footnotesize
+
+\itempoint La conversion vers CPS fixe même une stratégie
+d'évaluation : on a choisi « call-by-value » ici, mais on aurait pu
+prendre « call-by-name » :
+
+\begin{tabular}{c|c}
+« call-by-value »&« call-by-name »\\\hline
+$v^{\cps} = \lambda k.kv$&$v^{\cps} = \lambda k.vk$ (ou juste $v$)\\
+&mais pour une \emph{valeur} : $x^{\cps} = \lambda k.kx$\\
+$(\lambda v.t)^{\cps} = \lambda k.\, k(\lambda v.\, t^{\cps})$
+&$(\lambda v.t)^{\cps} = \lambda k.\, k(\lambda v.\, t^{\cps})$\\
+$(fx)^{\cps} = \lambda
+  k.\,f^{\cps}(\lambda f_0.\, x^{\cps}(\lambda x_0.\, f_0 x_0 k))$
+&$(fx)^{\cps} = \lambda
+  k.\,f^{\cps}(\lambda f_0.\, f_0 x^{\cps} k)$\\
+$(P\Rightarrow Q)^\diamond = (P^\diamond\Rightarrow \mathop{\sim}\mathop{\sim}Q^\diamond)$
+&$(P\Rightarrow Q)^\diamond = (\mathop{\sim}\mathop{\sim}P^\diamond\Rightarrow \mathop{\sim}\mathop{\sim}Q^\diamond)$
+\end{tabular}
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Continuation Passing Style : remarques informatiques (suite)}
+
+\itempoint Le CPS donne le call/cc « pour rien ».  En fait, en style
+CPS, chaque fonction a contrôle complet sur l'exécution de tout le
+programme (il n'y a plus de pile !).
+
+\medskip
+
+\itempoint Le CPS peut servir de point de départ pour la compilation
+(Appel, \textit{Compiling with Continuations}, 1992).
+
+\medskip
+
+\itempoint On peut concevoir un langage où chaque fonction a
+p.ex. \alert{deux} continuations : une « continuation de succès » et
+une « continuation d'échec », qu'on chaîne avec des opérateurs « et »
+et « ou » : c'est essentiellement le Prolog (où ces opérateurs sont
+notés ‘\texttt{,}’ et ‘\texttt{;}’).
+
+\medskip
+
+\itempoint Le CPS est utile pour séquencer explicit\textsuperscript{t}
+les évaluations.  Voir notamment les promesses de JavaScript, et la
+monade \texttt{Control.Monad.Cont} de Haskell.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Continuation Passing Style : remarques logiques}
+
+\itempoint Par la transformation $t \mapsto t^{\cps}$ et le fait
+d'avoir trouvé un terme de type $(((P\Rightarrow Q)\Rightarrow
+P)\Rightarrow P)^{\cps}$, on a montré que :
+\[
+\text{si~}\mathsf{CPC} \vdash P\text{~alors~}\mathsf{IPC} \vdash P^{\cps}
+\]
+où « $\mathsf{IPC} \vdash P$ » signifie « $P$ est prouvable en logique
+intuitionniste » et « $\mathsf{CPC} \vdash P$ » signifie « $P$ est
+prouvable en logique classique ».
+
+\medskip
+
+\itempoint \alert{Si on prend $Z := \bot$}, la proposition $P^{\cps}$
+ajoute simplement des $\neg\neg$ un peu partout, ce qui est équivalent
+en logique classique, donc on a évidemment
+\[
+\mathsf{CPC} \vdash P\text{~ssi~}\mathsf{CPC} \vdash P^{\cps}
+\]
+Comme par ailleurs $\mathsf{CPC} \vdash Q$ implique $\mathsf{IPC} \vdash
+Q$, on déduit des deux affirmations ci-dessus que (pour $Z=\bot$) :
+\[
+\mathsf{CPC} \vdash P\text{~\alert{ssi}~}\mathsf{IPC} \vdash P^{\cps}
+\]
+On dit qu'on a « \alert{interprété} » la logique (propositionnelle)
+classique en logique (propositionnelle) intuitionniste par la
+traduction « double négation ».
+
+\smallskip
+
+{\footnotesize
+
+\itempoint En fait, on peut se contenter de mettre un $\neg\neg$
+devant les disjonctions et formules atomiques (traduction de
+Gödel-Gentzen), ou bien (en calcul \alert{propositionnel} !)  d'en
+mettre un seul devant toute la formule (traduction de Glivenko).
+
+\par}
+
+\end{frame}
+%
+\section{Sémantique du calcul propositionnel intuitionniste}
+\begin{frame}
+\frametitle{Qu'est-ce qu'une « sémantique » en logique ?}
+
+De façon très (trop ?) vague :
+
+\smallskip
+
+\itempoint Une \textbf{logique} $\mathsf{L}$ est définie par un
+certain nombre de règles (axiomes, modes d'inférence)
+\alert{syntactique} opérant sur des « formules » et définit une notion
+de \textbf{théorème} comme les formules ayant une \textbf{preuve}
+selon ces règles.  On note (qqch comme) $\mathsf{L} \vdash \varphi$
+pour « $\varphi$ est un théorème [= est démontrable]
+selon $\mathsf{L}$ ».
+
+\medskip
+
+\itempoint Un \textbf{modèle} pour $\mathsf{L}$ est une structure
+mathématique générale qui donne un « sens » au symboles utilisés dans
+$\mathsf{L}$ et qui notamment déclare certaines formules comme
+\textbf{vraies} (noté $\mathcal{M} \vDash \varphi$).  Une
+\textbf{sémantique} est un ensemble de modèles (formés sur le même
+schéma).  On dit que la sémantique $\mathsf{S}$ \textbf{valide} une
+formule $\varphi$ lorsque $\varphi$ est vraie dans chacun de ses
+modèles (on note $\mathsf{S} \vDash \varphi$).
+
+\medskip
+
+On dit que
+\begin{itemize}
+\item $\mathsf{S}$ est \textbf{correcte} pour $\mathsf{L}$ lorsque
+  $\mathsf{L} \vdash \varphi$ implique $\mathsf{S} \vDash \varphi$
+  (« tout théorème est vrai dans tout modèle »).  On veut toujours
+  ça !
+\item $\mathsf{S}$ est \textbf{complète} pour $\mathsf{L}$ lorsque
+  $\mathsf{S} \vDash \varphi$ implique $\mathsf{L} \vdash \varphi$
+  (« toute formule vraie dans tout modèle est un théorème »).
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Exemples de sémantiques}
+
+\itempoint La sémantique des \textbf{tableaux de vérité booléens} est
+\alert{correcte et complète} pour le calcul propositionnel
+\alert{classique} : $\varphi$ est démontrable \alert{ssi} toute
+affectation de « vrai » ou « faux » à chacune de ses variables donne
+« vrai ».
+
+\smallskip
+
+Pour le calcul propositionnel \alert{intuitionniste}, elle n'est
+\alert{que correcte}.
+
+\medskip
+
+\itempoint Le plan réel $\mathbb{R}^2$ est un modèle des axiomes de la
+géométrie euclidienne.  Ce modèle est une sémantique correcte et
+complète à lui seul : un énoncé géométrique est démontrable à partir
+des axiomes \alert{ssi} il est vrai dans $\mathbb{R}^2$.
+
+\medskip
+
+\itempoint $\mathbb{N}$ est un modèle de ce qu'on appellera
+l'« \textbf{arithmétique de Peano du premier ordre} » $\mathsf{PA}$
+(c'est le « modèle souhaité » de $\mathsf{PA}$).  Ce modèle pris tout
+seul est une sémantique correcte mais \alert{non complète} (théorème
+d'\alert{incomplétude} de Gödel : il y a des énoncés vrais dans
+$\mathbb{N}$ mais non démontrables dans $\mathsf{PA}$).
+
+\medskip
+
+\itempoint En revanche, si on élargit les modèles aux « modèles du
+premier ordre » (« modèles au sens de Tarski »), la sémantique devient
+complète (théorème de \alert{complétude} de Gödel pour la logique du
+premier ordre : tout énoncé vrai dans tout modèle est démontrable).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Sémantiques du calcul propositionnel intuitionniste ?}
+
+\itempoint On a vu les \alert{règles syntaxiques} du calcul
+propositionnel intuitionniste (déduction naturelle, ou calcul des
+séquents).  Mais quel est le \textbf{sens} des connecteurs ?
+
+\medskip
+
+\begin{itemize}
+\item En logique classique, c'est facile : la sémantique des tableaux
+  de vérité est correcte et complète, donc on peut considérer qu'elle
+  définit le sens.
+\item En logique intuitionniste, on n'a donné pour l'instant qu'une
+  interprétation intuitive (Brouwer-Heyting-Kolmogorov) des
+  connecteurs.
+\end{itemize}
+
+\medskip
+
+\itempoint Avoir une sémantique (correcte) complète, ou « moins
+incomplète » que celle des tableaux de vérité permet de prouver qu'une
+formule logique n'est \alert{pas démontrable} (si elle n'est pas
+validée par cette sémantique).
+
+\medskip
+
+{\footnotesize
+
+\itempoint On peut considérer \alert{Curry-Howard} comme une
+sémantique : le « sens » de $\Rightarrow,\land,\lor,\top,\bot$ est
+donné par les opérations sur les types d'un langage de programmation,
+et les énoncés validés par le modèle sont ceux dont le type est
+habité.  Elle est complète si le langage est le $\lambda$CST.  Mais
+elle est peu maniable et/ou un peu triviale !
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\label{truth-table-semantics}
+\frametitle{Sémantique 0 : tableaux de vérité}
+
+{\footnotesize (Reprise de ce qui a déjà été dit.)\par}
+
+\medskip
+
+\itempoint On définit $\mathbb{B} := \{0,1\}$, $\dottedtop = 1$,
+$\dottedbot = 0$ et $\dottedland, \dottedlor, \dottedlimp \colon
+\mathbb{B}^2 \to \mathbb{B}$ par les tableaux de vérité usuels :
+
+\smallskip
+
+\begin{tabular}{c@{\hskip 30bp}c@{\hskip 30bp}c}
+$
+\begin{array}{c|cc}
+\dottedland&0&1\\\hline
+0&0&0\\
+1&0&1\\
+\end{array}
+$
+&
+$
+\begin{array}{c|cc}
+\dottedlor&0&1\\\hline
+0&0&1\\
+1&1&1\\
+\end{array}
+$
+&
+$
+\begin{array}{c|cc}
+A \dottedlimp B&B=0&B=1\\\hline
+A=0&1&1\\
+A=1&0&1\\
+\end{array}
+$
+\end{tabular}
+
+\medskip
+
+\itempoint Si $\varphi$ est une formule propositionnelle en $r$
+variables, ceci définit une fonction $\dot\varphi \colon \mathbb{B}^r
+\to \mathbb{B}$ par composition.
+
+\medskip
+
+\itempoint Un \textbf{modèle booléen} du calcul propositionnel est une
+affectation $\{\mathrm{variables}\} \to \mathbb{B}$ : chaque formule
+$\varphi$ a donc une valeur de vérité ($0$ ou $1$) dans le modèle,
+donnée par $\dot\varphi$.  On dit que $\mathcal{M} \vDash \varphi$
+lorsque c'est $1$.
+
+\medskip
+
+\itempoint On dit que la sémantique booléenne valide $\varphi$ lorsque
+$\mathcal{M} \vDash \varphi$ pour tout modèle (i.e., $\dot\varphi$
+vaut constamment $1$).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Correction et complétude classique des tableaux de vérité}
+
+\textbf{Théorème :} la sémantique booléenne est \alert{correcte et
+  complète} pour le calcul propositionnel classique.
+
+\medskip
+
+\underline{Esquisse de preuve :}
+
+\smallskip
+
+\itempoint\underline{Correction :} on montre par induction sur la
+preuve que si $\eta_1,\ldots,\eta_r \vdash \varphi$ alors $\dot\varphi
+= 1$ dans tout modèle où $\dot\eta_1 = \cdots = \dot\eta_r = 1$ : la
+vérification est très facile sur chaque règle du calcul
+propositionnel.
+
+\medskip
+
+\itempoint\underline{Complétude :} on démontre \alert{classiquement}
+$\vdash A_i \lor \neg A_i$ pour chaque variable $A_i$, puis on utilise
+l'élimination du $\lor$ pour se placer dans chacun des $2^r$ cas
+possibles (i.e., avec $A_i$ ou $\neg A_i$ dans les hypothèses).  Dans
+chaque cas on a $A_i \Leftrightarrow \top$ ou $A_i \Leftrightarrow
+\bot$ pour chaque variable, donc en suivant les tableaux de vérité on
+a $\varphi$ (vraie).  L'élimination du $\lor$ montre alors $\varphi$
+vraie.\qed
+
+\bigskip
+
+\alert{Intuitionnistement}, la correction vaut toujours, mais plus la
+complétude ($A\lor\neg A$ n'est pas démontrable).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Sémantique 1 : cadres de Kripke}
+
+\textbf{Définitions :}
+\begin{itemize}
+\item un \textbf{cadre de Kripke} est {\footnotesize (dans ce
+  contexte)} un ensemble partiellement ordonné $(W,\leq)$ ; les
+  éléments de $W$ s'appellent les \textbf{mondes} ; si $w\leq w'$, on
+  dit que $w'$ est \textbf{accessible} depuis $w$ ;
+\item dans un cadre de Kripke, une \textbf{affectation de vérité} est
+  une fonction $p\colon W \to \mathbb{B}$ (où $\mathbb{B} = \{0,1\}$)
+  telle que si $p(w) = 1$ et $w\leq w'$ alors $p(w') = 1$ (i.e., $p$
+  est croissante, on dit aussi « permanente ») ;
+\item on définit des opérations $\dottedland, \dottedlor, \dottedlimp$
+  sur les affectations de vérité :
+\begin{itemize}
+\item $(q_1\dottedland q_2)(w) = 1$ ssi $q_1(w) = 1$ et $q_2(w) = 1$ ;
+\item $(q_1\dottedlor q_2)(w) = 1$ ssi $q_1(w) = 1$ ou $q_2(w) = 1$ ;
+\item $(q_1\dottedlimp q_2)(w) = 1$ ssi pour tout $w' \geq w$ t.q.
+  $q_1(w') = 1$, on a $q_2(w') = 1$ ;
+\item $\dottedtop(w) = 1$ partout ;
+\quad\itempoint $\dottedbot(w) = 0$ partout.
+\end{itemize}
+\item un \textbf{modèle de Kripke} est {\footnotesize (dans ce
+  contexte)} un cadre de Kripke $(W,\leq)$ muni d'une affectation de
+  vérité pour chaque variable propositionnelle ;
+\item $\varphi$ est \textbf{validée} par le modèle de Kripke lorsque
+  $\dot\varphi$ vaut $1$ dans tout monde $w$.
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Cadres de Kripke (suite)}
+
+{\footnotesize Recopie : \itempoint $(q_1\dottedland q_2)(w) = 1$ ssi
+  $q_1(w) = 1$ et $q_2(w) = 1$ ;\quad\itempoint $(q_1\dottedlor
+  q_2)(w) = 1$ ssi $q_1(w) = 1$ ou $q_2(w) = 1$ ;\quad\itempoint
+  $(q_1\dottedlimp q_2)(w) = 1$ ssi pour tout $w' \geq w$ t.q.
+  $q_1(w') = 1$, on a $q_2(w') = 1$.\par}
+
+\medskip
+
+Par exemple :
+\begin{itemize}
+\item $\dottedneg p$ (c'est-à-dire $p\dottedlimp \dottedbot$) vaut $1$
+  dans le monde $w$ lorsque $p$ vaut $0$ dans \alert{tout monde
+    accessible} depuis $w$ ;
+\item $p\dottedlor\dottedneg p$ vaut $1$ dans le monde $w$ lorsque $p$
+  vaut $0$ dans \alert{tout monde accessible} depuis $w$ ou bien $1$
+  dans $w$ (donc dans tout monde accessible depuis $w$, par
+  permanence) : \textcolor{teal}{$p$ est « décidé » à vrai ou à
+    faux} ;
+\item $\dottedneg \dottedneg p$ vaut $1$ dans le monde $w$ lorsque
+  $\forall w'\geq w.\, \exists w''\geq w'.\, p(w'')=1$
+  \textcolor{teal}{(« dans tout futur possible, $p$ finit par devenir
+    vrai »)}.
+\end{itemize}
+
+\bigskip
+
+\itempoint La sémantique de Kripke modélise plus ou moins l'intuition
+selon laquelle « $A \Rightarrow B$ » ne signifie pas juste « soit $A$
+est vrai soit $B$ est faux » (sens en logique classique) mais bien
+« dans tout monde possible où $A$ est vrai, $B$ l'est ».
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Sémantique des cadres de Kripke}
+
+\textbf{Définitions} (suite) :
+\begin{itemize}
+\item {\footnotesize (déjà dit :)} $\varphi$ est \textbf{validée} par
+  le \alert{modèle} de Kripke (= valide dedans, = valable) lorsque
+  $\dot\varphi$ vaut $1$ dans tout monde $w$ ;
+\item $\varphi$ est \textbf{validée} par le \alert{cadre} de Kripke
+  lorsqu'elle est validée par toute affectation de vérité pour chacune
+  de ses variables (= tout modèle sur ce cadre) ;
+\item $\varphi$ est \textbf{validée} par \alert{la sémantique de
+  Kripke} lorsque $\varphi$ est validée par \alert{tout} cadre (i.e.,
+  tout modèle de Kripke).
+\end{itemize}
+
+\bigskip
+
+\textbf{Théorème} (Kripke) : la sémantique de Kripke est correcte et
+complète pour le calcul propositionnel intuitionniste :
+\begin{itemize}
+\item\underline{correction :} tout théorème propositionnel
+  intuitionniste est valide dans tout modèle de Kripke,
+\item\underline{complétude :} toute formule propositionnelle valide
+  dans tout modèle de Kripke est démontrable en calcul propositionnel
+  intuitionniste.
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Cadres de Kripke : remarques}
+
+La sémantique de Kripke n'est complète que quand on considèe
+\alert{tous les cadres}.  Si on se limite aux modèles sur un cadre
+donné, ils peuvent valider des formules non démontrables.
+\begin{itemize}
+\item Le cadre réduit à un singleton valide la logique classique :
+  c'est exactement la sémantique booléenne ;
+\item Si $(W,\leq)$ est totalement ordonné, il valide la formule
+  $(A\Rightarrow B) \lor (B\Rightarrow A)$ {\footnotesize
+  (\underline{preuve :} sinon il y a un monde $w$ dans lequel
+  $p_A(w)=1$ mais $p_B(w)=0$ et un $w'$ dans lequel $p_A(w')=0$ mais
+  $p_B(w')=1$ ; mais si $w\leq w'$ ceci contredit la permanence de
+  $p_A$ et si $w\geq w'$ ceci contredit la permanence de
+  $p_B$~\qedsymbol)} qui n'est pas prouvable en logique
+  propositionnelle intuitionniste.
+\item Le cadre le plus simple après un singleton est $\{u,v\}$ avec
+  $u\leq v$, qui correspond à une logique à 3 valeurs de vérité, aux
+  tableaux suivants.
+\end{itemize}
+
+{\footnotesize
+
+\begin{tabular}{c|@{\hskip 15bp}c@{\hskip 15bp}c@{\hskip 15bp}c}
+$
+\begin{array}{c|cc}
+p&u&v\\\hline
+0&0&0\\
+\mathsf{q}&0&1\\
+1&1&1\\
+\end{array}
+$
+&
+$
+\begin{array}{c|ccc}
+\dottedland&0&\mathsf{q}&1\\\hline
+0&0&0&0\\
+\mathsf{q}&0&\mathsf{q}&\mathsf{q}\\
+1&0&\mathsf{q}&1\\
+\end{array}
+$
+&
+$
+\begin{array}{c|ccc}
+\dottedlor&0&\mathsf{q}&1\\\hline
+0&0&\mathsf{q}&1\\
+\mathsf{q}&\mathsf{q}&\mathsf{q}&1\\
+1&1&1&1\\
+\end{array}
+$
+&
+$
+\begin{array}{c|ccc}
+A \dottedlimp B&B=0&B={\mathsf{q}}&B=1\\\hline
+A=0&1&1&1\\
+A={\mathsf{q}}&0&1&1\\
+A=1&0&\mathsf{q}&1\\
+\end{array}
+$
+\end{tabular}
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Sémantique 2 : les ouverts en topologie}
+
+Fixons $X$ un espace topologique : si on ne sait pas ce que c'est,
+penser à un espace métrique ou simplement $\mathbb{R}^m$ avec sa
+topologie ordinaire.  On note $\mathcal{O}(X)$ la topologie de $X$,
+c'est-à-dire l'ensemble des ouverts de $X$.
+
+\medskip
+
+On définit les opérations suivantes sur $\mathcal{O}(X)$ :
+\begin{itemize}
+\item $U \dottedland V := U\cap V$
+\quad\itempoint $U \dottedlor V := U\cup V$
+\quad\itempoint $\dottedtop := X$
+\quad\itempoint $\dottedbot := \varnothing$
+\item $(U \dottedlimp V) := \operatorname{int}((X\setminus U) \cup V)$
+  (où $\operatorname{int}$ désigne l'intérieur) est l'ensemble des
+  points $x \in X$ tels qu'il y ait un ouvert $W \ni x$ t.q.  $(U\cap
+  W) \subseteq (V\cap W)$ {\footnotesize (= les points « au voisinage
+    desquels » $U \subseteq V$)}, ou, si on préfère, le plus grand
+  ouvert $W$ tel que $(U\cap W) \subseteq (V\cap W)$ ;
+\item notamment, $\dottedneg U := \operatorname{int}(X\setminus U)$,
+  plus grand ouvert disjoint de $U$ ;
+\item notamment, $\dottedneg \dottedneg U :=
+  \operatorname{int}(\operatorname{adh}(U))$ (intérieur de l'adhérence
+  de $U$, ou « régularisé » de $U$).
+\end{itemize}
+
+\medskip
+
+\itempoint Si $\varphi(A_1,\ldots,A_r)$ est une formule
+propositionnelle et $U_1,\ldots,U_r \in \mathcal{O}(X)$, on définit
+$\dot\varphi(U_1,\ldots,U_r)$ de façon évidente (par induction).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Sémantique des ouverts : correction et complétude}
+
+De façon surprenante, les opérations qu'on a définies sur les ouverts
+de $X$ fournissent un modèle du calcul propositionnel intuitionniste :
+
+\medskip
+
+\textbf{Théorème} (Tarski) : la sémantique des ouverts est correcte et
+complète pour le calcul propositionnel intuitionniste :
+\begin{itemize}
+\item\underline{correction :} si $\varphi(A_1,\ldots,A_r)$ est un
+  théorème du calcul propositionnel intuitionniste, alors quel que
+  soit $X$ et $U_1,\ldots,U_r$ ouverts de $X$, on a
+  $\dot\varphi(U_1,\ldots,U_r) = \dottedtop$ (l'espace tout entier) ;
+\item\underline{complétude :} réciproquement, si
+  $\dot\varphi(U_1,\ldots,U_r) = \dottedtop$ pour tous ouverts
+  $U_1,\ldots,U_r$ de tout espace topologique $X$, \alert{ou même
+  simplement de $\mathbb{R}^n$} pour un $n \geq 1$ donné, alors
+  $\varphi$ est démontrable en calcul propositionnel intuitionniste.
+\end{itemize}
+
+\medskip
+
+\itempoint La sémantique des ouverts modélise plus ou moins
+l'intuition que la vérité est une « notion locale » (si quelque chose
+est vrai en un point, c'est vrai autour de ce point).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Sémantique des ouverts : exemples}
+
+\itempoint Soit $U = \mathopen{]}0,1\mathclose{[}$ dans $X =
+    \mathbb{R}$.  Alors
+\begin{itemize}
+\item $\dottedneg U = \mathopen{]}-\infty,0\mathclose{[} \cup
+  \mathopen{]}1,+\infty\mathclose{[}$
+\quad\itempoint $\dottedneg\dottedneg U = \mathopen{]}0,1\mathclose{[} = U$
+\quad\itempoint $(\dottedneg\dottedneg U \dottedlimp U) = \mathbb{R}$
+\item $U \dottedlor \dottedneg U = \mathbb{R}\setminus\{0,1\}$
+\quad\itempoint $((\dottedneg\dottedneg U \dottedlimp U) \dottedlimp
+(U \dottedlor \dottedneg U)) = \mathbb{R}\setminus\{0,1\}$
+\end{itemize}
+Par correction, ceci montre que $((\neg\neg A \Rightarrow A)
+\Rightarrow (A \lor \neg A))$ n'est pas prouvable en logique
+intuitionniste.
+
+\bigskip
+
+{\footnotesize
+
+\itempoint Dans $X = \mathbb{R}^2$, soit $U = \{(x_1,x_2) : x_1<0
+\text{~et~} x_2<0\}$ et $V_1 = \{x_1>0\}$ et $V_2 = \{x_2>0$\}.
+\begin{itemize}
+\item $\dottedneg U = \{(x_1,x_2) : x_1>0 \text{~ou~} x_2>0\} =
+  V_1\dottedlor V_2$
+\quad\itempoint Donc $(\dottedneg U \dottedlimp (V_1\dottedlor V_2)) =
+\mathbb{R}^2$
+\item $(\dottedneg U \dottedlimp V_1) = \{(x_1,x_2) : x_1<0
+  \text{~ou~} x_2>0\}$
+\item $(\dottedneg U \dottedlimp V_2) = \{(x_1,x_2) : x_1>0
+  \text{~ou~} x_2<0\}$
+\item $(\dottedneg U \dottedlimp V_1) \dottedlor (\dottedneg U
+  \dottedlimp V_2) = \mathbb{R}^2 \setminus\{(0,0)\}$
+\end{itemize}
+Ceci montre que $(\neg A \Rightarrow (B_1\lor B_2)) \Rightarrow (\neg
+A \Rightarrow B_1) \lor (\neg A \Rightarrow B_2)$ (« axiome de
+Kreisel-Putnam ») n'est pas prouvable en logique intuitionniste (et
+\textit{a fortiori} $(C \Rightarrow B_1) \lor (C \Rightarrow B_2)
+\Rightarrow (C \Rightarrow (B_1\lor B_2))$ ne l'est pas).
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Sémantique 3 : la réalisabilité propositionnelle}
+
+On reprend les notations de la calculabilité, mais on notera $\Phi_e
+\colon \mathbb{N} \dasharrow \mathbb{N}$ pour la $e$-ième fonction
+générale récursive (pour éviter un conflit de notation).
+
+\medskip
+
+On définit les opérations suivantes sur l'ensemble
+$\mathcal{P}(\mathbb{N})$ des parties de $\mathbb{N}$ :
+\begin{itemize}
+\item $P \dottedland Q = \{\langle m,n\rangle : m\in P, n\in Q\}$
+  (codage de Gödel du produit $P\times Q$)
+\item $P \dottedlor Q = \{\langle 0,m\rangle : m\in P\} \cup \{\langle
+  1,n\rangle : n\in Q\}$ (sorte de réunion disjointe)
+\item $(P \dottedlimp Q) = \{e \in \mathbb{N} : \Phi_e(P){\downarrow}
+  \subseteq Q\}$, ce qui signifie $\forall m\in P.\,
+  \Phi_e(m){\downarrow}\in Q$ (programmes définis sur tout $P$ et
+  l'envoyant dans $Q$)
+\item $\dottedtop = \mathbb{N}$\quad\itempoint $\dottedbot = \varnothing$
+\item notamment, $\dottedneg P$ vaut $\mathbb{N}$ si $P = \varnothing$
+  et $\varnothing$ sinon (« promesses » que $P=\varnothing$) ;
+\item notamment, $\dottedneg \dottedneg P$ vaut $\varnothing$ si $P =
+  \varnothing$ et $\mathbb{N}$ sinon (« promesses » que
+  $P\neq\varnothing$).
+\end{itemize}
+
+\medskip
+
+\itempoint Si $\varphi(A_1,\ldots,A_r)$ est une formule
+propositionnelle et $P_1,\ldots,P_r \subseteq \mathbb{N}$, on définit
+$\dot\varphi(P_1,\ldots,P_r)$ de façon évidente (par induction).
+
+\smallskip
+
+\itempoint Si $n \in \dot\varphi(P_1,\ldots,P_r)$, on dit aussi que
+$n$ \textbf{réalise} $\varphi(P_1,\ldots,P_r)$.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{La réalisabilité propositionnelle}
+
+\itempoint Les définitions de $\dottedlimp,\dottedland,\dottedlor$
+suivent précisément l'idée informelle de l'interprétation de
+Brouwer-Heyting-Kolmogorov (transp. \ref{bhk-interpretation}) en les
+rendant précises avec des parties de $\mathbb{N}$ et des fonctions
+générales récursives.
+
+\medskip
+
+\itempoint On dit qu'une formule propositionnelle
+$\varphi(A_1,\ldots,A_r)$ est \textbf{réalisable} (plus précisément,
+« uniformément réalisable ») lorsqu'il existe un \alert{même entier}
+$n$ qui réalise $\varphi(P_1,\ldots,P_r)$ quels que soient
+$P_1,\ldots,P_r \subseteq \mathbb{N}$ :
+\[
+n \in \bigcap_{P_1,\ldots,P_r} \dot\varphi(P_1,\ldots,P_r)
+\]
+
+\medskip
+
+\itempoint\textbf{Théorème} (Dragalin, Troelstra, Nelson) : la
+sémantique de la réalisabilité est correcte pour le calcul
+propositionnel intuitionniste : si $\varphi(A_1,\ldots,A_r)$ est un
+théorème du calcul propositionnel intuitionniste, alors il existe $n$
+qui réalise $\varphi(P_1,\ldots,P_r)$ quels que soient $P_1,\ldots,P_r
+\subseteq \mathbb{N}$.
+
+\medskip
+
+{\footnotesize Mieux : ce $n$ se construit à partir de la preuve de
+  $\varphi$ : c'est une forme d'\alert{extraction d'algorithme}.}
+
+\smallskip
+
+\textcolor{brown}{En fait on peut voir ça comme une conséquence de
+  Curry-Howard.}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{La réalisabilité propositionnelle : exemple}
+
+\itempoint Essayons de réaliser $A\land B \Rightarrow B\land A$ : on
+cherche donc un même entier dans $P\dottedland Q \dottedlimp
+Q\dottedland P$ pour \emph{tous} $P,Q\subseteq\mathbb{N}$.
+
+\medskip
+
+\itempoint Autrement dit, on veut trouver un programme $e$ tel que
+$\Phi_e$ soit défini sur $P\dottedland Q = \{\langle m,n\rangle : m\in
+P, n\in Q\}$ et l'envoie dans $Q\dottedland P = \{\langle n,m\rangle :
+n\in Q, m\in P\}$ (sans connaître $P,Q$).
+
+\smallskip
+
+Il suffit de permuter les coordonnées du couple !
+
+\smallskip
+
+Mais c'est ce que faisait le programme $\lambda z.\langle \pi_2 z,
+\pi_1 z\rangle$ associé à la preuve via Curry-Howard
+(cf. transp. \ref{curry-howard-example-with-conjunction}) !
+
+\medskip
+
+\itempoint Ceci marche en général : pour réaliser $\varphi$ où
+$\varphi$ est prouvable, on prend le $\lambda$-terme de preuve, on
+oublie les types (tout est entier !), on interprète l'application
+d'une fonction $f$ sur $n$ comme $\Phi_f(n)$, les couples et les
+sommes comme dans $\dottedland$ et $\dottedlor$, et le programme en
+question réalise $\varphi$ quels que soient $P_1,\ldots,P_r$
+puisqu'ils correspondent à des types dans le terme de preuve.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{La réalisabilité propositionnelle : contre-exemples}
+
+\itempoint La formule $A\lor\neg A$ n'est pas réalisable : il
+s'agirait de trouver un \alert{même} entier qui \alert{quel que soit
+  $P$} soit de la forme $\langle 0,n\rangle$ avec $n\in P$ ou bien de
+la forme $\langle 1,n\rangle$ si $P=\varnothing$.  Visiblement c'est
+impossible (sans information sur $P$) !
+
+\smallskip
+
+{\footnotesize\textbf{Remarque :} en fait, si $\varphi\lor\psi$ est
+  réalisable, l'une de $\varphi$ ou $\psi$ l'est (selon que l'entier
+  réalisant $\varphi\lor\psi$ est de la forme $\langle 0,m\rangle$ ou
+  $\langle 1,m\rangle$).\par}
+
+\medskip
+
+\itempoint La formule $\neg\neg A \Rightarrow A$ n'est pas
+réalisable : il s'agirait de trouver un \alert{même} programme qui, si
+$P$ est non-vide (si bien que $\dottedneg\dottedneg P = \mathbb{N}$),
+termine sur n'importe quel entier et renvoie un élément de $P$.
+Visiblement c'est impossible (sans information sur $P$) !
+
+\medskip
+
+\itempoint Plus subtilement, $(\neg\neg A \Rightarrow A) \Rightarrow
+(A\lor\neg A)$ n'est pas réalisable : il s'agirait de trouver un
+programme qui transforme une solution du 2\textsuperscript{e} problème
+en une solution du 1\textsuperscript{er}.
+
+\medskip
+
+De nouveau, ceci montre que ces formules ne sont pas prouvables.
+
+\medskip
+
+{\footnotesize En revanche, $(A\lor\neg A) \Rightarrow (\neg\neg A
+  \Rightarrow A)$ est réalisable car démontrable : le $\lambda$-terme
+  $\lambda (z:A\lor\neg A). \lambda(u:\neg\neg A).\,
+  (\texttt{match}\ z\ \texttt{with}\ \iota_1 v_1 \mapsto v_1,\;
+  \iota_2 v_2 \mapsto \texttt{exfalso}^{(A)}(u v_2))$ le prouve et
+  explique comment le réaliser.\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{La réalisabilité propositionnelle : incomplétude}
+
+La réalisabilité suit tellement près les idées de Curry-Howard qu'on
+pourrait naturellement croire que la réciproque est vraie, que toute
+proposition réalisable donnera un $\lambda$-terme de preuve, i.e., que
+la sémantique est complète.
+
+\medskip
+
+\alert{Surprise : non !}
+
+\medskip
+
+On connaît des formules propositionnelles, p.ex. (transp. suivant) :
+\[
+\begin{aligned}
+&\Big(\neg (A_1 \land A_2) \land (\neg A_1 \Rightarrow (B_1 \lor B_2))
+  \land (\neg A_2 \Rightarrow (B_1 \lor B_2))\Big)\\
+\Rightarrow\,& \Big((\neg A_1 \Rightarrow B_1)\lor(\neg A_2 \Rightarrow B_1)\lor(\neg
+  A_1 \Rightarrow B_2)\lor(\neg A_2 \Rightarrow B_2)\Big)
+\end{aligned}
+\]
+qui sont réalisables mais non prouvables en logique intuitionniste.
+
+\smallskip
+
+{\footnotesize C'est-à-dire que bien qu'on ait un algorithme
+  (transp. suivant) qui réalise cette formule pour toutes parties
+  $A_1,A_2,B_1,B_2$ de $\mathbb{N}$ (et moralement : toutes données),
+  on ne peut pas typer un tel algorithme, lequel dépend de la
+  possibilité de faire temporairement des « fausses promesses » pour
+  donner finalement un résultat juste.\par}
+
+\medskip
+
+\textbf{Problèmes ouverts :} l'ensemble des formules réalisables
+est-il décidable ?  Semi-décidable ?
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Réalisabilité de la formule de Tseitin}
+
+{\footnotesize\textcolor{gray}{Ceci est une digression mais je pense
+    que c'est très instructif pour la calculabilité de comprendre la
+    différence entre typage et réalisabilité.}\par}
+
+\smallskip
+
+La formule suivant, bien que non démontrable, est réalisable :
+\[
+\begin{aligned}
+&(\neg (A_1 \land A_2) \land (\neg A_1 \Rightarrow (B_1 \lor B_2))
+  \land (\neg A_2 \Rightarrow (B_1 \lor B_2)))\\
+\Rightarrow\,& ((\neg A_1 \Rightarrow B_1)\lor(\neg A_2 \Rightarrow B_1)\lor(\neg
+  A_1 \Rightarrow B_2)\lor(\neg A_2 \Rightarrow B_2))
+\end{aligned}
+\]
+
+{\footnotesize
+
+\textbf{Algorithme} (appelons $A_1,A_2,B_1,B_2$ les parties
+concernées) :
+
+\smallskip
+
+\itempoint On reçoit en entrée une promesse que l'un de $A_1$ et $A_2$
+est vide, ainsi que deux algorithmes, l'un $e_1 \in (\dottedneg A_1
+\dottedlimp (B_1 \dottedlor B_2))$ prenant en entrée une promesse que
+$A_1=\varnothing$ et renvoyant un élément de $B_1$ ou $B_2$, et
+l'autre $e_2$ prennant promesse $A_2=\varnothing$ et renvoyant un
+él\textsuperscript{t} de $B_1$ ou $B_2$.
+
+\smallskip
+
+\itempoint On \alert{lance en parallèle} $e_1$ resp. $e_2$ sur un
+entier qcque promettant (peut-être faussement !)
+$A_1=\varnothing$ resp. $A_2=\varnothing$.  Au moins l'une de ces
+promesses est vraie (par la promesse en entrée) donc l'un de $e_1$ ou
+$e_2$ va terminer, et renvoyer soit un élément annoncé de $B_1$ soit
+de $B_2$.
+
+\smallskip
+
+Disons sans perte de généralité que $e_1$ renvoie un élément $n$
+annoncé de $B_1$.
+
+\smallskip
+
+\itempoint On renvoie alors comme élément de $\dottedneg A_1
+\dottedlimp B_1$ un programme renvoyant constamment $n$.  Il est bien
+dans $\dottedneg A_1 \dottedlimp B_1$ car s'il reçoit une promesse que
+$A_1=\varnothing$, à l'étape précédente le programme a tourné sur une
+vraie promesse et donc a vraiment renvoyé un élément de $B_1$.
+
+\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Sémantique 4 : les problèmes finis}
+
+\itempoint Un \textbf{problème fini} est un couple $(X,S)$ où $X$ est
+un ensemble fini non vide appelé les \textbf{candidats} du problème et
+$S \subseteq X$ est un sous-ensemble appelé les \textbf{solutions} du
+problème.
+
+\medskip
+
+On définit les opérations suivantes sur les problèmes finis :
+\begin{itemize}
+\item $(X,S)\dottedland (Y,T) = (X\times Y, S\times T)$ (produit cartésien)
+\item $(X,S)\dottedlor (Y,T) = (X\uplus Y, S\uplus T)$ (réunion disjointe)
+\item $(X,S)\dottedlimp (Y,T) = (Y^X, U)$ où $U := \{f\colon X\to Y :
+  f(S) \subseteq T\}$ (fonctions envoyant une solution de $(X,S)$ en
+  une solution de $(Y,T)$)
+\item $\dottedtop = (\{\bullet\},\{\bullet\})$
+\quad\itempoint $\dottedbot = (\{\bullet\}, \varnothing)$
+\end{itemize}
+
+\medskip
+
+\itempoint Si $\varphi(A_1,\ldots,A_r)$ est une formule
+propositionnelle et $(X_1,S_1),\ldots,(X_r,S_r)$ des problèmes finis,
+on définit le problème $\dot\varphi((X_1,S_1),\ldots,(X_r,S_r))$ de
+façon évidente (par induction).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Sémantique des problèmes finis}
+
+\itempoint Si $\varphi(A_1,\ldots,A_r)$ est une formule
+propositionnelle et $(X_1,S_1),\ldots,(X_r,S_r)$ des problèmes finis,
+noter que l'ensemble $Z$ de candidats de du problème
+$\dot\varphi((X_1,S_1),\ldots,(X_r,S_r))$ ne dépend que des ensembles
+$X_1,\ldots,X_r$ de candidats donnés.
+
+\medskip
+
+\itempoint On dit que $\varphi$ est Medvedev-valide si pour tous
+$X_1,\ldots,X_r$ il existe \alert{un même} $z \in Z$ tel que $z \in
+\dot\varphi((X_1,S_1),\ldots,(X_r,S_r))$ quels que soient
+$S_1,\ldots,S_r$ (sous-ensembles respectifs de $X_1,\ldots,X_r$).
+
+\medskip
+
+\itempoint Il s'agit d'une autre façon de donner un sens précis à
+l'interprétation de Brouwer-Heyting-Kolmogorov, cette fois sur des
+ensembles finis (donc pas de question de calculabilité).
+
+\medskip
+
+\itempoint\textbf{Théorème} (Medvedev) : cette sémantique est correcte
+pour le calcul propositionnel intuitionniste.
+
+\medskip
+
+{\footnotesize Elle n'est pas complète : p.ex., $(\neg A \Rightarrow
+  (B_1\lor B_2)) \Rightarrow (\neg A \Rightarrow B_1) \lor (\neg A
+  \Rightarrow B_2)$ (Kreisel-Putnam, déjà évoqué) ou bien $((\neg\neg
+  A \Rightarrow A) \Rightarrow (A\lor\neg A)) \Rightarrow (\neg
+  A\lor\neg\neg A)$ (Scott) sont Medvedev-valides mais non
+  démontrables.\par}
+
+\end{frame}
+%
+\section{Inférence de type à la Hindley-Milner}
+\begin{frame}
+\frametitle{L'algorithme de Hindley-Milner : description sommaire}
+
+{\footnotesize Rappel : le $\lambda$-calcul simplement typé
+  ($\lambda$CST), pour nous, porte \emph{toutes} les annotations de
+  type.\par}
+
+\smallskip
+
+\itempoint Donné un type du $\lambda$CST, on appelle
+\textbf{désannotation} de celui-ci le type du $\lambda$-calcul non
+typé obtenu en retirant toutes les annotations de type : p.ex.
+\[
+\lambda(x:\alpha).\,
+\lambda(f:((\alpha\to\beta)\to\beta)\to\gamma).\,
+f(\lambda(h:\alpha\to\beta).hx)
+\]
+de type $\alpha \to ((\alpha\to\beta)\to\beta)\to\gamma \to \gamma$ se
+désannote en $\lambda xf.\, f(\lambda h.hx)$.
+
+\medskip
+
+\itempoint L'\textbf{inférence de type} pour le $\lambda$CST est le
+problème, donné un terme du $\lambda$-calcul non typé, de :
+\begin{itemize}
+\item décider s'il est typable, i.e., est la désannotation d'un terme
+  du $\lambda$CST,
+\item si oui, retrouver son type et toutes les annotations, et même
+\item trouver la solution la « plus générale » possible (p.ex.,
+  $\lambda x.x$ doit retrouver $\lambda(x:\alpha).x$ et pas
+  $\lambda(x:\alpha\to\beta).x$).
+\end{itemize}
+
+\medskip
+
+\itempoint L'\textbf{algorithme de Hindley-Milner} (ou Damas-Milner,
+car Damas a prouvé sa correction) ou \textbf{algorithme W} (ou
+\textbf{J}, c'est quasi pareil) accomplit ces buts.
+
+\medskip
+
+\itempoint On fait ainsi des « types opaques » du $\lambda$CST un vrai
+polymorphisme.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{L'algorithme de Hindley-Milner : esquisse}
+
+L'algorithme de Hindley-Milner procède en deux phases :
+
+\medskip
+
+\itempoint\textbf{Première phase : collection des contraintes} :
+donnée un terme à typer, on \alert{alloue une variable de type}
+fraîches à chaque nouvelle variable introduite ou application et on
+\alert{enregistre une contrainte} (équation) à chaque application.
+Cette phase n'échoue pas.
+
+\smallskip
+
+{\footnotesize P.ex.: sur $\lambda x.\lambda y.xy$, on va enregistrer
+  successivement les types $x:\eta_1$,\quad $y:\eta_2$,\quad
+  $xy:\eta_3$ et la contrainte $\eta_1 = (\eta_2\to\eta_3)$, et
+  renvoyer $\eta_1 \to \eta_2 \to \eta_3$.\par}
+
+\medskip
+
+\itempoint\textbf{Deuxième phase : résolution des contraintes par
+  unification} : on cherche une « substitution » des variables de type
+qui résout toutes les contraintes.
+
+\smallskip
+
+Pour ça, on prend de façon répétée une équation $\zeta_1 = \zeta_2$ du
+jeu de contraintes et on cherche à la satisfaire : si $\zeta_1$ ou
+$\zeta_2$ est une variable, c'est facile, sinon, on \alert{décompose}
+chacune ($\zeta_i = (\xi_i \to \chi_i)$) en produisant de nouvelles
+contraintes ($\xi_1=\xi_2$ et $\chi_1=\chi_2$).  \alert{Cette phase
+  peut échouer.}
+
+\medskip
+
+\itempoint L'algorithme termine, donne une solution s'il en existe
+une, et même la « \textbf{solution principale} » dont toutes les
+autres se dérivent par substitution.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Première phase : collection des contraintes}
+
+La première phase de l'algorithme de H-M fonctionne comme la
+vérification de type du $\lambda$CST
+(transp. \ref{constructing-the-typing-derivation}) mais en
+introduisant des variables de type « fraîches » au vol et en
+collectant des contraintes au fur et à mesure.
+
+\medskip
+
+Soit $t$ le terme à typer : l'algo est écrit ici en style impératif et
+opère sur un contexte $\Gamma$ et un jeu de contraintes $\mathscr{C}$,
+il renvoie un type et modifie $\Gamma,\mathscr{C}$ :
+\begin{itemize}
+\item si $t = v$ est une variable, elle doit être dans le
+  contexte : renvoyer son type ;
+\item si $t = \lambda v.e$ est une abstraction, allouer une nouvelle
+  variable de type $\eta$, ajouter $v:\eta$ au contexte, appliquer
+  l'algorithme récursivement à $e$, qui donne $\zeta$, et renvoyer
+  $\eta \to \zeta$ ;
+\item si $t = fx$ est une application, appliquer l'algorithme
+  récursivement à $f$ et $x$, qui donne $\zeta$ et $\xi$, allouer une
+  nouvelle variable de type $\eta$, ajouter l'équation $\zeta =
+  (\xi\to\eta)$ aux contraintes et renvoyer $\eta$.
+\end{itemize}
+
+\medskip
+
+{\footnotesize\itempoint Ceci s'adapte sans difficulté au cas où on
+  dispose d'annotations de type partielles.\par}
+
+\medskip
+
+\itempoint Le typage final s'obtiendra en appliquant la substitution
+trouvée dans la deuxième phase.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Collection des contraintes : exemples}
+
+\itempoint Soit le terme à typer $\lambda xyz.xz(yz)$.  On collecte
+les types et contraintes suivants :\quad
+$x:\eta_1$,\quad $y:\eta_2$,\quad $z:\eta_3$,\quad $xz:\eta_4$ avec
+$\eta_1 = (\eta_3\to\eta_4)$,\quad $yz:\eta_5$ avec $\eta_2 =
+(\eta_3\to\eta_5)$,\quad $xz(yz):\eta_6$ avec $\eta_4 =
+(\eta_5\to\eta_6)$,\quad et on renvoie finalement le type $\eta_1 \to
+\eta_2 \to \eta_3 \to \eta_6$.
+
+\medskip
+
+\itempoint Soit le terme à typer $\lambda fx.f(\lambda g.gx)$.  On
+collecte les types et contraintes suivants :\quad
+$f:\eta_1$,\quad $x:\eta_2$,\quad $g:\eta_3$,\quad $gx:\eta_4$ avec
+$\eta_3 = (\eta_2\to\eta_4)$,\quad $f(\lambda g.gx):\eta_5$ avec
+$\eta_1 = ((\eta_3\to\eta_4) \to \eta_5)$,\quad et on renvoie
+finalement le type $\eta_1 \to \eta_2 \to \eta_5$.
+
+\medskip
+
+\itempoint Soit le terme à typer $\lambda x.xx$.  On collecte
+les types et contraintes suivants :\quad
+$x:\eta_1$,\quad $xx:\eta_2$ avec $\eta_1 = (\eta_1 \to \eta_2)$,\quad
+et on renvoie finalement le type $\eta_1 \to \eta_2$.
+
+\medskip
+
+\itempoint Soit le terme à typer $t := (\lambda xy.x) (\lambda
+x'y'.x')$.  On collecte les types et contraintes suivants :\quad
+$x:\eta_1$,\quad $y:\eta_2$,\quad $x':\eta_3$,\quad $y':\eta_4$\quad
+enfin $t:\eta_5$ avec $(\eta_1 \to \eta_2 \to \eta_1) = ((\eta_3 \to
+\eta_4 \to \eta_3) \to \eta_5)$.
+
+\smallskip
+
+{\footnotesize \textcolor{orange}{Attention :} ce terme aurait pu être
+  écrit $(\lambda xy.x) (\lambda xy.x)$ : les deux $x$ \alert{ne sont
+    pas le même} !\par}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Seconde phase : résolution des contraintes}
+
+L'algorithme d'\textbf{unification} prend en entrée un ensemble
+$\mathscr{C}$ de contraintes (équations $\zeta_1 = \zeta_2$ avec
+$\zeta_1,\zeta_2$ deux types) et renvoie une \textbf{substitution} des
+variables de type ($\{\eta \mapsto \tau\}$ avec $\eta$ des variables
+de type et $\tau$ des types \alert{ne faisant pas intervenir} les
+variables substituées) qui vérifie les contraintes, ou « échec » :
+
+\medskip
+
+\itempoint Si $\mathscr{C}$ est vide, renvoyer la substitution vide.
+
+\smallskip
+
+\itempoint Sinon, soit $\zeta_1 = \zeta_2$ une contrainte, et
+$\mathscr{C}' := \mathscr{C} \setminus \{(\zeta_1 = \zeta_2)\}$ le
+reste des contraintes :
+\begin{itemize}
+\item si $\zeta_1 = \zeta_2$ déjà, unifier $\mathscr{C}'$,
+\item si $\zeta_1$ est une \alert{variable} de type $\eta$ :
+  \alert{si} $\zeta_2$ ne fait pas intervenir $\eta$, ajouter (et
+  appliquer) $\eta \mapsto \zeta_2$ à la substitution, et unifier
+  $\mathscr{C}'$ où $\eta$ est remplacé par $\zeta_2$ ; \alert{sinon},
+  \alert{échouer} (« type récursif ») ;
+\item si $\zeta_2$ est une variable de type : symétriquement ;
+\item sinon, $\zeta_1 = (\xi_1 \to \chi_1)$ et $\zeta_2 = (\xi_2 \to
+  \chi_2)$ : unifier $\mathscr{C}'' := \mathscr{C}' \cup \{(\xi_1 =
+  \xi_2), (\chi_1 = \chi_2)\}$.
+\end{itemize}
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Résolution des contraintes : exemple}
+
+Reprenons l'exemple $t := (\lambda xy.x) (\lambda x'y'.x')$.  La
+première phase a donné : $x:\eta_1$, $y:\eta_2$, $x':\eta_3$,
+$y':\eta_4$ et le type final $\eta_5$ avec la constrainte $(\eta_1 \to
+\eta_2 \to \eta_1) = ((\eta_3 \to \eta_4 \to \eta_3) \to \eta_5)$.
+
+\smallskip
+
+\begin{itemize}
+\item On examine la seule contrainte $(\eta_1 \to \eta_2 \to \eta_1) =
+  ((\eta_3 \to \eta_4 \to \eta_3) \to \eta_5)$ : ceci retire cette
+  contrainte et on rajoute $\eta_1 = (\eta_3 \to \eta_4 \to \eta_3)$
+  et $(\eta_2 \to \eta_1) = \eta_5$.
+\item On examine $\eta_1 = (\eta_3 \to \eta_4 \to \eta_3)$ : comme
+  $\eta_1$ est une variable, et n'apparaît pas à droite, on enregistre
+  la substitution $\eta_1 \mapsto (\eta_3 \to \eta_4 \to \eta_3)$ et
+  on l'applique à la contrainte restante qui devient $(\eta_2 \to
+  \eta_3 \to \eta_4 \to \eta_3) = \eta_5$.
+\item Comme $\eta_5$ est une variable et n'apparaît pas à gauche, on
+  enregistre la substitution $\eta_5 \mapsto (\eta_2 \to \eta_3 \to
+  \eta_4 \to \eta_3)$ et il ne reste plus de contrainte.
+\end{itemize}
+
+\medskip
+
+Finalement, on a typé : $\vdash (\lambda (x:\eta_3 \to \eta_4 \to
+\eta_3).\,\lambda(y:\eta_2).\,x) \; (\lambda
+(x':\eta_3).\,\lambda(y':\eta_4).\,x') \; : \penalty-1000\; \eta_2 \to
+\eta_3 \to \eta_4 \to \eta_3$.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Propriétés de l'algorithme de Hindley-Milner}
+
+La difficulté concerne essentiellement la seconde phase (résolution
+des contraintes par unification).  On peut prouver :
+
+\medskip
+
+\itempoint\textbf{L'algorithme termine} (il est même p.r. et mieux).
+
+\smallskip
+
+{\footnotesize\underline{Idée de la preuve :} double récurrence, sur
+  le nombre de variables de type (récurrence principale) et sur le
+  degré total des formules dans les contraintes.\par}
+
+\medskip
+
+\itempoint\textbf{L'algorithme est correct} : s'il retourne une
+substitution, celle-ci résout les contraintes. {\footnotesize (C'est à
+  peu près évident.)\par}
+
+\medskip
+
+\itempoint (Damas) \textbf{L'algorithme est « complet » :} toute autre
+solution des contraintes $\mathscr{C}$ s'obtient en effectuant une
+substitution sur celle retournée par l'algorithme : on dit qu'il
+trouve la \textbf{solution principale} {\footnotesize (notamment,
+  celle-ci existe !)}.
+
+\smallskip
+
+{\footnotesize\underline{Idée de la preuve :} récurrence sur le nombre
+  d'appels récursifs à la fonction d'unification.\par}
+
+\medskip
+
+\centerline{*}
+
+\itempoint L'algorithme \alert{se généralise sans problème} à l'ajout
+de types produits, sommes, $1$ et $0$ ($\rightarrow$ nvx cas d'échecs
+d'unification, p.ex., si $\zeta_1 = ({?} \rightarrow {?})$ et $\zeta_2
+= ({?} \times {?})$).
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Types récursifs ?}
+
+\itempoint On a imposé lors de la résolution de la contrainte $\zeta_1
+= \zeta_2$, lorsque $\zeta_1$ est une variable $\eta$, que $\zeta_2$
+ne fasse pas intervenir $\eta$.
+
+\medskip
+
+\itempoint Ceci sert à empêcher d'inférer un type p.ex. à $\lambda
+x.xx$ (il fallait résoudre $\eta_1 = (\eta_1 \to \eta_2)$).  De fait,
+ce terme n'est pas typable dans le $\lambda$CST, sinon $(\lambda x.xx)
+(\lambda x.xx)$ le serait, contredisant la normalisation forte du
+$\lambda$CST.
+
+\medskip
+
+\itempoint On peut néanmoins étendre l'algorithme de H-M à de tels
+\alert{types récursifs sans constructeur}, c'est ce que fait
+\texttt{ocaml -rectypes} :
+
+{\tt
+\$ ocaml -rectypes\newline
+fun x -> x x ;;\newline
+- : ('a -> 'b as 'a) -> 'b = <fun>
+}
+
+\smallskip
+
+{\footnotesize (Ceci doit faire de OCaml un interpréteur du
+  $\lambda$-calcul \alert{non typé}, au moins pour une certaine
+  notion d'évaluation.)\par}
+
+\smallskip
+
+Mais c'est une mauvaise idée de s'en servir : mieux vaut définir un
+type récursif explicite.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{Le problème du polymorphisme du « let »}
+
+\itempoint Dans les langages fonctionnels, « \texttt{let $v$=$x$ in
+  $t$} » peut être vu comme un sucre syntaxique pour « \texttt{(fun $v
+  \mapsto t$)$x$} » (i.e., $(\lambda v.t)x$,
+cf. transp. \ref{typing-vs-beta-reduction}).
+
+\medskip
+
+\itempoint Ceci pose un problème au typage à la H-M : mettons qu'on
+veuille utiliser l'entier de Church $\overline{2} := \lambda fx
+. f(fx)$, typé par H-M comme $(\alpha\to\alpha) \to
+(\alpha\to\alpha)$, avec deux types $\alpha$ différents, par exemple
+en OCaml :
+
+\smallskip
+
+{\footnotesize\tt
+let twice = fun f -> fun x -> f(f x) in (twice ((+)1) 42, twice not true) ;;\newline
+{\color{purple}- : int * bool = (44, true)}\newline
+(fun twice -> (twice ((+)1) 42, twice not true))(fun f -> fun x -> f(f x)) ;;\newline
+{\color{purple}\alert{Error}: This expression has type bool -> bool\newline
+       but an expression was expected of type int -> int\newline
+       Type bool is not compatible with type int}
+\par}
+
+\smallskip
+
+{\footnotesize Dans l'expression \texttt{fun twice -> ...}, le type de
+  \texttt{twice} est fixé et ne peut pas être polymorphe.\par}
+
+\medskip
+
+\itempoint Pour réparer ce problème, très grossièrement :
+\textcolor{blue}{(a)} on type d'abord $x$, puis
+\textcolor{blue}{(b)} on « \alert{généralise} » chaque variable de
+type (non présente dans le contexte d'ensemble) pour rendre $x$
+polymorphe (cf. \ref{variables-are-effectively-polymorphic}),
+c'est-à-dire que \textcolor{blue}{(c)} \alert{chaque} apparition de
+$v$ dans $t$ reçoit des variables de type fraîches à ces places.
+
+\end{frame}
+%
+\begin{frame}
+\frametitle{La « restriction de valeur »}
+
+\itempoint La solution trouvée pour rendre \texttt{let} polymorphe
+(transp. précédent) apporte ses propres difficultés quand le langage
+permet les effets de bord (variables mutables) : considérons
+l'expression OCaml :
+
+\smallskip
+
+{\tt let r = ref (fun x -> x) in r := (fun x -> x+1) ; (!r) true ;;}
+
+\smallskip
+
+Ici, \alert{on ne veut pas} généraliser \texttt{r} à pouvoir servir à
+la fois comme \texttt{(int -> int) ref} et comme \texttt{(bool ->
+  bool) ref} car le code précédent causerait l'appel d'une fonction
+\texttt{int -> int} sur une valeur de type \texttt{bool} (crash
+potentiel !).
+
+\bigskip
+
+\itempoint La solution dans un langage comme OCaml est la
+« restriction de valeur » : le $v$ dans « \texttt{let $v$=$x$ in
+  $t$} » n'est rendu polymorphe (i.e., n'est « généralisé ») que
+lorsque $x$ est une « valeur statique » déterminable à la compilation.
+
+\bigskip
+
+\itempoint Dans un langage comme Haskell, le problème ne se pose pas,
+car toutes les fonctions et valeurs sont pures.
+
+\end{frame}
+%
+%% \mode<article>{
+%%     \ifodd\value{page}
+%%         \clearpage\hbox{}\newpage
+%%         \thispagestyle{empty}
+%%     \fi}
+%
+\end{document}

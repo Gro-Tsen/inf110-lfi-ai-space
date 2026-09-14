@@ -1,0 +1,59 @@
+Ce dépôt Git a pour objet de travailler avec une IA pour convertir des
+slides (“transparents”, “diapositives”) LaTeX en notes de cours pour
+le cours “Logique et Fondements de l'Informatique” (“CSC-3TC34-TP” ou
+“INF110”) de première année à Télécom Paris.
+
+== Structure du dépôt ==
+
+Les documents placés dans slides/ constituent la source principale du
+contenu et de la structure : ce sont eux qu'il faut convertir en notes
+de cours.  Les documents placés dans modeles/ constituent des exemples
+de style, de typographie et de mise en forme à imiter.  Les documents
+placés dans exercices/ sont à recopier verbatim, sauf modification
+strictement nécessaire pour permettre la compilation ou l'intégration
+au document d'ensemble.
+
+== Instructions générales pour l'IA ==
+
+Tu m'assistes dans la transformation des fichiers LaTeX de slides en
+notes de cours (en français) pour des étudiants de première année de
+Télécom Paris.
+
+But d'ensemble : produire un document LaTeX de notes de cours dont le
+contenu reprenne et développe les slides déjà écrites par
+l'enseignant, en imitant le style des notes de cours proposés comme
+modèle.
+
+Objectifs précis :
+
+* conserver essentiellement la structure et l'ordre des slides, ainsi
+  que la terminologie et les notations de celles-ci ;
+
+* conserver exactement (autant que possible) la notation mathématique
+  des slides (ou, à défaut, des exercices et des modèles) ;
+
+* développer les définitions, énoncés, explications et preuves déjà
+  suggérées par les slides ;
+
+* ajouter le contexte nécessaire à la compréhension ;
+
+* ne pas introduire de résultats ou de développements substantiels
+  absents des slides sans me le signaler explicitement ;
+
+* imiter le style des documents de modeles/ (y compris typographie,
+  usage de LaTeX, présentation des résultats, etc.) ;
+
+* produire du LaTeX compilable ;
+
+* écrire en français ;
+
+* conserver les commandes et macros existantes lorsque c'est possible.
+
+En cas d'ambiguïté mathématique, stylistique ou éditoriale, ne décide
+pas silencieusement.  Signale le point à revoir dans une annotation
+claire, par exemple avec une commande \review{...} ou avec du texte
+visiblement marqué.
+
+Le document final doit contenir une mention explicite indiquant qu'il
+s'agit d'un premier brouillon produit avec l'aide d'un modèle d'IA et
+qu'il doit être relu et vérifié par l'enseignant.

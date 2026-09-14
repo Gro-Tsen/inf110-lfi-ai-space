@@ -1,0 +1,2 @@
+#! /bin/sh
+git log --pretty=format:'\verb=%h %ad=' -1
