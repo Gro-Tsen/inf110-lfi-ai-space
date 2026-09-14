@@ -81,6 +81,8 @@ Dans le modèle récent, les choix sont notamment :
 
 Le modèle ancien utilise `francais`, `times` et des marges intérieures/extérieures différentes. Ces choix doivent être considérés comme historiques et non comme la convention à reproduire par défaut.
 
+Le préambule est écrit par l'humain.  Pour demander l'ajout de texte dans le préambule (par exemple pour une nouvelle macro ou des packages supplémentaires), l'IA est invitée à écrire dans le fichier LaTeX produit un commentaire commençant par `%% PREAMBLE: ` en expliquant la modification proposée.
+
 ### 3.2. Titre
 
 Le titre est court et descriptif. Il peut comporter un sous-titre entre parenthèses ou sur une seconde ligne.
