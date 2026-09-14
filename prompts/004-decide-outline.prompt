@@ -1,0 +1,79 @@
+Le plan des slides d'entrée est le suivant :
+
+````
+%%% Partie I : Calculabilité
+\section*{Plan}
+\section{Introduction}
+\section{Fonctions primitives récursives}
+\section{Fonctions générales récursives}
+\section{Machines de Turing}
+\section{Décidabilité et semi-décidabilité}
+\section{Le \texorpdfstring{$\lambda$}{lambda}-calcul non typé}
+\section{Conclusion}
+%%% Partie II : Typage
+\section*{Plan}
+\section{Généralités sur le typage}
+\section{Le \texorpdfstring{$\lambda$}{lambda}-calcul simplement typé}
+\section{Le calcul propositionnel intuitionniste}
+\section{Le call/cc et la logique classique}
+\section{Sémantique du calcul propositionnel intuitionniste}
+\section{Inférence de type à la Hindley-Milner}
+%%% Partie III : Introduction aux quantificateurs
+\section*{Plan}
+\section{Les quantificateurs : discussion informelle}
+\section{Logique du premier ordre}
+\section{Arithmétique du premier ordre et théorème de Gödel}
+````
+
+Le plan des fichiers de sortie produits pour l'instant (deux premiers chapitres) est le suivant :
+
+````
+\section{Calculabilité}\label{section-computability}
+\subsection{Introduction}\label{subsection-computability-introduction}
+\subsection{Données finies, codages et fonctions partielles}
+\subsection{Fonctions primitives récursives}
+\subsection{Numérotation des fonctions primitives récursives}
+\subsection{Auto-référence et théorème de récursion}
+\subsection{Fonctions générales récursives}
+\subsection{Le problème de l'arrêt}
+\subsection{Machines de Turing}
+\subsection{Décidabilité et semi-décidabilité}
+\subsection{Le théorème de Rice}
+\subsection{Réductions}
+\subsection{Le $\lambda$-calcul non typé}
+\subsection{Entiers de Church et fonctions représentables}
+\subsection{Conclusion}\label{subsection-computability-conclusion}
+\section{Généralités sur le typage}
+\subsection{Rôle et variétés des systèmes de typage}
+\subsection{Constructions usuelles sur les types}
+\subsection{Polymorphisme et tâches d'un système de typage}
+\subsection{Autres usages et exemples}
+\subsection{Typage, terminaison et correspondance de Curry--Howard}
+\section{Le \texorpdfstring{$\lambda$}{lambda}-calcul simplement typé}
+\subsection{Syntaxe et règles de typage}
+\subsection{Propriétés élémentaires du typage}
+\subsection{Substitution, réduction et normalisation}
+\subsection{Reconstruction des termes et problèmes algorithmiques}
+\section{Le calcul propositionnel intuitionniste}
+\subsection{Formules et déduction naturelle}
+\subsection{Théorèmes et non-théorèmes}
+\subsection{Logique classique}
+\subsection{Interprétation de Brouwer--Heyting--Kolmogorov}
+\subsection{Correspondance de Curry--Howard}
+\subsection{Calcul des séquents et élimination des coupures}
+\section{Le call/cc et la logique classique}
+\subsection{Continuations}
+\subsection{Continuation Passing Style}
+\section{Sémantique du calcul propositionnel intuitionniste}
+\subsection{Sémantiques, correction et complétude}
+\subsection{Cadres de Kripke}
+\subsection{Sémantique topologique}
+\subsection{Réalisabilité propositionnelle}
+\subsection{Sémantique des problèmes finis}
+\section{Inférence de type à la Hindley--Milner}
+\subsection{Désannotation et problème de l'inférence}
+\subsection{Collection et résolution des contraintes}
+\subsection{Polymorphisme du \texttt{let} et restriction de valeur}
+````
+
+Il n'y a pas de problème majeur, mais la première section me semble déséquilibrée.  Peux-tu me faire une proposition de plan d'ensemble plus équilibré ?  Je vais adopter une hiérarchie « chapitre → section → sous-section » (les chapitres correspondant exactement aux trois parties des slides), donc le plan actuel du chapitre II (typage) me va bien, mais je voudrais subdiviser l'unique section du chapitre I (calculabilité), et trouver un plan analogue pour le chapitre III.  Que peux-tu proposer ?
