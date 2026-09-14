@@ -55,8 +55,8 @@ Objectifs précis :
 * ne pas introduire de résultats ou de développements substantiels
   absents des slides sans me le signaler explicitement ;
 
-* imiter le style des documents de modeles/ (y compris typographie,
-  usage de LaTeX, présentation des résultats, etc.) ;
+* imiter le style des documents décrit dans style-guide.md (qui
+  présente le style des fichiers du répertoire modeles/) ;
 
 * produire du LaTeX compilable ;
 
