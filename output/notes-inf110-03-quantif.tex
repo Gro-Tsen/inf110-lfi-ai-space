@@ -682,16 +682,425 @@ premier ordre et ses limitations du point de vue du typage.
 
 \subsection{Égalité et schémas d'axiomes}
 
-\review{La suite des diapositives consacrée à l'égalité et aux schémas
-d'axiomes doit être intégrée ici dans une passe ultérieure.  Le contenu
-source disponible pour ce brouillon s'interrompt avant la présentation
-de ces éléments ; il ne faut pas inventer leurs règles ou leur notation
-sans les reprendre des diapositives.}
+\thingy
+Dans la présentation purement logique donnée jusqu'ici, les prédicats
+$A$, $B$, $C$, \ldots\ sont des relations quelconques entre individus.
+En particulier, une formule telle que
+\[
+x=y
+\]
+pourrait, à première vue, n'être que l'application d'un prédicat binaire
+particulier.  Mais l'\defin{égalité} que l'on utilise en mathématiques
+n'est pas une relation binaire quelconque : elle doit notamment être
+réflexive et permettre de remplacer un individu par un autre individu
+égal.
+
+On ajoute donc habituellement à la logique du premier ordre un symbole
+spécial $=$, destiné à exprimer l'égalité des individus.  Les règles qui
+le concernent ne dépendent pas de la théorie particulière que l'on
+étudie ; elles font partie de la logique munie de l'égalité.
+
+\thingy
+La première règle est la réflexivité de l'égalité.  Tout individu est
+égal à lui-même :
+\[
+\inferrule
+  {\Gamma\vdash t:I}
+  {\Gamma\vdash t=t}.
+\]
+Dans la variante de la logique du premier ordre où les seuls termes
+d'individus sont des variables, cette règle s'applique en particulier à
+toute variable $x$ déclarée dans le contexte, et donne $x=x$.
+
+\thingy
+La seconde règle exprime que des individus égaux sont
+indiscernables par les propriétés logiques.  Si $s=t$, et si l'on sait
+qu'une formule $P$ est vraie lorsque l'on remplace une certaine variable
+libre $x$ par $s$, alors cette même formule est vraie lorsque l'on
+remplace $x$ par $t$ :
+\[
+\inferrule
+  {\Gamma\vdash s=t
+   \\
+   \Gamma\vdash P[x\backslash s]}
+  {\Gamma\vdash P[x\backslash t]}.
+\]
+Comme pour les règles des quantificateurs, il faut comprendre cette
+substitution avec les précautions usuelles sur les variables liées : le
+remplacement ne doit pas capturer de variable libre.
+
+\review{Les diapositives devront être vérifiées pour déterminer si la
+règle d'élimination de l'égalité y est formulée exactement sous cette
+forme générale, ou sous une forme spécialisée aux prédicats.  Les deux
+présentations expriment l'idée de substitution des égaux, mais n'ont pas
+exactement le même statut syntaxique.}
+
+\thingy
+Cette règle permet de retrouver les propriétés usuelles de l'égalité.
+Par exemple, pour montrer la symétrie, supposons $x=y$.  La réflexivité
+donne $x=x$.  En appliquant l'élimination de l'égalité à la propriété
+\[
+P(z)\;:=\;(z=x),
+\]
+on remplace l'occurrence de $x$ dans $x=x$ par $y$, et l'on obtient
+$y=x$.  On a donc démontré
+\[
+x=y\Rightarrow y=x.
+\]
+
+De même, si $x=y$ et $y=z$, on peut remplacer $y$ par $z$ dans
+$x=y$, ce qui donne $x=z$.  L'égalité est donc transitive.  Ces
+propriétés ne sont pas ajoutées comme axiomes indépendants : elles se
+déduisent des règles précédentes.
+
+\thingy
+Il faut cependant faire attention à ce que signifie exactement
+l'expression « remplacer des égaux par des égaux ».  Si l'on possède une
+fonction $f$ et si $x=y$, on voudra naturellement conclure
+\[
+f(x)=f(y).
+\]
+Mais la logique du premier ordre pure considérée jusqu'ici ne possède
+pas encore de symboles de fonctions, ni même de termes tels que $f(x)$.
+Cette formule n'a donc de sens qu'après avoir enrichi le langage par les
+symboles appropriés.  Nous verrons un exemple important de tels termes
+dans la section consacrée à l'arithmétique du premier ordre.
+
+\review{Le passage des règles générales de l'égalité aux règles de
+compatibilité pour les symboles de fonctions et de prédicats devra être
+harmonisé avec la définition précise des langages du premier ordre
+utilisée dans la suite des notes.}
+
+\thingy
+Lorsqu'on formalise une théorie mathématique, les règles logiques
+elles-mêmes ne suffisent pas : il faut encore choisir les propriétés
+propres aux objets que l'on veut étudier.  Par exemple, pour parler des
+entiers naturels, des groupes ou des ensembles, on ajoute des axiomes
+particuliers au calcul logique.
+
+Il arrive qu'un seul axiome ne suffise pas, parce que l'on veut affirmer
+une propriété pour toute formule $P$ d'une certaine forme.  On parle
+alors d'un \defin{schéma d'axiomes}.  Un schéma ne désigne pas une
+formule unique : c'est une recette qui fournit une famille, généralement
+infinie, d'axiomes.
+
+\thingy
+Par exemple, une expression de la forme
+\[
+P(x)\Rightarrow P(y)
+\]
+où $P$ désigne une propriété arbitraire, n'est pas en elle-même une
+formule de la logique du premier ordre pure : dans cette logique, on ne
+quantifie pas sur les prédicats, et $P$ ne doit pas être compris comme
+une variable d'individu.  En revanche, on peut considérer toutes les
+formules obtenues en remplaçant $P$ par une formule du langage.  On
+obtient ainsi une famille d'axiomes ou de règles, indexée par les
+formules possibles.
+
+Autrement dit, les lettres telles que $P$, $Q$ ou $A$ peuvent être
+employées de deux façons différentes :
+\begin{itemize}
+\item dans une formule donnée, elles peuvent désigner des prédicats ou
+  des formules déterminés ;
+\item dans la description d'un schéma, elles jouent un rôle
+  métalogique : elles désignent une formule arbitraire que l'on peut
+  remplacer par chacune des formules autorisées.
+\end{itemize}
+
+Cette distinction entre le langage logique et le métalangage est
+essentielle, même si elle est souvent laissée implicite dans les
+rédactions mathématiques.
+
+\thingy
+Les schémas d'axiomes apparaîtront notamment dans la formalisation de
+l'arithmétique.  L'idée générale est la suivante : on veut pouvoir
+raisonner par récurrence sur toute propriété définissable $P$, et non
+seulement sur une liste finie de propriétés choisies à l'avance.  On
+obtient donc un axiome de récurrence pour chaque formule $P$.
+
+\review{Cette anticipation du schéma de récurrence est motivée par le
+plan du chapitre suivant.  Sa formulation précise ne doit être donnée
+qu'avec les termes arithmétiques et les axiomes de Peano.}
+
+\thingy
+La logique du premier ordre reste donc un cadre général, auquel on peut
+adjoindre différents langages et différents systèmes d'axiomes.  Les
+règles de la logique déterminent quelles conclusions on peut tirer à
+partir des hypothèses et des axiomes ; les axiomes déterminent, eux, les
+propriétés particulières des objets étudiés.
 
 \subsection{Curry--Howard pour la logique du premier ordre}
 
-\review{Cette sous-section est réservée pour la reprise systématique de
-la correspondance de Curry--Howard en logique du premier ordre.  Les
-notions nécessaires ont été introduites ci-dessus pour $\forall$ et
-$\exists$, mais les développements supplémentaires devront suivre
-exactement les diapositives source.}
+\thingy
+La correspondance de Curry--Howard décrite plus haut pour les
+quantificateurs se transpose à la logique du premier ordre, avec une
+restriction importante : les individus et les preuves continuent à vivre
+dans deux mondes distincts.  Une preuve de
+\[
+\forall x.\,P(x)
+\]
+est représentée par une abstraction qui reçoit un individu $x:I$ et
+produit une preuve de $P(x)$ ; une preuve de
+\[
+\exists x.\,P(x)
+\]
+est représentée par une paire formée d'un témoin et d'une preuve portant
+sur ce témoin.
+
+Ainsi, les notations fondamentales restent
+\[
+\lambda(x:I).\,s
+\qquad\hbox{et}\qquad
+\langle t,z\rangle.
+\]
+
+\thingy
+Les règles de l'égalité suggèrent elles aussi une lecture en termes de
+preuves.  Une preuve de $t=t$ est une preuve canonique de réflexivité.
+En revanche, l'élimination de l'égalité correspond à un principe de
+transport : à partir d'une preuve que $s$ et $t$ sont égaux, on transporte
+une preuve de $P[x\backslash s]$ en une preuve de $P[x\backslash t]$.
+
+Cette idée est très importante dans les systèmes de types dépendants,
+où une égalité entre indices permet de transporter une valeur d'un type
+dépendant vers un autre type.  Nous ne développerons pas ici cette
+interprétation dans toute sa généralité.
+
+\review{La notation de Curry--Howard associée aux preuves d'égalité,
+ainsi que le degré de détail à donner sur le transport dans les types
+dépendants, doivent être repris exactement des diapositives.  Le présent
+paragraphe ne doit être considéré que comme une transition vers les
+développements ultérieurs.}
+
+\subsection{Curry--Howard pour la logique du premier ordre}
+
+\thingy
+Il faut maintenant prolonger, à la logique du premier ordre, la
+correspondance de Curry--Howard.  Le principe général reste le même que
+pour le calcul propositionnel : il faut penser à une preuve comme à un
+programme.  Les propositions deviennent des types, et les
+démonstrations de ces propositions deviennent des termes ayant les types
+correspondants.
+
+\review{Faute d'une présentation complète des règles de typage des
+termes d'individus dans les diapositives, cette sous-section décrit la
+correspondance de Curry--Howard de façon essentiellement informelle.  Il
+faudra vérifier ultérieurement le système de types précis dans lequel les
+termes écrits ci-dessous doivent être compris.}
+
+\thingy
+Les connecteurs propositionnels reçoivent les mêmes interprétations que
+précédemment :
+\[
+\Rightarrow,\quad\land,\quad\lor,\quad\top,\quad\bot
+\]
+deviennent respectivement
+\[
+\rightarrow,\quad\times,\quad+,\quad1,\quad0.
+\]
+Ainsi, une preuve de $P\Rightarrow Q$ devient un programme qui
+transforme une preuve de $P$ en une preuve de $Q$ ; une preuve de
+$P\land Q$ devient une paire ; et une preuve de $P\lor Q$ devient une
+valeur munie de l'indication de l'alternative choisie.
+
+Les quantificateurs reçoivent alors l'interprétation déjà annoncée :
+\[
+\forall(x:I).\,P(x)
+\]
+devient un type produit dépendant de $x:I$, tandis que
+\[
+\exists(x:I).\,P(x)
+\]
+devient un type somme dépendant de $x:I$.  Formellement, on écrit donc
+\[
+\forall(x:I).\,P(x)
+\qquad\leadsto\qquad
+\prod_{x:I} P(x)
+\]
+et
+\[
+\exists(x:I).\,P(x)
+\qquad\leadsto\qquad
+\sum_{x:I} P(x).
+\]
+
+\thingy
+Cette traduction mélange nécessairement le monde logique et le monde
+des individus.  Une formule $P(x)$, qui dépend de l'individu $x$, est
+interprétée comme un type dépendant lui aussi de $x$.  Une preuve de
+\[
+\forall(x:I).\,P(x)
+\]
+est donc un programme qui prend un individu $x$ et renvoie une preuve de
+$P(x)$.  Symétriquement, une preuve de
+\[
+\exists(x:I).\,P(x)
+\]
+est une paire dont le premier composant est un individu $t$ et le second
+une preuve de $P(t)$.
+
+\thingy
+Les notations de preuves introduites plus haut deviennent alors des
+constructions de programmes ordinaires.  Une introduction du
+quantificateur universel s'écrit
+\[
+\lambda(x:I).\,s,
+\]
+et correspond à une fonction dépendant d'un individu $x$.  Une
+élimination de $\forall$ s'écrit par application :
+\[
+ft.
+\]
+De même, une introduction de $\exists$ s'écrit sous la forme d'une
+paire
+\[
+\langle t,z\rangle,
+\]
+et l'élimination de $\exists$ consiste à décomposer cette paire par un
+filtrage de motif :
+\[
+(\texttt{match~}z\texttt{~with~}\langle x,h\rangle\mapsto s).
+\]
+
+\thingy
+Reprenons, par exemple, la formule démontrée dans la sous-section
+\ref{example-predicate-proof-as-lambda-term} :
+\[
+(\exists x.\,\forall y.\,B(x,y))
+\Rightarrow
+(\forall y'.\,\exists x'.\,B(x',y')).
+\]
+La preuve qui lui était associée s'écrivait
+\[
+\lambda(u:\exists x.\,\forall y.\,B(x,y)).\;
+\lambda(y':I).\;
+(\texttt{match~}u\texttt{~with~}\langle x,v\rangle\mapsto
+\langle x,vy'\rangle).
+\]
+Après traduction de Curry--Howard, ce terme devient un programme de
+type
+\[
+\left(
+  \sum_{x:I}\prod_{y:I} B(x,y)
+\right)
+\rightarrow
+\left(
+  \prod_{y':I}\sum_{x':I} B(x',y')
+\right).
+\]
+
+Autrement dit, le programme reçoit une paire constituée d'un individu
+$x$ et d'une fonction qui, à chaque $y$, associe une preuve de
+$B(x,y)$.  Pour tout $y'$, il conserve le même $x$ et construit la paire
+formée de $x$ et de la preuve $B(x,y')$.
+
+\thingy
+Considérons maintenant la formule
+\[
+\bigl(\forall x.\,(A(x)\Rightarrow C)\bigr)
+\Rightarrow
+\bigl((\exists x.\,A(x))\Rightarrow C\bigr).
+\]
+Elle exprime que, si l'on sait transformer toute preuve de $A(x)$ en une
+preuve de $C$, alors l'existence d'un $x$ satisfaisant $A(x)$ permet de
+conclure $C$.
+
+La preuve correspondante est le programme
+\[
+\lambda(f:\forall x.\,(A(x)\Rightarrow C)).\;
+\lambda(p:\exists x.\,A(x)).\;
+(\texttt{match~}p\texttt{~with~}\langle x,w\rangle\mapsto fxw).
+\]
+En effet, le filtrage de motif extrait de $p$ un individu $x$ et une
+preuve $w$ de $A(x)$.  La preuve $f$ peut alors être appliquée à $x$,
+puis à $w$, ce qui donne une preuve de $C$.
+
+\thingy
+La réciproque de la formule précédente est également démontrable :
+\[
+\bigl((\exists x.\,A(x))\Rightarrow C\bigr)
+\Rightarrow
+\bigl(\forall x.\,(A(x)\Rightarrow C)\bigr).
+\]
+Cette fois, si l'on dispose d'une fonction $g$ qui transforme toute
+preuve existentielle de $A$ en une preuve de $C$, on peut fixer un
+individu arbitraire $x$ et une preuve $u$ de $A(x)$.  La paire
+$\langle x,u\rangle$ fournit alors une preuve de $\exists x.\,A(x)$,
+que l'on donne à $g$.
+
+Le terme correspondant est donc
+\[
+\lambda(g:(\exists x.\,A(x))\Rightarrow C).\;
+\lambda(x:I).\,\lambda(u:A(x)).\;
+g\langle x,u\rangle.
+\]
+
+\thingy
+Donnons un autre exemple, de forme voisine :
+\[
+\bigl(\exists x.\,(A(x)\Rightarrow C)\bigr)
+\Rightarrow
+\bigl((\forall x.\,A(x))\Rightarrow C\bigr).
+\]
+Une preuve existentielle fournit ici un certain individu $x$ et une
+fonction $w$ qui transforme une preuve de $A(x)$ en une preuve de $C$.
+Une preuve universelle $f$ de $\forall x.\,A(x)$ fournit en particulier
+la preuve $fx$ de $A(x)$.  Il suffit alors d'appliquer $w$ à $fx$.
+
+On obtient ainsi le terme
+\[
+\lambda(p:\exists x.\,(A(x)\Rightarrow C)).\;
+\lambda(f:\forall x.\,A(x)).\;
+(\texttt{match~}p\texttt{~with~}\langle x,w\rangle\mapsto w(fx)).
+\]
+
+\thingy
+Enfin, considérons la formule
+\[
+(\forall x.\,A(x))
+\Rightarrow
+(\exists x.\,\top)
+\Rightarrow
+(\exists x.\,A(x)).
+\]
+Elle rappelle qu'une preuve universelle de $\forall x.\,A(x)$ ne permet
+pas, à elle seule, d'obtenir une preuve existentielle : il faut aussi
+disposer d'un individu.  La preuve de $\exists x.\,\top$ fournit
+précisément cet individu.
+
+Le terme correspondant est
+\[
+\lambda(f:\forall x.\,A(x)).\;
+\lambda(p:\exists x.\,\top).\;
+(\texttt{match~}p\texttt{~with~}\langle x,u\rangle\mapsto
+\langle x,fx\rangle).
+\]
+Le composant $u$ de la paire n'est pas utilisé : son seul rôle est
+d'accompagner le témoin $x$ dans la preuve de $\exists x.\,\top$.
+
+\thingy
+À l'inverse, une variable d'individu libre permet de construire
+immédiatement une preuve existentielle.  Dans le contexte contenant
+$z:I$, on a
+\[
+\langle z,\bullet\rangle:\exists x.\,\top.
+\]
+En introduisant universellement la variable $z$, on obtient donc une
+preuve de
+\[
+\forall z.\,\exists x.\,\top,
+\]
+qui peut s'écrire
+\[
+\lambda(z:I).\,\langle z,\bullet\rangle.
+\]
+
+Cette différence est importante.  La formule $\forall z.\,\exists
+x.\,\top$ est démontrable parce que le programme reçoit un individu
+$z$, qu'il peut employer comme témoin.  En revanche, la formule
+$\exists x.\,\top$ ne l'est pas en logique du premier ordre pure :
+aucun individu n'est disponible dans le contexte vide.
+
+\review{La distinction entre les deux dernières formules devra être
+rapprochée de la discussion sur les domaines non habités et vérifiée
+avec les règles complètes de formation des termes d'individus.}
