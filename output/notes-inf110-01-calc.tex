@@ -21,7 +21,7 @@ cherche pas à mesurer précisément le temps ou la mémoire nécessaires à
 un calcul.  Elle autorise des ressources arbitrairement grandes, à
 condition qu'elles restent finies pour chaque calcul qui termine.  Elle
 permet ainsi de démontrer des résultats négatifs de la forme
-«~\emph{aucun} algorithme ne peut résoudre ce problème~».
+« \emph{aucun} algorithme ne peut résoudre ce problème ».
 
 On peut également considérer des notions relatives de calculabilité,
 dans lesquelles un algorithme dispose d'informations supplémentaires
@@ -30,7 +30,7 @@ calculabilité supérieure.  Ces développements ne seront toutefois pas
 au centre de cette partie.
 
 \thingy Quelques noms permettent de situer historiquement le sujet.
-Le mot «~algorithme~» dérive du nom de Muḥammad ibn Mūsá
+Le mot « algorithme » dérive du nom de Muḥammad ibn Mūsá
 al-\b{H}wārizmī (vers 780--vers 850).  Blaise Pascal
 (1623--1662) construisit une machine à calculer, tandis que Charles
 Babbage (1791--1871) conçut son \textit{Analytical Engine}, machine
@@ -59,11 +59,11 @@ algorithme qui, prenant en entrée un élément $x$ du domaine de
 définition de $f$, termine en temps fini et renvoie la valeur $f(x)$.
 
 Cette formulation fait immédiatement apparaître plusieurs difficultés.
-Que faut-il entendre exactement par «~algorithme~»~?  Quelles sortes
-de valeurs un algorithme peut-il accepter ou renvoyer~?  Comment
-décrire les situations dans lesquelles il ne termine pas~?  Enfin, il
+Que faut-il entendre exactement par « algorithme » ?  Quelles sortes
+de valeurs un algorithme peut-il accepter ou renvoyer ?  Comment
+décrire les situations dans lesquelles il ne termine pas ?  Enfin, il
 faut distinguer le programme lui-même, ou son \emph{intention}, de la
-fonction qu'il calcule, ou son \emph{extension}~: plusieurs programmes
+fonction qu'il calcule, ou son \emph{extension} : plusieurs programmes
 différents peuvent calculer exactement la même fonction.
 
 \thingy La calculabilité ne s'intéresse pas à l'efficacité des
@@ -84,7 +84,7 @@ A(m,n+1,k+1) &= A(m,\,A(m,n,k+1),\,k).
 \]
 Cette définition décrit un algorithme par appels récursifs, et ces
 appels terminent.  La fonction est donc calculable.  Ses valeurs
-deviennent néanmoins gigantesques très rapidement~:
+deviennent néanmoins gigantesques très rapidement :
 \[
 A(2,6,3)
  = 2^{2^{2^{2^{2^2}}}}
@@ -104,17 +104,17 @@ instructions précises, en temps fini et sur des données finies.
 
 L'approche pragmatique identifie les fonctions calculables à celles
 que l'on peut programmer dans un langage général dit
-«~Turing-complet~», par exemple Python, Java, C ou OCaml, à condition
+« Turing-complet », par exemple Python, Java, C ou OCaml, à condition
 d'idéaliser ce langage.  On suppose notamment que les entiers n'ont
 aucune limite de taille et que la mémoire disponible n'est pas bornée
 à l'avance.  On écarte également les véritables sources de hasard et
 de non-déterminisme.
 
-Enfin, plusieurs approches formelles ont été proposées~:
+Enfin, plusieurs approches formelles ont été proposées :
 \begin{itemize}
-\item les fonctions générales récursives de Herbrand, Gödel et Kleene~;
-\item le $\lambda$-calcul de Church, proche des langages fonctionnels~;
-\item les machines de Turing~;
+\item les fonctions générales récursives de Herbrand, Gödel et Kleene ;
+\item le $\lambda$-calcul de Church, proche des langages fonctionnels ;
+\item les machines de Turing ;
 \item les machines à registres, notamment étudiées par Post.
 \end{itemize}
 
@@ -123,19 +123,19 @@ formalisations précédentes conduisent à la même classe de fonctions.
 
 \begin{thm}[Post, Turing]\label{church-turing-equivalence}
 Les classes de fonctions partielles
-$\mathbb{N}\dasharrow\mathbb{N}$ suivantes coïncident~:
+$\mathbb{N}\dasharrow\mathbb{N}$ suivantes coïncident :
 \begin{enumerate}
-\item les fonctions générales récursives~;
-\item les fonctions représentables dans le $\lambda$-calcul~;
+\item les fonctions générales récursives ;
+\item les fonctions représentables dans le $\lambda$-calcul ;
 \item les fonctions calculables par une machine de Turing.
 \end{enumerate}
 \end{thm}
 
 On parle donc de \defin{calculabilité au sens de Church-Turing}.
 Tous les langages de programmation généraux usuels, convenablement
-idéalisés, calculent eux aussi exactement ces fonctions~: c'est ce que
+idéalisés, calculent eux aussi exactement ces fonctions : c'est ce que
 signifie, du point de vue de la calculabilité, l'expression
-«~Turing-complet~».
+« Turing-complet ».
 
 Il faut distinguer ce théorème de deux affirmations plus générales.  La
 \defin[Church-Turing (thèse de)]{thèse de Church-Turing}, de nature
@@ -144,7 +144,7 @@ la notion intuitive d'algorithme finitiste.  Une conjecture physique
 plus forte affirme que les calculs réalisables mécaniquement dans
 l'Univers, avec un temps et une énergie finis mais sans borne fixée à
 l'avance, sont précisément ceux de Church-Turing.  Cette conjecture
-reste la même si l'on autorise un ordinateur quantique~: un ordinateur
+reste la même si l'on autorise un ordinateur quantique : un ordinateur
 quantique pourrait apporter des gains de complexité, mais ne devrait
 pas calculer davantage de fonctions au sens considéré ici.
 
@@ -225,7 +225,7 @@ pourvu que les opérations d'encodage et de décodage nécessaires soient
 calculables.
 
 {\footnotesize
-\thingy \emph{Attention~:} ces codages sont des outils théoriques.  Ils
+\thingy \emph{Attention :} ces codages sont des outils théoriques.  Ils
 ne constituent généralement pas de bonnes représentations pour un
 programme réel, en raison notamment de la taille considérable des
 entiers obtenus.
@@ -280,7 +280,7 @@ $f\colon\mathbb{N}^k\dasharrow\mathbb{N}$ est
 qui, pour toute entrée $\underline{x}\in\mathbb{N}^k$,
 \begin{itemize}
 \item termine en temps fini et renvoie $f(\underline{x})$ lorsque
-  $f(\underline{x})\downarrow$~;
+  $f(\underline{x})\downarrow$ ;
 \item ne termine pas lorsque $f(\underline{x})\uparrow$.
 \end{itemize}
 \end{defn}
@@ -309,18 +309,18 @@ Elle est dite \defin[semi-décidable
 est calculable.
 \end{defn}
 
-Ainsi, un algorithme de décision répond toujours «~oui~» ou «~non~».
-Un algorithme de semi-décision répond «~oui~» lorsque l'entrée
+Ainsi, un algorithme de décision répond toujours « oui » ou « non ».
+Un algorithme de semi-décision répond « oui » lorsque l'entrée
 appartient à $A$, mais peut calculer indéfiniment lorsqu'elle n'y
 appartient pas.
 
-\thingy Le mot «~récursif~» possède plusieurs sens apparentés mais
-distincts.  Il peut signifier «~défini par récurrence~», comme dans les
-expressions «~fonction primitive récursive~» et «~fonction générale
-récursive~».  Il est aussi employé comme synonyme historique de
-«~calculable~».  Enfin, en informatique, un appel est dit récursif
+\thingy Le mot « récursif » possède plusieurs sens apparentés mais
+distincts.  Il peut signifier « défini par récurrence », comme dans les
+expressions « fonction primitive récursive » et « fonction générale
+récursive ».  Il est aussi employé comme synonyme historique de
+« calculable ».  Enfin, en informatique, un appel est dit récursif
 lorsqu'une fonction fait appel à elle-même.  Dans la suite, nous
-réserverons autant que possible l'expression «~appel récursif~» à ce
+réserverons autant que possible l'expression « appel récursif » à ce
 dernier sens.
 
 \subsection{Fonctions primitives récursives}
@@ -328,7 +328,7 @@ dernier sens.
 
 \thingy Avant de définir les fonctions générales récursives, qui
 coïncideront avec les fonctions calculables, commençons par une classe
-plus restreinte~: les \defin[primitive récursive
+plus restreinte : les \defin[primitive récursive
 (fonction)]{fonctions primitives récursives}, abrégées en
 \textbf{p.r.}
 
@@ -338,7 +338,7 @@ approximation et correspond informatiquement à des programmes dont
 toutes les boucles sont bornées \textit{a priori}.  Une très grande
 partie des algorithmes usuels définit des fonctions primitives
 récursives, mais ce n'est pas le cas de tous les algorithmes
-terminants~: la fonction d'Ackermann fournira un contre-exemple.
+terminants : la fonction d'Ackermann fournira un contre-exemple.
 
 \begin{defn}\label{primitive-recursive-definition}
 La classe $\mathbf{PR}$ des fonctions primitives récursives est la plus
@@ -355,7 +355,7 @@ les propriétés suivantes.
 \underline{x}\mapsto c.
 \]
 \item Elle contient la fonction successeur $x\mapsto x+1$.
-\item Elle est stable par composition~: si
+\item Elle est stable par composition : si
 \[
 g_1,\ldots,g_\ell\colon\mathbb{N}^k\dasharrow\mathbb{N}
 \quad\text{et}\quad
@@ -367,7 +367,7 @@ sont primitives récursives, alors
 h(g_1(\underline{x}),\ldots,g_\ell(\underline{x}))
 \]
 est primitive récursive.
-\item Elle est stable par \defin{récursion primitive}~: si
+\item Elle est stable par \defin{récursion primitive} : si
 \[
 g\colon\mathbb{N}^k\dasharrow\mathbb{N}
 \quad\text{et}\quad
@@ -388,7 +388,7 @@ est primitive récursive.
 
 Toutes les fonctions primitives récursives sont en fait totales.  La
 notation $\dasharrow$ reste néanmoins commode, notamment lorsque nous
-coderons les programmes~: certains entiers ne coderont aucun programme
+coderons les programmes : certains entiers ne coderont aucun programme
 bien formé et correspondront alors à une fonction non définie.
 
 \thingy L'addition est primitive récursive, car la fonction
@@ -448,15 +448,15 @@ La démonstration détaillée pourra être ajoutée lors de l'intégration
 des feuilles d'exercices.}
 
 \thingy Une autre façon de comprendre la classe $\mathbf{PR}$ consiste
-à employer un langage de programmation idéalisé dans lequel~:
+à employer un langage de programmation idéalisé dans lequel :
 \begin{itemize}
 \item les variables contiennent des entiers naturels de taille
-  arbitraire~;
+  arbitraire ;
 \item les constantes, affectations, tests d'égalité et conditionnelles
-  sont disponibles~;
-\item les opérations arithmétiques élémentaires sont disponibles~;
+  sont disponibles ;
+\item les opérations arithmétiques élémentaires sont disponibles ;
 \item les appels de fonctions sont permis, mais pas les appels
-  récursifs~;
+  récursifs ;
 \item toutes les boucles ont un nombre d'itérations borné
   \textit{a priori}.
 \end{itemize}
@@ -465,7 +465,7 @@ Les fonctions qu'ils calculent sont exactement les fonctions
 primitives récursives.
 
 Les fonctions de codage et de décodage des couples introduites
-en~\ref{godel-coding}, à savoir
+en \ref{godel-coding}, à savoir
 \[
 (m,n)\mapsto\langle m,n\rangle,\qquad
 \langle m,n\rangle\mapsto m,\qquad
@@ -490,8 +490,8 @@ elle-même primitive récursive.  Réciproquement, toute fonction
 primitive récursive est calculable avec une borne primitive récursive
 sur sa complexité.
 
-\review{L'équivalence précise entre «~fonction primitive récursive~»
-et «~fonction de complexité primitive récursive~» dépend du modèle de
+\review{L'équivalence précise entre « fonction primitive récursive »
+et « fonction de complexité primitive récursive » dépend du modèle de
 calcul et des conventions de codage.  La formulation et la preuve
 devront être vérifiées lors de la rédaction de la partie consacrée aux
 machines de Turing.}
@@ -511,7 +511,7 @@ A(2,1,k+1)&=2,\\
 A(2,n+1,k+1)&=A(2,\,A(2,n,k+1),\,k).
 \end{aligned}
 \]
-Cette définition n'est pas une récursion primitive~: dans la dernière
+Cette définition n'est pas une récursion primitive : dans la dernière
 ligne, la valeur de $k$ diminue lors de l'appel extérieur, mais un
 appel imbriqué à $A$ intervient dans le deuxième argument.  Il ne
 s'agit donc pas d'une simple récursion primitive sur une variable.
@@ -552,7 +552,7 @@ Toute fonction primitive récursive
 $f\colon\mathbb{N}^k\to\mathbb{N}$ sera égale à
 $\psi_e^{(k)}$ pour au moins un entier $e$.  Cet entier décrit la
 manière dont $f$ est construite à l'aide des clauses de la
-définition~\ref{primitive-recursive-definition}.  Il n'est pas unique~:
+définition \ref{primitive-recursive-definition}.  Il n'est pas unique :
 une même fonction peut être calculée par de nombreux programmes
 distincts,
 \[
@@ -563,7 +563,7 @@ f=\psi_{e_1}^{(k)}
 L'indice $e$ décrit l'intention, tandis que la fonction $f$ est
 l'extension.
 
-\thingy Avec le codage de listes de~\ref{godel-coding}, on définit
+\thingy Avec le codage de listes de \ref{godel-coding}, on définit
 $\psi_e^{(k)}$ par induction sur la construction primitive récursive.
 \begin{itemize}
 \item Si $e=\dbllangle0,k,i\dblrangle$, alors
@@ -662,12 +662,12 @@ valeurs $x_1,\ldots,x_m$, tandis que les $n$ derniers restent variables.
 
 \thingy L'\defin[Quine (astuce de)]{astuce de Quine} est une technique
 permettant à un programme d'avoir accès à son propre code source.  Son
-idée peut être illustrée par la phrase autoréférente suivante~:
+idée peut être illustrée par la phrase autoréférente suivante :
 
 \begin{center}
 \emph{Les mots suivants suivis des mêmes mots entre guillemets forment
-une phrase intéressante~: «~les mots suivants suivis des mêmes mots
-entre guillemets forment une phrase intéressante~».}
+une phrase intéressante : « les mots suivants suivis des mêmes mots
+entre guillemets forment une phrase intéressante ».}
 \end{center}
 
 La première partie de la phrase sert de modèle et la seconde lui
@@ -827,11 +827,11 @@ La classe $\mathbf{R}$ des \defin[générale récursive
 (fonction)]{fonctions générales récursives}, ou simplement
 \defin[récursive (fonction)]{fonctions récursives}, est la plus petite
 classe de fonctions
-$\mathbb{N}^k\dasharrow\mathbb{N}$, pour $k$ variable, qui~:
+$\mathbb{N}^k\dasharrow\mathbb{N}$, pour $k$ variable, qui :
 \begin{itemize}
-\item contient les projections, les constantes et le successeur~;
-\item est stable par composition~;
-\item est stable par récursion primitive~;
+\item contient les projections, les constantes et le successeur ;
+\item est stable par composition ;
+\item est stable par récursion primitive ;
 \item est stable par l'opérateur $\mu$.
 \end{itemize}
 \end{defn}
@@ -848,7 +848,7 @@ pour l'opérateur $\mu$.  Pour certains entiers $e$, on définit donc
 \]
 Les codes correspondant aux projections, constantes, successeur,
 composition et récursion primitive sont les mêmes que précédemment.
-On ajoute la clause suivante~: si
+On ajoute la clause suivante : si
 \[
 e=\dbllangle5,k,c\dblrangle
 \quad\text{et}\quad
@@ -867,7 +867,7 @@ f=\varphi_e^{(k)}.
 \]
 
 \thingy Contrairement au cas primitif récursif, il existe cette fois
-une fonction récursive universelle~:
+une fonction récursive universelle :
 \[
 (e,\underline{x})\mapsto\varphi_e^{(k)}(\underline{x}).
 \]
@@ -975,7 +975,7 @@ $s:=s_{1,k}$.  La fonction
 \[
 (t,\underline{x})\mapsto h(s(t,t),\underline{x})
 \]
-est récursive~; écrivons-la sous la forme
+est récursive ; écrivons-la sous la forme
 $\varphi_c^{(k+1)}(t,\underline{x})$.  Alors
 \[
 \begin{aligned}
@@ -1003,10 +1003,10 @@ fonction que son transformé par $F$.
 
 \thingy Malgré leur nom, les fonctions générales récursives ne sont pas
 définies directement par des appels récursifs.  Le langage de la
-définition~\ref{general-recursive-definition} ne contient que des
+définition \ref{general-recursive-definition} ne contient que des
 opérations élémentaires, la composition, la récursion primitive et la
 recherche non bornée.  Le théorème de récursion permet néanmoins
-d'implémenter les appels récursifs~: on donne à la fonction en cours de
+d'implémenter les appels récursifs : on donne à la fonction en cours de
 définition accès à son propre indice, puis chaque appel récursif est
 remplacé par un appel à la fonction universelle sur cet indice.
 
@@ -1015,7 +1015,7 @@ remplacé par un appel à la fonction universelle sur cet indice.
 
 \thingy Étant donné un programme d'indice $e$ et une entrée $x$, peut-on
 déterminer algorithmiquement si le calcul
-$\varphi_e^{(1)}(x)$ termine~?  La réponse est négative.
+$\varphi_e^{(1)}(x)$ termine ?  La réponse est négative.
 
 \begin{thm}[Turing]\label{undecidability-halting-problem}
 Il n'existe pas de fonction récursive totale
@@ -1039,7 +1039,7 @@ v(e,x):=
 \uparrow&\text{si $h(e,x)=1$.}
 \end{cases}
 \]
-Cette fonction est récursive~: on calcule $h(e,x)$, puis on renvoie
+Cette fonction est récursive : on calcule $h(e,x)$, puis on renvoie
 $42$ dans le premier cas et on effectue une recherche infinie dans le
 second.
 
@@ -1063,7 +1063,7 @@ v(e):=
 \end{cases}
 \]
 Si $v=\varphi_c^{(1)}$, alors l'étude de $\varphi_c^{(1)}(c)$ conduit
-immédiatement à une contradiction~: elle termine si et seulement si
+immédiatement à une contradiction : elle termine si et seulement si
 elle ne termine pas.
 
 \thingy Les fonctions primitives récursives sont toutes totales, de
@@ -1085,10 +1085,10 @@ un symbole pris dans un alphabet fini.  Une tête de lecture et
 d'écriture se trouve au-dessus d'une unique cellule à chaque instant.
 
 Le programme de la machine indique, en fonction de l'état courant et
-du symbole lu par la tête~:
+du symbole lu par la tête :
 \begin{itemize}
-\item le nouvel état~;
-\item le symbole à écrire dans la cellule courante~;
+\item le nouvel état ;
+\item le symbole à écrire dans la cellule courante ;
 \item la direction dans laquelle déplacer la tête, à gauche ou à
   droite.
 \end{itemize}
@@ -1097,12 +1097,12 @@ d'arrêt.
 
 \begin{defn}\label{definition-turing-machine}
 Une machine de Turing déterministe à une bande, deux symboles et
-$m\geq2$ états est la donnée~:
+$m\geq2$ états est la donnée :
 \begin{itemize}
 \item d'un ensemble fini $Q$ de cardinal $m$, identifié à
-  $\{0,\ldots,m-1\}$~;
+  $\{0,\ldots,m-1\}$ ;
 \item d'un ensemble de symboles de bande
-  $\Sigma=\{0,1\}$~;
+  $\Sigma=\{0,1\}$ ;
 \item d'une fonction
 \[
 \delta\colon
@@ -1116,11 +1116,11 @@ L'état $0$ est l'état d'arrêt.
 \end{defn}
 
 Une \defin{configuration} d'une telle machine est un triplet
-$(q,\beta,i)$, où~:
+$(q,\beta,i)$, où :
 \begin{itemize}
-\item $q\in Q$ est l'état courant~;
+\item $q\in Q$ est l'état courant ;
 \item $\beta\colon\mathbb{Z}\to\Sigma$ est la bande, supposée ne prendre
-  qu'un nombre fini de valeurs différentes de $0$~;
+  qu'un nombre fini de valeurs différentes de $0$ ;
 \item $i\in\mathbb{Z}$ est la position de la tête.
 \end{itemize}
 
@@ -1186,19 +1186,19 @@ f\colon\mathbb{N}^k\dasharrow\mathbb{N}
 \]
 est dite \defin[calculable par machine de Turing]{calculable par
 machine de Turing} lorsqu'il existe une machine qui, sur les entrées
-$x_1,\ldots,x_k$, part d'une configuration initiale dans laquelle~:
+$x_1,\ldots,x_k$, part d'une configuration initiale dans laquelle :
 \begin{itemize}
-\item l'état vaut $1$ et la tête se trouve en position $0$~;
-\item la partie négative du ruban est laissée intacte~;
+\item l'état vaut $1$ et la tête se trouve en position $0$ ;
+\item la partie négative du ruban est laissée intacte ;
 \item la partie positive contient le mot
 \[
 0\,1^{x_1}\,0\,1^{x_2}\,0\cdots0\,1^{x_k}\,0,
 \]
-suivi d'une infinité de $0$~;
+suivi d'une infinité de $0$ ;
 \end{itemize}
-et telle que~:
+et telle que :
 \begin{itemize}
-\item si $f(x_1,\ldots,x_k)\uparrow$, la machine ne s'arrête pas~;
+\item si $f(x_1,\ldots,x_k)\uparrow$, la machine ne s'arrête pas ;
 \item si $f(x_1,\ldots,x_k)\downarrow=y$, elle s'arrête avec la tête en
   position $0$, sans modifier la partie négative du ruban, et avec
   \[
@@ -1225,7 +1225,7 @@ $n$ pour lequel la machine est à l'arrêt, puis une fonction primitive
 récursive décode la sortie.
 
 Réciproquement, on montre par induction sur la
-définition~\ref{general-recursive-definition} que toute fonction
+définition \ref{general-recursive-definition} que toute fonction
 générale récursive est calculable par machine de Turing.  Il faut
 programmer les projections, les constantes et le successeur, puis
 montrer que les fonctions calculables par machine de Turing sont
@@ -1236,15 +1236,15 @@ machines correspondant aux sous-calculs.
 \end{proof}
 
 \review{Les diapositives qualifient la seconde direction de
-«~fastidieuse mais pas difficile~» et n'en donnent pas tous les détails.
+« fastidieuse mais pas difficile » et n'en donnent pas tous les détails.
 La preuve ci-dessus reste donc une esquisse à développer ou à renvoyer
 à un exercice.}
 
-Cette équivalence est constructive~: on peut calculer un code de
+Cette équivalence est constructive : on peut calculer un code de
 machine de Turing à partir d'un indice de fonction récursive, et
 réciproquement.
 
-\thingy De nombreuses variantes de la définition sont possibles~:
+\thingy De nombreuses variantes de la définition sont possibles :
 machines à plusieurs bandes, plusieurs têtes, davantage de symboles ou
 transitions non déterministes.  Du point de vue de la calculabilité,
 ces variantes ne rendent pas le modèle plus puissant, sauf cas
@@ -1267,7 +1267,7 @@ de $C$.
 Si un tel algorithme existait, on pourrait coder $M$ et $C$ par des
 entiers et décider le problème de l'arrêt pour les fonctions
 récursives, en contradiction avec le
-théorème~\ref{undecidability-halting-problem}.
+théorème \ref{undecidability-halting-problem}.
 \end{proof}
 
 Le problème reste indécidable si l'on demande seulement si une machine
@@ -1301,7 +1301,7 @@ le problème de l'arrêt sur bande vierge, ce qui est impossible.
 \end{proof}
 
 La fonction du castor affairé croît donc plus vite que toute fonction
-calculable, au sens suivant~: pour toute fonction calculable totale
+calculable, au sens suivant : pour toute fonction calculable totale
 $f\colon\mathbb{N}\to\mathbb{N}$, il existe $m_0$ tel que
 \[
 B(m)>f(m)
@@ -1321,15 +1321,15 @@ est calculable si et seulement si elle est générale récursive, si et
 seulement si elle est calculable par machine de Turing.  Nous
 emploierons librement ces différentes descriptions.
 
-On rencontre aussi les synonymes suivants~:
+On rencontre aussi les synonymes suivants :
 \begin{itemize}
 \item une fonction partielle calculable est parfois dite
-  «~semi-calculable~» ou «~générale récursive~»~;
-\item un ensemble décidable est parfois dit «~calculable~» ou
-  «~récursif~»~;
+  « semi-calculable » ou « générale récursive » ;
+\item un ensemble décidable est parfois dit « calculable » ou
+  « récursif » ;
 \item un ensemble semi-décidable est parfois dit
-  «~semi-calculable~», «~calculablement énumérable~» ou
-  «~récursivement énumérable~».
+  « semi-calculable », « calculablement énumérable » ou
+  « récursivement énumérable ».
 \end{itemize}
 
 \begin{prop}\label{decidable-iff-semidecidable-and-complement}
@@ -1344,8 +1344,8 @@ sont tous deux semi-décidables.
 \begin{proof}
 Si $A$ est décidable, son complémentaire est décidable en échangeant
 les réponses $0$ et $1$.  De plus, tout ensemble décidable est
-semi-décidable~: il suffit d'exécuter son algorithme de décision et de
-boucler indéfiniment lorsque celui-ci répond «~non~».
+semi-décidable : il suffit d'exécuter son algorithme de décision et de
+boucler indéfiniment lorsque celui-ci répond « non ».
 
 Réciproquement, supposons que $A$ et $\complement A$ soient
 semi-décidables.  Soient $e_1$ et $e_2$ des indices tels que
@@ -1362,11 +1362,11 @@ et
 \]
 On exécute les deux calculs en parallèle, en alternant leurs étapes.
 Exactement l'un des deux finit par terminer.  S'il s'agit du premier,
-on répond «~oui~»~; s'il s'agit du second, on répond «~non~».
+on répond « oui » ; s'il s'agit du second, on répond « non ».
 L'algorithme ainsi obtenu termine sur toute entrée et décide $A$.
 \end{proof}
 
-Le «~lancement en parallèle~» ne nécessite aucun véritable parallélisme.
+Le « lancement en parallèle » ne nécessite aucun véritable parallélisme.
 On peut simuler successivement une étape du premier programme, puis une
 étape du second, et recommencer jusqu'à ce que l'un d'eux s'arrête.
 
@@ -1378,11 +1378,11 @@ l'ensemble
            \varphi_e^{(1)}(x)\downarrow\}.
 \]
 Il n'est pas décidable, d'après le
-théorème~\ref{undecidability-halting-problem}.  Il est en revanche
-semi-décidable~: sur l'entrée $(e,x)$, il suffit d'exécuter
-$\varphi_e^{(1)}(x)$ et de répondre «~oui~» si le calcul termine.
+théorème \ref{undecidability-halting-problem}.  Il est en revanche
+semi-décidable : sur l'entrée $(e,x)$, il suffit d'exécuter
+$\varphi_e^{(1)}(x)$ et de répondre « oui » si le calcul termine.
 
-La proposition~\ref{decidable-iff-semidecidable-and-complement} montre
+La proposition \ref{decidable-iff-semidecidable-and-complement} montre
 donc que son complémentaire $\complement\mathscr{H}$ n'est pas
 semi-décidable.  Il est possible de reconnaître en temps fini un
 calcul qui termine, en observant effectivement sa terminaison, mais il
@@ -1399,19 +1399,19 @@ est semi-décidable.
 En effet, pour semi-décider si $m\in f(A)$, on parcourt
 $i=0,1,2,\ldots$.  Pour chaque $i$, on décide si $i\in A$ et, si c'est
 le cas, on calcule $f(i)$.  Si $f(i)=m$, on termine en répondant
-«~oui~»~; sinon, on poursuit la recherche.
+« oui » ; sinon, on poursuit la recherche.
 
 Réciproquement, tout ensemble semi-décidable $B\subseteq\mathbb{N}$
 peut être obtenu comme image d'un ensemble décidable par une fonction
 totale calculable.
 
-Une autre formulation, lorsque $B$ est non vide, est la suivante~:
+Une autre formulation, lorsque $B$ est non vide, est la suivante :
 $B$ est semi-décidable si et seulement s'il existe une fonction totale
 calculable $f\colon\mathbb{N}\to\mathbb{N}$ telle que
 \[
 f(\mathbb{N})=B.
 \]
-C'est ce qui justifie la terminologie «~calculablement énumérable~».
+C'est ce qui justifie la terminologie « calculablement énumérable ».
 
 \thingy Les ensembles décidables sont stables par réunions finies,
 intersections finies et complémentaire.  Ils ne sont cependant pas
@@ -1453,7 +1453,7 @@ F=\mathbf{R}^{(1)}.
 
 Autrement dit, aucune propriété non triviale de la fonction calculée
 par un programme n'est décidable en examinant le programme.  Par
-exemple, aucun des ensembles suivants n'est décidable~:
+exemple, aucun des ensembles suivants n'est décidable :
 \[
 \{e:\varphi_e(0)\downarrow\},
 \]
@@ -1572,7 +1572,7 @@ lorsqu'il existe un algorithme qui décide $A$ et qui peut, au cours de
 son calcul, demander si un entier $n$ appartient à $B$.  Cette notion
 est appelée \defin[Turing (réduction de)]{réduction de Turing}.
 
-La réduction de Turing est plus faible que la réduction many-to-one~:
+La réduction de Turing est plus faible que la réduction many-to-one :
 une réduction many-to-one ne pose qu'une question à l'oracle, à la fin
 du calcul.  Une réduction de Turing peut en poser un nombre arbitraire,
 mais fini, et choisir chaque nouvelle question en fonction des réponses
@@ -1605,11 +1605,11 @@ Ces expressions, appelées \defin[$\lambda$-terme]{$\lambda$-termes},
 représentent intuitivement des fonctions prenant d'autres fonctions en
 entrée et renvoyant des fonctions.
 
-Les deux constructions fondamentales sont~:
+Les deux constructions fondamentales sont :
 \begin{itemize}
 \item l'\defin[application ($\lambda$-calcul)]{application} $(PQ)$,
   qui consiste à appliquer la fonction représentée par $P$ à
-  l'argument représenté par $Q$~;
+  l'argument représenté par $Q$ ;
 \item l'\defin[abstraction ($\lambda$-calcul)]{abstraction}
   $\lambda v.E$, qui représente la fonction associant à un argument
   la valeur obtenue en remplaçant $v$ par cet argument dans $E$.
@@ -1617,10 +1617,10 @@ Les deux constructions fondamentales sont~:
 
 \begin{defn}\label{definition-lambda-terms}
 Un terme du $\lambda$-calcul est défini inductivement de la manière
-suivante~:
+suivante :
 \begin{itemize}
-\item toute variable est un terme~;
-\item si $P$ et $Q$ sont des termes, alors $(PQ)$ est un terme~;
+\item toute variable est un terme ;
+\item si $P$ et $Q$ sont des termes, alors $(PQ)$ est un terme ;
 \item si $v$ est une variable et $E$ un terme, alors $\lambda v.E$ est
   un terme.
 \end{itemize}
@@ -1631,7 +1631,7 @@ $\lambda$ s'applique sont dites \defin[liée
 \defin[clos ($\lambda$-terme)]{clos}.
 \end{defn}
 
-Par convention, l'application est parenthésée vers la gauche~:
+Par convention, l'application est parenthésée vers la gauche :
 \[
 xyz:=((xy)z).
 \]
@@ -1640,7 +1640,7 @@ On abrège
 \lambda u.\lambda v.E
 \]
 en $\lambda uv.E$.  Enfin, l'abstraction est moins prioritaire que
-l'application~:
+l'application :
 \[
 \lambda x.xy
 \]
@@ -1661,7 +1661,7 @@ nom, une occurrence est liée par le $\lambda$ le plus intérieur
 approprié.
 
 Une façon de supprimer complètement les noms de variables liées
-consiste à utiliser les indices de De Bruijn~: chaque occurrence liée
+consiste à utiliser les indices de De Bruijn : chaque occurrence liée
 est remplacée par la distance qui la sépare de l'abstraction qui la
 lie.  Deux termes sont alors $\alpha$-équivalents si et seulement si
 leurs écritures à l'aide de ces indices sont identiques.
@@ -1791,7 +1791,7 @@ f\colon\mathbb{N}^k\dasharrow\mathbb{N}
 \]
 est \defin[représentable dans le $\lambda$-calcul]{représentable par un
 $\lambda$-terme} lorsqu'il existe un terme clos $t$ tel que, pour tous
-$x_1,\ldots,x_k\in\mathbb{N}$~:
+$x_1,\ldots,x_k\in\mathbb{N}$ :
 \begin{itemize}
 \item si $f(x_1,\ldots,x_k)\downarrow=y$, alors
 \[
@@ -1942,7 +1942,7 @@ non typé.
 \end{thm}
 
 \begin{proof}
-Toute fonction générale récursive est représentable~: les fonctions
+Toute fonction générale récursive est représentable : les fonctions
 initiales et la composition sont directement représentables, la
 récursion primitive l'est à l'aide du codage des couples, et la
 minimisation l'est à l'aide d'un combinateur de point fixe.
@@ -1954,7 +1954,7 @@ d'un entier de Church dans cette forme normale est elle aussi
 effective.  La fonction représentée est donc générale récursive.
 \end{proof}
 
-Cette équivalence est constructive~: on peut traduire
+Cette équivalence est constructive : on peut traduire
 algorithmiquement un indice de fonction récursive en un
 $\lambda$-terme qui la représente, et réciproquement.
 
@@ -1965,16 +1965,16 @@ calculables.  Pour une fonction partielle
 \[
 f\colon\mathbb{N}^k\dasharrow\mathbb{N},
 \]
-les propriétés suivantes sont équivalentes~:
+les propriétés suivantes sont équivalentes :
 \begin{enumerate}
-\item $f$ est générale récursive~;
-\item $f$ est représentable dans le $\lambda$-calcul non typé~;
+\item $f$ est générale récursive ;
+\item $f$ est représentable dans le $\lambda$-calcul non typé ;
 \item $f$ est calculable par une machine de Turing.
 \end{enumerate}
 Ces fonctions sont les \defin{fonctions calculables} au sens de
 Church-Turing.
 
-Les équivalences sont constructives~: elles fournissent des traductions
+Les équivalences sont constructives : elles fournissent des traductions
 algorithmiques entre les différentes représentations.  On peut les
 comprendre comme des compilateurs transformant un programme écrit dans
 un modèle en un programme équivalent écrit dans un autre.
@@ -1991,7 +1991,7 @@ ce programme.
 \defin[Turing-complet (langage)]{Turing-complet} lorsque, après une
 idéalisation convenable, il permet de calculer exactement les fonctions
 calculables au sens de Church-Turing.  Les langages généralistes usuels
-sont Turing-complets~: Python, Java, JavaScript, C, C++, OCaml, Haskell,
+sont Turing-complets : Python, Java, JavaScript, C, C++, OCaml, Haskell,
 Lisp, Perl, Ruby, Smalltalk ou Prolog, par exemple.
 
 Certains langages ou systèmes le sont plus ou moins accidentellement,
@@ -2032,10 +2032,10 @@ termine théoriquement, mais dont le temps d'exécution ou le résultat
 dépasse toute grandeur utilisable en pratique.
 
 La calculabilité distingue ainsi deux questions radicalement
-différentes~:
+différentes :
 \begin{itemize}
-\item un calcul peut-il être effectué par un algorithme~?
+\item un calcul peut-il être effectué par un algorithme ?
 \item s'il le peut, peut-il être effectué avec des ressources
-  raisonnables~?
+  raisonnables ?
 \end{itemize}
-La première relève de la calculabilité~; la seconde, de la complexité.
+La première relève de la calculabilité ; la seconde, de la complexité.
