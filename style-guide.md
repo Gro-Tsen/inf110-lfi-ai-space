@@ -575,7 +575,7 @@ Les modèles contiennent à la fois des espaces insécables Unicode et des espac
 \DeclareUnicodeCharacter{00A0}{~}
 ```
 
-Pour les nouvelles rédactions, employer de préférence `~` dans le code source lorsque cela rend la convention plus visible et plus robuste.
+Pour les nouvelles rédactions, employer de préférence le caractère Unicode U+00A0 NO-BREAK SPACE dans le code source.
 
 Exemples de formes à privilégier :
 
