@@ -1,0 +1,46 @@
+Analyse les fichiers de modeles/ et rédige un guide de style précis
+pour la rédaction des notes de cours.  Ce guide de style sera fourni à
+d'autres passes du modèle et doit servir à unifier les conventions
+d'écriture.  Mon but est d'obtenir une sortie semblable à ce que
+j'écris moi-même naturellement (i.e., les fichiers modèles fournis) et
+ne pas perdre du temps à trop reformater à mon goût.
+
+Le guide peut couvrir notamment :
+
+- la structure des chapitres et sections ;
+
+- les conventions de titres ;
+
+- la manière d'introduire et d'énoncer les définitions, théorèmes,
+  lemmes, propositions, corollaires et exemples ;
+
+- le style des preuves ;
+
+- les conventions d'index et de références croisées ;
+
+- les espaces insécables et la ponctuation française ;
+
+- les conventions concernant les formules affichées (p.ex., pas de
+  ponctuation à la fin) ;
+
+- la longueur et le retour à la ligne des paragraphes (p.ex., je
+  reformate mes lignes à ~70 caractères) ;
+
+- les commandes LaTeX utilisées ;
+
+- la manière de signaler les points à vérifier ;
+
+- les formulations récurrentes.
+
+De façon générale, mets dans le guide de style tout ce qui te semble
+pertinent pour guider une IA vers la production d'un style semblable à
+ce que j'ai fourni dans les fichiers modèles.  (Pour les notations
+mathématiques, elles peuvent venir soit des fichiers modèles soit des
+slides source, avec priorité à ces dernières.)
+
+Ne propose pas encore de nouveau contenu LaTeX.  Cite des exemples
+concrets tirés des fichiers de modeles/ et indique toute règle que tu
+ne peux pas déterminer avec certitude.
+
+En cas de conflit entre le style des deux fichiers du répertoire
+modeles/ le style de notes-mitro206.tex (plus récent) doit l'emporter.
