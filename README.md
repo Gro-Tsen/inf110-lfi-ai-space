@@ -13,6 +13,14 @@ placés dans exercices/ sont à recopier verbatim, sauf modification
 strictement nécessaire pour permettre la compilation ou l'intégration
 au document d'ensemble.
 
+Le fichier style-guide.md contient le guide de style à suivre généré
+par IA à partir de l'analyse des fichiers de modèle (légèrement édité
+par humain).
+
+Les prompts des différentes passes déjà effectuées sont dans le
+répertoire prompt/ et sont uniquement là à fin de conserver une trace
+du workflow.
+
 == Instructions générales pour l'IA ==
 
 Tu m'assistes dans la transformation des fichiers LaTeX de slides en

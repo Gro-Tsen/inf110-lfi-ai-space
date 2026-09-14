@@ -849,12 +849,6 @@ Les modèles ne fournissent pas de macro explicite `\review{...}` ou équivalent
 
 Pour les futures notes produites avec l’aide d’une IA, il est recommandé d’utiliser une annotation clairement identifiable, par exemple `\review{...}`, si cette commande est ajoutée au préambule du document.
 
-À défaut, employer une formulation visiblement marquée :
-
-- `\emph{À vérifier : ...}`
-- `\textbf{Point à vérifier : ...}`
-- `\emph{Remarque éditoriale : ...}`
-
 Ces annotations doivent être réservées aux cas où :
 
 - la notation des slides est ambiguë ;
@@ -972,7 +966,7 @@ Les modèles utilisent les deux styles, sans règle entièrement explicite. Le c
 
 ### 22.3. Ponctuation des formules affichées
 
-La tendance générale est de ne pas ajouter de ponctuation après `\]`, mais les modèles ne permettent pas d’en faire une règle absolue dans tous les contextes grammaticaux. Il faut traiter la formule comme faisant partie de la phrase lorsqu’une ponctuation est syntaxiquement nécessaire.
+La tendance générale est de ne pas ajouter de ponctuation après `\]`, mais les modèles ne permettent pas d’en faire une règle absolue dans tous les contextes grammaticaux.
 
 ### 22.4. Forme exacte des annotations de vérification
 
