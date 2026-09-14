@@ -1,0 +1,30 @@
+Rédige une première version des notes correspondant au contenu de
+slides/transp-inf110-01-calc.tex (partie I : Calculabilité)
+
+Utilise modeles/ et style-guide.md pour le style et la typographie.
+Utilise uniquement les diapositives comme source principale du contenu.
+
+Contraintes :
+
+- conserve l'ordre des sections et des idées ;
+
+- conserve la notation des diapositives ;
+
+- développe les définitions et les explications implicites ;
+
+- transforme les énoncés télégraphiques en texte pédagogique ;
+
+- rédige les preuves lorsque les diapositives les indiquent ou les
+  rendent naturelles ;
+
+- n'ajoute pas de développement substantiel absent des diapositives ;
+
+- signale en rouge ou avec \review{...} toute décision éditoriale,
+  lacune, preuve à vérifier ou affirmation ajoutée ;
+
+- produis uniquement le contenu LaTeX du chapitre, sans commentaire
+  extérieur ;
+
+- ne recopie pas encore les exercices, mais tu peux ajouter des
+  références nécessaires vers des exercices qui semblent intéressants
+  à signaler.
