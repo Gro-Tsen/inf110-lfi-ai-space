@@ -44,6 +44,34 @@
 \newtheorem{scho}[comcnt]{Scholie}
 \newtheorem{algo}[comcnt]{Algorithme}
 \renewcommand{\qedsymbol}{\smiley}
+% Poor man's chapter commands:
+% Chapitres dans la classe article.
+\newcounter{chapter}
+\makeatletter
+\newcommand*\l@chapter[2]{%
+  \addpenalty{-\@highpenalty}%
+  \addvspace{1.0em plus\p@}%
+  \setlength\@tempdima{3em}%
+  \begingroup
+    \parindent\z@ \rightskip\@pnumwidth
+    \parfillskip-\@pnumwidth
+    \leavevmode\bfseries
+    \advance\leftskip\@tempdima
+    \hskip-\leftskip
+    #1\nobreak\hfil\nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+  \endgroup
+}
+\makeatother
+\newcommand{\chapter}[1]{%
+  \par\bigskip
+  \refstepcounter{chapter}%
+  \addcontentsline{toc}{chapter}{\Roman{chapter}.~#1}%
+  \begin{center}
+    \Large\bfseries
+    \Roman{chapter}.~#1\par
+  \end{center}
+  \medskip
+}
 %
 \newcommand{\review}[1]{\textcolor{red}{#1}}
 %

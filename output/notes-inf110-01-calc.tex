@@ -1,4 +1,4 @@
-\section{Calculabilité}\label{section-computability}
+\chapter{Calculabilité}\label{chapter-computability}
 
 \begin{center}
 \textcolor{red}{\textbf{Premier brouillon produit avec l'aide d'un
@@ -6,7 +6,11 @@ modèle d'IA.  Ce texte doit impérativement être relu, corrigé et
 vérifié par l'enseignant avant toute diffusion.}}
 \end{center}
 
+\section{Introduction à la calculabilité}
+
 \subsection{Introduction}\label{subsection-computability-introduction}
+
+\subsection{Calculabilité, algorithmes et thèse de Church--Turing}
 
 \thingy La \defin{calculabilité} se situe à l'interface entre la logique
 mathématique et l'informatique théorique.  Elle est née de
@@ -322,6 +326,8 @@ récursive ».  Il est aussi employé comme synonyme historique de
 lorsqu'une fonction fait appel à elle-même.  Dans la suite, nous
 réserverons autant que possible l'expression « appel récursif » à ce
 dernier sens.
+
+\section{Fonctions récursives et manipulation de programmes}
 
 \subsection{Fonctions primitives récursives}
 \label{subsection-primitive-recursive-functions}
@@ -1074,8 +1080,10 @@ d'une fonction universelle, mais leur problème de l'arrêt est
 indécidable.  L'universalité est précisément ce qui permet de
 construire l'argument diagonal.
 
-\subsection{Machines de Turing}
-\label{subsection-turing-machines}
+\section{Machines de Turing}
+\label{section-turing-machines}
+
+\subsection{Définition et fonctionnement des machines de Turing}
 
 \thingy Une \defin[Turing (machine de)]{machine de Turing} est une
 modélisation d'un ordinateur extrêmement simple.  Elle possède un état
@@ -1178,6 +1186,8 @@ si la machine s'arrête, et qui est non définie sinon, est générale
 récursive.  En effet, on peut rechercher sans borne le premier entier
 $n$ tel que $C^{(n)}$ soit une configuration d'arrêt.
 
+\subsection{Calcul par machine de Turing et simulation}
+
 \thingy Pour définir précisément les fonctions calculées par les
 machines de Turing, fixons une convention d'entrée et de sortie.  Une
 fonction
@@ -1257,6 +1267,8 @@ simuler l'exécution de $M$ sur $C$.  Elle s'arrête si et seulement si
 $M$ s'arrête.  Cette propriété est la traduction, pour les machines de
 Turing, de l'existence d'une fonction récursive universelle.
 
+\subsection{Machines de Turing et indécidabilité}
+
 \begin{thm}\label{halting-problem-turing-machines}
 Il n'existe pas d'algorithme qui, prenant en entrée une machine de
 Turing $M$ et une configuration $C$, décide si $M$ s'arrête à partir
@@ -1312,6 +1324,8 @@ pour tout $m\geq m_0$.
 l'aide d'une famille de machines dont le nombre d'états est contrôlé.
 La formulation uniforme et les détails de codage devront être
 vérifiés.}
+
+\section{Décidabilité, semi-décidabilité et réductions}
 
 \subsection{Décidabilité et semi-décidabilité}
 \label{subsection-decidability-semidecidability}
@@ -1517,7 +1531,7 @@ b(e,x)\in\Phi^{-1}(F)
 Si $\Phi^{-1}(F)$ était décidable, le problème de l'arrêt le serait
 aussi, ce qui est impossible.
 
-\subsection{Réductions}
+\subsection{Réductions et problèmes indécidables}
 \label{subsection-reductions}
 
 \thingy Pour montrer qu'un problème $A$ est indécidable, on cherche
@@ -1587,8 +1601,10 @@ Si $A\leq_{\mathrm T}B$ et si $B$ est décidable, alors $A$ est
 décidable.  Il s'ensuit que si $\mathscr{H}\leq_{\mathrm T}D$, alors
 $D$ est indécidable.
 
-\subsection{Le $\lambda$-calcul non typé}
-\label{subsection-untyped-lambda-calculus}
+\section{Le \texorpdfstring{$\lambda$}{lambda}-calcul non typé}
+\label{section-untyped-lambda-calculus}
+
+\subsection{Syntaxe, variables et substitution}
 
 \thingy Le \defin[$\lambda$-calcul]{$\lambda$-calcul non typé}
 manipule des expressions telles que
@@ -1727,6 +1743,8 @@ T'_2\twoheadrightarrow T''.
 En particulier, si $T'_1$ et $T'_2$ sont en forme normale, ils sont
 $\alpha$-équivalents.  La forme normale, lorsqu'elle existe, est donc
 unique à $\alpha$-conversion près.
+
+\subsection{Réduction et stratégies d'évaluation}
 
 \thingy Pour éviter d'avoir à démontrer ici le théorème de
 Church--Rosser, on choisit une stratégie déterministe de réduction.  Le
@@ -1958,7 +1976,7 @@ Cette équivalence est constructive : on peut traduire
 algorithmiquement un indice de fonction récursive en un
 $\lambda$-terme qui la représente, et réciproquement.
 
-\subsection{Conclusion}\label{subsection-computability-conclusion}
+\section{Conclusion}\label{section-computability-conclusion}
 
 \thingy Nous avons obtenu trois descriptions équivalentes des fonctions
 calculables.  Pour une fonction partielle
